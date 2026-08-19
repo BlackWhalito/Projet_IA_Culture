@@ -7,7 +7,7 @@
 export interface MapZone {
   id: string
   label: string
-  kind: 'ville' | 'fleuve' | 'pays-voisin'
+  kind: 'ville' | 'fleuve' | 'pays-voisin' | 'pays' | 'continent'
   cx?: number
   cy?: number
   d?: string

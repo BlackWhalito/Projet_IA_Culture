@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { ALL_NOTIONS, getNotionById } from './notions'
 import { CP_LEVELS } from './levels/cp-levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
+import { EUROPE_ZONES_BY_ID } from './maps/europe'
+import type { MapZone } from '../types/maps'
+
+const ATLAS: Record<string, Record<string, MapZone>> = {
+  france: FRANCE_ZONES_BY_ID,
+  europe: EUROPE_ZONES_BY_ID,
+}
 
 /**
  * Garde-fous sur le contenu, pas sur le moteur (déjà testé dans `src/engine/`). Ces
@@ -35,9 +42,10 @@ describe('intégrité du contenu', () => {
     for (const notion of ALL_NOTIONS) {
       const mapclick = notion.games.mapclick
       if (!mapclick) continue
-      expect(mapclick.carteId, `${notion.id} : carte non prise en charge`).toBe('france')
+      const zones = ATLAS[mapclick.carteId]
+      expect(zones, `${notion.id} : carte non prise en charge par ce test ("${mapclick.carteId}")`).toBeDefined()
       for (const cibleId of mapclick.cibles) {
-        expect(FRANCE_ZONES_BY_ID[cibleId], `${notion.id} : cible "${cibleId}" absente de la carte`).toBeDefined()
+        expect(zones[cibleId], `${notion.id} : cible "${cibleId}" absente de la carte "${mapclick.carteId}"`).toBeDefined()
       }
     }
   })

@@ -24,6 +24,11 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['5', '3', '7'],
         correctIndex: 0,
       },
+      mapclick: {
+        carteId: 'europe',
+        cibles: ['europe', 'afrique', 'asie', 'amerique', 'oceanie'],
+        secondesParCible: 6,
+      },
     },
   },
   {

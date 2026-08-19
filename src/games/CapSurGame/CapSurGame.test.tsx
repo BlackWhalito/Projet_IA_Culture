@@ -42,6 +42,20 @@ describe('CapSurGame', () => {
     expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number), mistakes: 1 })
   })
 
+  it('joue aussi sur la carte d\'Europe', () => {
+    const onComplete = vi.fn()
+    const contenuEurope: MapClickContent = {
+      carteId: 'europe',
+      cibles: ['europe', 'afrique', 'asie'],
+      secondesParCible: 6,
+    }
+    render(<CapSurGame content={contenuEurope} onComplete={onComplete} />)
+
+    const premiere = villeDemandee()
+    fireEvent.click(screen.getByRole('button', { name: premiere }))
+    expect(screen.getByText(`Juste ! C'est bien ${premiere}.`)).toBeInTheDocument()
+  })
+
   it('révèle la cible manquée quand le temps expire', () => {
     vi.useFakeTimers()
     const onComplete = vi.fn()

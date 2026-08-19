@@ -5,7 +5,9 @@ import type { GameCompleteResult } from '../gameTypes'
 import { elapsedSince } from '../../engine/timing'
 import { shuffle } from '../../engine/shuffle'
 import { FranceMap } from '../../components/maps/FranceMap'
+import { EuropeMap } from '../../components/maps/EuropeMap'
 import { FRANCE_ZONES_BY_ID } from '../../content/maps/france'
+import { EUROPE_ZONES_BY_ID } from '../../content/maps/europe'
 import styles from './CapSurGame.module.css'
 
 interface CapSurGameProps {
@@ -23,6 +25,7 @@ interface Feedback {
 
 function zonesPourCarte(carteId: MapClickContent['carteId']) {
   if (carteId === 'france') return FRANCE_ZONES_BY_ID
+  if (carteId === 'europe') return EUROPE_ZONES_BY_ID
   throw new Error(`Carte pas encore disponible pour Cap sur : ${carteId}`)
 }
 
@@ -100,12 +103,21 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
       </div>
 
       <div className={styles.carteZone}>
-        <FranceMap
-          onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
-          showAllLabels={false}
-          revealedZoneIds={revealedIds}
-          activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}
-        />
+        {content.carteId === 'europe' ? (
+          <EuropeMap
+            onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            showAllLabels={false}
+            revealedZoneIds={revealedIds}
+            activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}
+          />
+        ) : (
+          <FranceMap
+            onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            showAllLabels={false}
+            revealedZoneIds={revealedIds}
+            activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}
+          />
+        )}
         {phase === 'jeu' && (
           <div
             key={index}
