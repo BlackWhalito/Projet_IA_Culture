@@ -20,6 +20,10 @@ npm run test
 
 Puis **dans le navigateur**, parce que le compilateur ne voit pas un jeu injouable : joue réellement ce que tu as changé, avec une bonne réponse **et** une mauvaise.
 
+### Si le navigateur n'est pas disponible
+
+Certaines sessions (cloud, sans outil de preview) n'ont pas accès au navigateur. Ne fabrique jamais un « testé dans le navigateur » que tu n'as pas fait. Le substitut le plus proche : un test de composant (`@testing-library/react`) qui **rejoue le vrai parcours utilisateur** — clics via `fireEvent`, clavier, timers avec `vi.useFakeTimers()` + `act()` — jusqu'au bout (une bonne réponse **et** une mauvaise, comme dans le navigateur), plutôt qu'un test qui isole juste la logique pure. Vu cette nuit sur `FilDesJoursGame`, `FranceMap`, `CapSurGame` : ça détecte de vrais bugs (ex. `window.matchMedia` absent de jsdom) que `tsc`/lint ne voient pas. Dans le rapport final, dis explicitement que c'est ce qui a remplacé le navigateur — ce n'est pas équivalent à un humain qui clique, notamment pour le rendu visuel réel (aquarelle, mise en page, tailles tactiles).
+
 ## Relire son diff en étranger
 
 Relis le changement comme si un inconnu l'avait écrit et que tu devais l'approuver. Cherche : du code mort laissé derrière, un cas limite non traité, un nom trompeur, une valeur en dur qui aurait dû être une variable, une trace de débogage oubliée.
