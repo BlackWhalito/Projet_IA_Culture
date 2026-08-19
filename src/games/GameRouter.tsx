@@ -3,7 +3,6 @@ import type { GameCompleteResult } from './gameTypes'
 import { QcmGame } from './QcmGame/QcmGame'
 import { MatchGame } from './MatchGame/MatchGame'
 import { TimelineGame } from './TimelineGame/TimelineGame'
-import { SortGame } from './SortGame/SortGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
 import { CapSurGame } from './CapSurGame/CapSurGame'
@@ -21,8 +20,6 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <MatchGame content={selected.content} onComplete={onComplete} />
     case 'timeline':
       return <TimelineGame content={selected.content} onComplete={onComplete} />
-    case 'sort':
-      return <SortGame content={selected.content} onComplete={onComplete} />
     case 'riviere':
       return <RiviereGame content={selected.content} onComplete={onComplete} />
     case 'incarnation':

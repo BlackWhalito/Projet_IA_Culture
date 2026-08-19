@@ -14,11 +14,6 @@ export interface TimelineContent {
   events: { label: string; sortValue: number; image?: string }[]
 }
 
-export interface SortContent {
-  categories: { id: string; label: string }[]
-  items: { label: string; categoryId: string }[]
-}
-
 export interface RiviereContent {
   paniers: { id: string; label: string }[]
   flottants: { label: string; panierId: string }[]

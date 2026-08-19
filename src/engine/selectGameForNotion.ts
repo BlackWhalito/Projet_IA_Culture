@@ -4,7 +4,6 @@ import type {
   MatchContent,
   QcmContent,
   RiviereContent,
-  SortContent,
   TimelineContent,
 } from '../types/game'
 import type { GameTypeId, Notion } from '../types/content'
@@ -13,7 +12,6 @@ export type SelectedGame =
   | { gameType: 'qcm'; content: QcmContent }
   | { gameType: 'match'; content: MatchContent }
   | { gameType: 'timeline'; content: TimelineContent }
-  | { gameType: 'sort'; content: SortContent }
   | { gameType: 'mapclick'; content: MapClickContent }
   | { gameType: 'riviere'; content: RiviereContent }
   | { gameType: 'incarnation'; content: IncarnationContent }

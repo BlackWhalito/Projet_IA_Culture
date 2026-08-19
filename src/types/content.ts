@@ -4,7 +4,6 @@ import type {
   MatchContent,
   QcmContent,
   RiviereContent,
-  SortContent,
   TimelineContent,
 } from './game'
 
@@ -34,7 +33,6 @@ export interface NotionGames {
   qcm?: QcmContent
   match?: MatchContent
   timeline?: TimelineContent
-  sort?: SortContent
   mapclick?: MapClickContent
   riviere?: RiviereContent
   incarnation?: IncarnationContent
