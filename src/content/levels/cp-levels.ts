@@ -75,7 +75,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-geographie-points-cardinaux', gameType: 'qcm' },
       { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
       { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
-      { notionId: 'cp-histoire-christophe-colomb', gameType: 'qcm' },
+      { notionId: 'cp-histoire-christophe-colomb', gameType: 'incarnation' },
       { notionId: 'cp-geographie-pays-voisins', gameType: 'qcm' },
     ],
   },
