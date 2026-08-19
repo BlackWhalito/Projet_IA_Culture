@@ -70,6 +70,30 @@ Cas voisin : `useRef(Date.now())` est un vrai appel impur au rendu, celui-là es
 
 Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'événements native), c'est le moyen le plus rapide de traverser plusieurs écrans — tant que le script reste court.
 
+## `window.matchMedia` absent en test
+
+**Symptôme.** Un composant qui lit `prefers-reduced-motion` au montage (`window.matchMedia(...)` dans un `useState(() => ...)`, voir la skill `aquarelle`) fait planter tout test qui le rend : `TypeError: window.matchMedia is not a function`.
+
+**Cause.** jsdom (l'environnement de test de vitest) n'implémente pas `matchMedia`.
+
+**Contournement.** Un polyfill minimal est posé une fois pour toutes dans `src/test/setup.ts` — rien à faire dans les composants ni dans chaque fichier de test. Si un test touche encore cette erreur, c'est que `src/test/setup.ts` n'a pas été rechargé ou a été modifié par erreur.
+
+## Switch exhaustif sur une union discriminée + `default` qui référence la valeur
+
+**Symptôme.** `tsc` échoue avec `Property 'x' does not exist on type 'never'` sur un `default:` qui lisait une propriété de la variable discriminante (ex. `` `pas implémenté : ${selected.gameType}` ``), après avoir ajouté le dernier `case` manquant.
+
+**Cause.** Une fois tous les cas couverts, TypeScript réduit le type restant à `never` dans le `default` — un `default` qui accède encore à une propriété de cette valeur ne compile plus, alors que le code semblait n'avoir rien à voir avec le changement.
+
+**Contournement.** Un `switch` sur une union discriminée dont tous les cas retournent n'a pas besoin de `default` : supprime-le plutôt que de le corriger. C'est aussi plus sûr — un futur cas non traité redevient une vraie erreur de compilation (`selected` ne serait plus jamais `never`), au lieu d'un throw silencieux à l'exécution. Voir `GameRouter.tsx`.
+
+## Timer factice (`vi.useFakeTimers`) + assertion sur un `setState` déclenché par le timer
+
+**Symptôme.** Un test qui avance des timers factices (`vi.advanceTimersByTime(...)`) puis vérifie un texte apparu suite à un `setTimeout` interne au composant échoue avec « élément introuvable », alors que le même composant fonctionne bien manuellement.
+
+**Cause.** Le `setState` déclenché à l'intérieur du timer s'exécute hors du rendu React suivi par Testing Library : le DOM n'est pas re-synchronisé avant l'assertion.
+
+**Contournement.** Envelopper l'avancée du temps dans `act()` : `act(() => { vi.advanceTimersByTime(6000) })`, import depuis `@testing-library/react`.
+
 ## Environnement Windows
 
 - Le shell principal est **PowerShell**, pas bash. `&&` n'existe pas en PowerShell 5.1 : utiliser `;` ou `if ($?) { }`.
