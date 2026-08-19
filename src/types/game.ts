@@ -41,3 +41,14 @@ export interface MapClickContent {
   mapId: string
   targetId: string
 }
+
+export interface IncarnationContent {
+  personnage: { nom: string; annee: string; role: string }
+  jauges: { id: string; label: string; depart: number }[]
+  etapes: {
+    titre: string
+    scene: string
+    options: { texte: string; effets: Record<string, number>; consequence: string; historique?: string }[]
+  }[]
+  epilogues: { condition: Record<string, [number, number]>; texte: string }[]
+}

@@ -1,5 +1,6 @@
 import type {
   FillBlankContent,
+  IncarnationContent,
   MapClickContent,
   MatchContent,
   QcmContent,
@@ -28,7 +29,7 @@ export interface GradeLevel {
 
 export type Difficulty = 1 | 2 | 3
 
-export type GameTypeId = 'qcm' | 'match' | 'timeline' | 'fillblank' | 'mapclick' | 'riviere'
+export type GameTypeId = 'qcm' | 'match' | 'timeline' | 'fillblank' | 'mapclick' | 'riviere' | 'incarnation'
 
 export interface NotionGames {
   qcm?: QcmContent
@@ -38,6 +39,7 @@ export interface NotionGames {
   fillblank?: FillBlankContent
   mapclick?: MapClickContent
   riviere?: RiviereContent
+  incarnation?: IncarnationContent
 }
 
 export interface Notion {

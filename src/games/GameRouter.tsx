@@ -6,6 +6,7 @@ import { TimelineGame } from './TimelineGame/TimelineGame'
 import { SortGame } from './SortGame/SortGame'
 import { FillBlankGame } from './FillBlankGame/FillBlankGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
+import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -26,6 +27,8 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <FillBlankGame content={selected.content} onComplete={onComplete} />
     case 'riviere':
       return <RiviereGame content={selected.content} onComplete={onComplete} />
+    case 'incarnation':
+      return <FilDesJoursGame content={selected.content} onComplete={onComplete} />
     default:
       throw new Error(`Mécanique de jeu pas encore implémentée : ${selected.gameType}`)
   }

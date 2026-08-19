@@ -1,0 +1,116 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.entete {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.personnage {
+  font-family: var(--font-family-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.role {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.jauges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.jauge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.jaugeLabel {
+  flex: 0 0 auto;
+  min-width: 90px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.jaugeBarre {
+  flex: 1 1 auto;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--papier-ombre);
+  overflow: hidden;
+}
+
+.jaugeRemplissage {
+  height: 100%;
+  background: var(--violet);
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.titre {
+  font-family: var(--font-family-heading);
+  margin: 0;
+}
+
+.texte {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.historique {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-domain-histoire);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-weight: 600;
+  text-align: left;
+}
+
+.option:active {
+  transform: scale(0.98);
+}
+
+.primaryButton {
+  align-self: flex-start;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--violet);
+  color: var(--color-surface);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primaryButton:active {
+  transform: scale(0.98);
+}
