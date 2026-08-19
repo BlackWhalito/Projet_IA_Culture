@@ -8,7 +8,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 1',
     notionIds: [
       { notionId: 'cp-histoire-prehistoire', gameType: 'qcm' },
-      { notionId: 'cp-geographie-france-paris', gameType: 'qcm' },
+      { notionId: 'cp-geographie-france-paris', gameType: 'mapclick' },
       { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
       { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
       { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
@@ -76,7 +76,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
       { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
       { notionId: 'cp-histoire-christophe-colomb', gameType: 'incarnation' },
-      { notionId: 'cp-geographie-pays-voisins', gameType: 'qcm' },
+      { notionId: 'cp-geographie-pays-voisins', gameType: 'mapclick' },
     ],
   },
   {
@@ -100,7 +100,7 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-francais-corbeau-renard', gameType: 'fillblank' },
       { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
-      { notionId: 'cp-geographie-loire', gameType: 'qcm' },
+      { notionId: 'cp-geographie-loire', gameType: 'mapclick' },
       { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
       { notionId: 'cp-francais-expressions-imagees', gameType: 'qcm' },
     ],

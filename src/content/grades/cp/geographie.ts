@@ -40,6 +40,11 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['Paris', 'Lyon', 'Marseille'],
         correctIndex: 0,
       },
+      mapclick: {
+        carteId: 'france',
+        cibles: ['paris'],
+        secondesParCible: 6,
+      },
     },
   },
   {
@@ -146,6 +151,11 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['Espagne', 'Portugal', 'Pays-Bas'],
         correctIndex: 0,
       },
+      mapclick: {
+        carteId: 'france',
+        cibles: ['espagne', 'belgique', 'allemagne', 'suisse', 'italie'],
+        secondesParCible: 6,
+      },
     },
   },
   {
@@ -198,6 +208,11 @@ export const CP_GEOGRAPHIE: Notion[] = [
         question: 'Quel est le plus long fleuve de France ?',
         choices: ['La Loire', 'La Seine', 'Le Rhône'],
         correctIndex: 0,
+      },
+      mapclick: {
+        carteId: 'france',
+        cibles: ['loire'],
+        secondesParCible: 6,
       },
     },
   },
