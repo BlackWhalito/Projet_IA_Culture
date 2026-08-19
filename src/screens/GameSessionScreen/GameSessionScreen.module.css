@@ -1,0 +1,63 @@
+.session {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.session h1 {
+  text-align: center;
+  margin: 0;
+}
+
+.progress {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.results {
+  max-width: 480px;
+  margin: var(--space-4) auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.stars {
+  font-size: 2.5rem;
+  margin: 0 0 var(--space-2);
+  letter-spacing: var(--space-1);
+}
+
+.score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.points {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 0;
+}
+
+.record {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-success);
+  margin: var(--space-1) 0 0;
+}
+
+.previousBest {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
+}

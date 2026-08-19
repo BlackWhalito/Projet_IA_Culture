@@ -1,0 +1,40 @@
+:root {
+  --papier: #f7f2e7;
+  --papier-ombre: #e8dfe4;
+  --color-bg: var(--papier);
+  --color-surface: #fffdf8;
+
+  --encre: #3f3542;
+  --color-text: var(--encre);
+  --color-text-muted: #7d7183;
+
+  --violet-brume: #c3b0d4;
+  --violet: #8d6aa8;
+  --violet-profond: #5d4574;
+
+  --color-domain-histoire: #c1663f;
+  --color-domain-geographie: #5a7fa0;
+  --color-domain-sciences: #7a9455;
+  --color-domain-francais: #8d6aa8;
+
+  --color-success: #6f9457;
+  --color-error: #c0714f;
+  --color-locked: #cabfd1;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-heading: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  --touch-target-min: 44px;
+}

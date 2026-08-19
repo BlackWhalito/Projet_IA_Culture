@@ -1,0 +1,52 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.question {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.choice {
+  min-height: var(--touch-target-min);
+  padding: var(--space-3);
+  border: 2px solid var(--papier-ombre);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.choice:not(:disabled):hover {
+  border-color: var(--violet);
+}
+
+.choice:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+.correct {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 15%, var(--color-surface));
+}
+
+.incorrect {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 15%, var(--color-surface));
+}

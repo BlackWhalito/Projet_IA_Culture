@@ -1,0 +1,108 @@
+import type { LevelDef } from '../../types/content'
+
+export const CP_LEVELS: LevelDef[] = [
+  {
+    id: 'cp-level-1',
+    gradeId: 'cp',
+    order: 1,
+    title: 'Niveau 1',
+    notionIds: [
+      { notionId: 'cp-histoire-prehistoire', gameType: 'qcm' },
+      { notionId: 'cp-geographie-france-paris', gameType: 'qcm' },
+      { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
+      { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
+      { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
+    ],
+  },
+  {
+    id: 'cp-level-2',
+    gradeId: 'cp',
+    order: 2,
+    title: 'Niveau 2',
+    notionIds: [
+      { notionId: 'cp-geographie-oceans-mers', gameType: 'fillblank' },
+      { notionId: 'cp-sciences-etats-eau', gameType: 'riviere' },
+      { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
+      { notionId: 'cp-histoire-chateaux-chevaliers', gameType: 'qcm' },
+      { notionId: 'cp-geographie-paysages', gameType: 'riviere' },
+    ],
+  },
+  {
+    id: 'cp-level-3',
+    gradeId: 'cp',
+    order: 3,
+    title: 'Niveau 3',
+    notionIds: [
+      { notionId: 'cp-sciences-quatre-saisons', gameType: 'riviere' },
+      { notionId: 'cp-francais-singulier-pluriel', gameType: 'qcm' },
+      { notionId: 'cp-histoire-lascaux', gameType: 'qcm' },
+      { notionId: 'cp-geographie-drapeau-france', gameType: 'qcm' },
+      { notionId: 'cp-sciences-vivant-non-vivant', gameType: 'riviere' },
+    ],
+  },
+  {
+    id: 'cp-level-4',
+    gradeId: 'cp',
+    order: 4,
+    title: 'Niveau 4',
+    notionIds: [
+      { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
+      { notionId: 'cp-histoire-louis-xiv', gameType: 'qcm' },
+      { notionId: 'cp-geographie-ile', gameType: 'fillblank' },
+      { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
+      { notionId: 'cp-francais-majuscule-point', gameType: 'fillblank' },
+    ],
+  },
+  {
+    id: 'cp-level-5',
+    gradeId: 'cp',
+    order: 5,
+    title: 'Niveau 5',
+    notionIds: [
+      { notionId: 'cp-histoire-grandes-inventions', gameType: 'match' },
+      { notionId: 'cp-geographie-continents', gameType: 'match' },
+      { notionId: 'cp-sciences-cycle-papillon', gameType: 'timeline' },
+      { notionId: 'cp-francais-nom-verbe', gameType: 'riviere' },
+      { notionId: 'cp-histoire-symboles-france', gameType: 'match' },
+    ],
+  },
+  {
+    id: 'cp-level-6',
+    gradeId: 'cp',
+    order: 6,
+    title: 'Niveau 6',
+    notionIds: [
+      { notionId: 'cp-geographie-points-cardinaux', gameType: 'qcm' },
+      { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
+      { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
+      { notionId: 'cp-histoire-christophe-colomb', gameType: 'qcm' },
+      { notionId: 'cp-geographie-pays-voisins', gameType: 'qcm' },
+    ],
+  },
+  {
+    id: 'cp-level-7',
+    gradeId: 'cp',
+    order: 7,
+    title: 'Niveau 7',
+    notionIds: [
+      { notionId: 'cp-sciences-jour-nuit', gameType: 'qcm' },
+      { notionId: 'cp-francais-rimes', gameType: 'qcm' },
+      { notionId: 'cp-histoire-jours-semaine', gameType: 'match' },
+      { notionId: 'cp-geographie-tour-eiffel-monuments', gameType: 'qcm' },
+      { notionId: 'cp-sciences-vivipares-ovipares', gameType: 'riviere' },
+    ],
+  },
+  {
+    id: 'cp-level-8',
+    gradeId: 'cp',
+    order: 8,
+    title: 'Niveau 8',
+    notionIds: [
+      { notionId: 'cp-francais-corbeau-renard', gameType: 'fillblank' },
+      { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
+      { notionId: 'cp-geographie-loire', gameType: 'qcm' },
+      { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
+      { notionId: 'cp-francais-expressions-imagees', gameType: 'qcm' },
+    ],
+  },
+]

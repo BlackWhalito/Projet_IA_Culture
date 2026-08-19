@@ -1,0 +1,128 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.rates {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.rateDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-locked);
+}
+
+.rateDotPerdu {
+  background: var(--color-error);
+}
+
+.piste {
+  position: relative;
+  min-height: 55vh;
+  max-height: 420px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-domain-geographie) 8%, var(--color-surface));
+  border: 2px solid color-mix(in srgb, var(--color-domain-geographie) 25%, var(--color-surface));
+}
+
+.flottant {
+  position: absolute;
+  top: -15%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-domain-sciences);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
+  animation-name: chute;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes chute {
+  from {
+    top: -15%;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+.flottantStatique {
+  position: absolute;
+  top: 40%;
+  animation: none;
+}
+
+.selectionne {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 15%, var(--color-surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 25%, transparent);
+}
+
+.paniers {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.panier {
+  flex: 1 1 0;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-locked);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.panier:active {
+  transform: scale(0.98);
+}
+
+.rejet {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 15%, var(--color-surface));
+  animation: secousse 0.3s ease;
+}
+
+@keyframes secousse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flottant {
+    animation: none;
+  }
+
+  .rejet {
+    animation: none;
+  }
+}

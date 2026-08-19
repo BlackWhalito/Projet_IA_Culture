@@ -1,0 +1,60 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px dashed var(--color-locked);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
+.filled {
+  border-style: solid;
+  border-color: var(--color-domain-sciences);
+  color: var(--color-text);
+}
+
+.slotNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--color-locked);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.trayCard {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-locked);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.trayCard:active {
+  transform: scale(0.98);
+}

@@ -1,0 +1,71 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-domain-sciences);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.categoryLabel {
+  font-weight: 700;
+}
+
+.categoryItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.categoryItem {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-success) 15%, var(--color-surface));
+  font-size: 0.8rem;
+}
+
+.reject {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 15%, var(--color-surface));
+}
+
+.pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.item {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-locked);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.item:active {
+  transform: scale(0.98);
+}
+
+.selected {
+  border-color: var(--color-domain-sciences);
+  background: color-mix(in srgb, var(--color-domain-sciences) 12%, var(--color-surface));
+}

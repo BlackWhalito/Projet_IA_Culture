@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aquarelle — laboratoire de style</title>
+<style>
+:root{
+  --papier:#f7f2e7; --papier-ombre:#e8dfe4;
+  --encre:#3f3542; --encre-pale:#7d7183;
+  --violet-brume:#c3b0d4; --violet:#8d6aa8; --violet-profond:#5d4574;
+  --histoire:#c1663f; --geographie:#5a7fa0;
+  --sciences:#7a9455; --francais:#8d6aa8;
+  --juste:#6f9457; --faux:#c0714f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--papier);color:var(--encre);
+  font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  padding:40px 20px 70px;
+}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.55}
+.wrap{max-width:660px;margin:0 auto}
+h1{font-size:30px;font-weight:600;margin:0 0 4px;letter-spacing:.01em}
+.sub{color:var(--encre-pale);font-size:15px;margin:0 0 34px}
+h2{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--encre-pale);
+   font-family:system-ui,sans-serif;font-weight:600;margin:40px 0 14px}
+.note{font-size:14px;color:var(--encre-pale);margin:12px 0 0;line-height:1.55}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{flex:1;min-width:120px;text-align:center}
+.sw span{display:block;font-family:system-ui,sans-serif;font-size:12px;margin-top:6px;color:var(--encre-pale)}
+.duo{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.duo figure{margin:0;text-align:center}
+.duo figcaption{font-family:system-ui,sans-serif;font-size:12px;color:var(--encre-pale);margin-top:8px}
+.card{background:rgba(255,255,255,.42);border:1px solid var(--papier-ombre);
+      border-radius:16px;padding:18px;margin-top:6px}
+.ui-row{display:flex;gap:10px;margin-top:16px}
+.btn{flex:1;min-height:48px;border:none;border-radius:12px;background:var(--sciences);
+     color:#fff;font-family:system-ui,sans-serif;font-size:16px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--encre);border:1.5px solid var(--encre-pale)}
+.panier{flex:1;min-height:56px;display:flex;align-items:center;justify-content:center;
+        border-radius:14px;font-family:system-ui,sans-serif;font-size:15px;font-weight:600;color:#fff}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="a1" x="-25%" y="-25%" width="150%" height="150%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="4" seed="3" result="g"/>
+    <feDisplacementMap in="SourceGraphic" in2="g" scale="15" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="a2" x="-25%" y="-25%" width="150%" height="150%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="4" seed="19" result="g"/>
+    <feDisplacementMap in="SourceGraphic" in2="g" scale="12" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="a3" x="-25%" y="-25%" width="150%" height="150%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.021" numOctaves="3" seed="41" result="g"/>
+    <feDisplacementMap in="SourceGraphic" in2="g" scale="9" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="a4" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="77" result="g"/>
+    <feDisplacementMap in="SourceGraphic" in2="g" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="diffus"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="grainf">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.07"/></feComponentTransfer></filter>
+</defs></svg>
+
+<svg class="grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#grainf)"/></svg>
+
+<div class="wrap">
+  <h1>Aquarelle</h1>
+  <p class="sub">Tout est dessiné en code. Aucune image, aucun fichier externe.</p>
+
+  <h2>La palette</h2>
+  <div class="swatches">
+    <div class="sw"><svg viewBox="0 0 100 60" style="width:100%">
+      <g style="mix-blend-mode:multiply">
+        <ellipse cx="50" cy="30" rx="38" ry="21" fill="#c1663f" opacity=".45" filter="url(#a3)"/>
+        <ellipse cx="53" cy="32" rx="31" ry="17" fill="#c1663f" opacity=".38" filter="url(#a4)"/>
+      </g></svg><span>Histoire</span></div>
+    <div class="sw"><svg viewBox="0 0 100 60" style="width:100%">
+      <g style="mix-blend-mode:multiply">
+        <ellipse cx="50" cy="30" rx="38" ry="21" fill="#5a7fa0" opacity=".45" filter="url(#a4)"/>
+        <ellipse cx="47" cy="28" rx="30" ry="17" fill="#5a7fa0" opacity=".38" filter="url(#a3)"/>
+      </g></svg><span>Géographie</span></div>
+    <div class="sw"><svg viewBox="0 0 100 60" style="width:100%">
+      <g style="mix-blend-mode:multiply">
+        <ellipse cx="50" cy="30" rx="38" ry="21" fill="#7a9455" opacity=".45" filter="url(#a3)"/>
+        <ellipse cx="52" cy="27" rx="29" ry="16" fill="#7a9455" opacity=".4" filter="url(#a4)"/>
+      </g></svg><span>Sciences</span></div>
+    <div class="sw"><svg viewBox="0 0 100 60" style="width:100%">
+      <g style="mix-blend-mode:multiply">
+        <ellipse cx="50" cy="30" rx="38" ry="21" fill="#8d6aa8" opacity=".45" filter="url(#a4)"/>
+        <ellipse cx="48" cy="32" rx="30" ry="16" fill="#8d6aa8" opacity=".38" filter="url(#a3)"/>
+      </g></svg><span>Français</span></div>
+  </div>
+
+  <h2>Le violet, liant de toute la palette</h2>
+  <svg viewBox="0 0 620 96" style="width:100%;display:block">
+    <g style="mix-blend-mode:multiply">
+      <ellipse cx="88" cy="46" rx="72" ry="32" fill="#c3b0d4" opacity=".55" filter="url(#a2)"/>
+      <ellipse cx="92" cy="50" rx="58" ry="25" fill="#c3b0d4" opacity=".45" filter="url(#a3)"/>
+      <ellipse cx="238" cy="46" rx="72" ry="32" fill="#8d6aa8" opacity=".42" filter="url(#a3)"/>
+      <ellipse cx="234" cy="42" rx="58" ry="25" fill="#8d6aa8" opacity=".36" filter="url(#a4)"/>
+      <ellipse cx="388" cy="46" rx="72" ry="32" fill="#5d4574" opacity=".4" filter="url(#a4)"/>
+      <ellipse cx="392" cy="49" rx="58" ry="25" fill="#5d4574" opacity=".34" filter="url(#a2)"/>
+      <ellipse cx="538" cy="46" rx="70" ry="32" fill="#7a9455" opacity=".4" filter="url(#a2)"/>
+      <ellipse cx="534" cy="49" rx="56" ry="25" fill="#8d6aa8" opacity=".38" filter="url(#a4)"/>
+    </g>
+    <g font-family="system-ui,sans-serif" font-size="11" fill="#7d7183" text-anchor="middle">
+      <text x="88" y="92">Brume</text><text x="238" y="92">Violet</text>
+      <text x="388" y="92">Profond</text><text x="538" y="92">Vert + violet</text>
+    </g>
+  </svg>
+  <p class="note">Les trois nuances, puis la plus utile : violet posé sur vert. En aquarelle une ombre n'est jamais grise, elle est violette — c'est ce qui fait vibrer une peinture au lieu de la salir. Ce gris-là, fabriqué par superposition, vaut infiniment mieux qu'un gris de code.</p>
+
+  <h2>Ce que fait le filtre</h2>
+  <div class="duo">
+    <figure><svg width="150" height="110" viewBox="0 0 150 110">
+      <ellipse cx="75" cy="55" rx="58" ry="40" fill="#8d6aa8" opacity=".55"/></svg>
+      <figcaption>Aplat brut</figcaption></figure>
+    <figure><svg width="150" height="110" viewBox="0 0 150 110">
+      <g style="mix-blend-mode:multiply">
+        <ellipse cx="75" cy="55" rx="55" ry="38" fill="#c3b0d4" opacity=".5" filter="url(#a1)"/>
+        <ellipse cx="79" cy="59" rx="46" ry="32" fill="#8d6aa8" opacity=".3" filter="url(#a2)"/>
+        <ellipse cx="70" cy="50" rx="34" ry="24" fill="#5d4574" opacity=".24" filter="url(#a3)"/>
+      </g></svg>
+      <figcaption>Trois couches, trois graines</figcaption></figure>
+  </div>
+  <p class="note">Même forme. À gauche un ovale, à droite du pigment : les bords bavent, les couches se recouvrent et foncent, la lumière du papier traverse.</p>
+
+  <h2>Une scène</h2>
+  <svg viewBox="0 0 620 300" style="width:100%;display:block">
+    <g style="mix-blend-mode:multiply">
+      <path d="M0,0 L620,0 L620,132 Q310,166 0,140 Z"
+            fill="#c3b0d4" opacity=".26" filter="url(#a1)"/>
+    </g>
+    <circle cx="486" cy="74" r="36" fill="#e0a355" opacity=".36" filter="url(#diffus)"/>
+    <circle cx="486" cy="74" r="21" fill="#d9954a" opacity=".46" filter="url(#a4)"/>
+    <g style="mix-blend-mode:multiply">
+      <path d="M0,300 L0,178 Q95,140 175,168 T345,156 Q432,136 520,163 T620,158 L620,300 Z"
+            fill="#c3b0d4" opacity=".42" filter="url(#a1)"/>
+      <path d="M0,300 L0,192 Q100,156 180,182 T350,170 Q436,152 524,176 T620,172 L620,300 Z"
+            fill="#8d6aa8" opacity=".22" filter="url(#a2)"/>
+      <path d="M0,300 L0,228 Q125,192 235,222 T452,208 Q528,198 620,218 L620,300 Z"
+            fill="#7a9455" opacity=".34" filter="url(#a2)"/>
+      <path d="M0,300 L0,240 Q130,204 240,233 T456,219 Q532,210 620,229 L620,300 Z"
+            fill="#5d4574" opacity=".2" filter="url(#a3)"/>
+      <path d="M296,300 Q322,258 288,228 Q262,205 292,182 Q312,167 302,152"
+            fill="none" stroke="#5a7fa0" stroke-width="16" stroke-linecap="round"
+            opacity=".32" filter="url(#a3)"/>
+      <path d="M299,300 Q324,259 291,229 Q266,206 294,183 Q312,169 304,153"
+            fill="none" stroke="#8d6aa8" stroke-width="7" stroke-linecap="round"
+            opacity=".34" filter="url(#a4)"/>
+    </g>
+  </svg>
+  <p class="note">Sept chemins, deux filtres. Le lointain part dans la brume violette et le proche reste vert : c'est la perspective atmosphérique, elle crée la profondeur à elle seule. L'ombre sous les collines est violette, la rivière a un reflet violet. Aucun gris nulle part.</p>
+
+  <h2>Le décor peint, l'interface nette</h2>
+  <div class="card">
+    <svg viewBox="0 0 560 128" style="width:100%;display:block">
+      <g style="mix-blend-mode:multiply">
+        <path d="M0,128 L0,66 Q110,36 215,62 T430,50 Q500,42 560,58 L560,128 Z"
+              fill="#c3b0d4" opacity=".34" filter="url(#a1)"/>
+        <path d="M0,128 L0,74 Q110,44 215,70 T430,58 Q500,50 560,66 L560,128 Z"
+              fill="#7a9455" opacity=".26" filter="url(#a2)"/>
+        <path d="M0,128 L0,86 Q110,58 215,82 T430,70 Q500,62 560,78 L560,128 Z"
+              fill="#5d4574" opacity=".15" filter="url(#a3)"/>
+      </g>
+      <g font-family="system-ui,sans-serif" font-weight="600" font-size="17" fill="#fff">
+        <rect x="18" y="20" width="150" height="42" rx="11" fill="#7a9455"/>
+        <text x="93" y="47" text-anchor="middle">Un chat</text>
+        <rect x="188" y="20" width="176" height="42" rx="11" fill="#7a9455"/>
+        <text x="276" y="47" text-anchor="middle">Une chaise</text>
+      </g>
+    </svg>
+    <div class="ui-row">
+      <div class="panier" style="background:#5a7fa0">Masculin</div>
+      <div class="panier" style="background:#8d6aa8">Féminin</div>
+    </div>
+    <div class="ui-row">
+      <button class="btn ghost">Passer</button>
+      <button class="btn">Continuer</button>
+    </div>
+  </div>
+  <p class="note">La règle qui tranche tout : le fond est peint, mais rien de ce qu'on touche ne l'est. Bords nets, contraste fort, 48px de haut minimum. Un bouton flou est un bouton qu'on rate.</p>
+</div>
+
+</body>
+</html>

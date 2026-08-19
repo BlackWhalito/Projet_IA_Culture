@@ -1,0 +1,72 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--papier-ombre);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  max-width: 480px;
+  margin: 0 auto;
+  box-shadow: 0 4px 16px rgb(93 69 116 / 10%);
+}
+
+.domainBadge {
+  align-self: flex-start;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--_domain-color, var(--violet)) 16%, var(--color-surface));
+  color: var(--_domain-color, var(--violet));
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.notionTitle {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.summary {
+  margin: 0;
+}
+
+.primaryButton {
+  min-height: var(--touch-target-min);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--violet);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.primaryButton:active {
+  transform: scale(0.98);
+}
+
+.correctText {
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.incorrectText {
+  color: var(--color-error);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.funFact {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
