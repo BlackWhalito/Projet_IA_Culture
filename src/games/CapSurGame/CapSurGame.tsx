@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import type { MapClickContent } from '../../types/game'
 import type { GameCompleteResult } from '../gameTypes'
 import { elapsedSince } from '../../engine/timing'
+import { shuffle } from '../../engine/shuffle'
 import { FranceMap } from '../../components/maps/FranceMap'
 import { FRANCE_ZONES_BY_ID } from '../../content/maps/france'
 import styles from './CapSurGame.module.css'
@@ -26,6 +27,7 @@ function zonesPourCarte(carteId: MapClickContent['carteId']) {
 }
 
 export function CapSurGame({ content, onComplete }: CapSurGameProps) {
+  const [cibles] = useState(() => shuffle(content.cibles))
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('jeu')
   const [feedback, setFeedback] = useState<Feedback | null>(null)
@@ -43,8 +45,8 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
   }, [])
 
   const zones = zonesPourCarte(content.carteId)
-  const termine = index >= content.cibles.length
-  const cible = termine ? null : zones[content.cibles[index]]
+  const termine = index >= cibles.length
+  const cible = termine ? null : zones[cibles[index]]
 
   const resoudre = useCallback(
     (toucheId: string | null) => {
@@ -76,9 +78,9 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
     if (finishedRef.current || !termine) return
     finishedRef.current = true
     const timeMs = elapsedSince(startedAtRef.current)
-    const succes = correctCount >= Math.ceil(content.cibles.length / 2)
+    const succes = correctCount >= Math.ceil(cibles.length / 2)
     onComplete({ correct: succes, timeMs, mistakes })
-  }, [termine, correctCount, mistakes, content.cibles.length, onComplete])
+  }, [termine, correctCount, mistakes, cibles.length, onComplete])
 
   function handleContinuer() {
     setFeedback(null)
@@ -92,7 +94,7 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
     <div className={styles.game}>
       <div className={styles.entete}>
         <span>
-          {index + 1} / {content.cibles.length}
+          {index + 1} / {cibles.length}
         </span>
         {phase === 'jeu' && cible && <span className={styles.consigne}>Trouve : {cible.label}</span>}
       </div>

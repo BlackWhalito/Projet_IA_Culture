@@ -9,32 +9,33 @@ const CONTENU: MapClickContent = {
   secondesParCible: 6,
 }
 
+/** L'ordre des cibles est mélangé à chaque partie : on lit la consigne plutôt que de la supposer. */
+function villeDemandee(): string {
+  return screen.getByText(/^Trouve : /).textContent!.replace('Trouve : ', '')
+}
+
 describe('CapSurGame', () => {
   it('joue une manche de 5 cibles avec une bonne et une mauvaise réponse, puis conclut', () => {
     const onComplete = vi.fn()
     render(<CapSurGame content={CONTENU} onComplete={onComplete} />)
 
-    expect(screen.getByText('Trouve : Paris')).toBeInTheDocument()
-
-    // Bonne réponse sur la première cible.
-    fireEvent.click(screen.getByRole('button', { name: 'Paris' }))
-    expect(screen.getByText("Juste ! C'est bien Paris.")).toBeInTheDocument()
+    // Cible 1 : bonne réponse.
+    const premiere = villeDemandee()
+    fireEvent.click(screen.getByRole('button', { name: premiere }))
+    expect(screen.getByText(`Juste ! C'est bien ${premiere}.`)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
 
-    // Mauvaise réponse sur la deuxième cible (Lyon demandé, Marseille touché).
-    expect(screen.getByText('Trouve : Lyon')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Marseille' }))
-    expect(screen.getByText('Ça, c\'est Marseille. Lyon était ailleurs.')).toBeInTheDocument()
+    // Cible 2 : mauvaise réponse délibérée (Toulouse n'est jamais une cible de ce contenu).
+    const deuxieme = villeDemandee()
+    fireEvent.click(screen.getByRole('button', { name: 'Toulouse' }))
+    expect(screen.getByText(`Ça, c'est Toulouse. ${deuxieme} était ailleurs.`)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
 
-    // Les trois cibles restantes, toutes justes.
-    for (const [consigne, ville] of [
-      ['Marseille', 'Marseille'],
-      ['Lille', 'Lille'],
-      ['Nantes', 'Nantes'],
-    ]) {
-      expect(screen.getByText(`Trouve : ${consigne}`)).toBeInTheDocument()
+    // Cibles 3 à 5 : toutes justes.
+    for (let i = 0; i < 3; i++) {
+      const ville = villeDemandee()
       fireEvent.click(screen.getByRole('button', { name: ville }))
+      expect(screen.getByText(`Juste ! C'est bien ${ville}.`)).toBeInTheDocument()
       fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
     }
 
@@ -46,10 +47,11 @@ describe('CapSurGame', () => {
     const onComplete = vi.fn()
     render(<CapSurGame content={CONTENU} onComplete={onComplete} />)
 
+    const premiere = villeDemandee()
     act(() => {
       vi.advanceTimersByTime(6000)
     })
-    expect(screen.getByText("Trop tard ! C'était Paris.")).toBeInTheDocument()
+    expect(screen.getByText(`Trop tard ! C'était ${premiere}.`)).toBeInTheDocument()
     vi.useRealTimers()
   })
 })
