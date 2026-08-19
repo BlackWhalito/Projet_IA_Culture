@@ -77,11 +77,6 @@ export const CP_GEOGRAPHIE: Notion[] = [
     summary: "L'eau des océans et des mers est salée, contrairement à celle des rivières.",
     funFact: 'Il y a environ 5 océans sur Terre : le Pacifique, l\'Atlantique, l\'Indien, l\'Arctique et l\'Austral.',
     games: {
-      fillblank: {
-        sentence: "L'eau de la mer est {{blank}}, contrairement à l'eau des rivières qui est douce.",
-        answer: 'salée',
-        choices: ['salée', 'sucrée', 'gazeuse'],
-      },
       qcm: {
         question: 'Comment est l\'eau de la mer ?',
         choices: ['Salée', 'Sucrée', 'Gazeuse'],
@@ -188,11 +183,6 @@ export const CP_GEOGRAPHIE: Notion[] = [
     summary: 'Une île est un morceau de terre entouré d\'eau de tous les côtés.',
     funFact: 'La Corse est une île française, mais la plus grande île du monde est le Groenland.',
     games: {
-      fillblank: {
-        sentence: "Une île est un morceau de terre entouré d'{{blank}} de tous les côtés.",
-        answer: 'eau',
-        choices: ['eau', 'sable', 'forêt'],
-      },
       qcm: {
         question: "Qu'est-ce qui entoure une île ?",
         choices: ["De l'eau", 'Du sable', 'Une forêt'],

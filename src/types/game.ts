@@ -30,13 +30,6 @@ export interface RiviereContent {
   objectif: number
 }
 
-export interface FillBlankContent {
-  /** Sentence containing a single `{{blank}}` placeholder. */
-  sentence: string
-  answer: string
-  choices: string[]
-}
-
 export interface MapClickContent {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */

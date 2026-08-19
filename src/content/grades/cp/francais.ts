@@ -73,11 +73,6 @@ export const CP_FRANCAIS: Notion[] = [
     summary: 'Une célèbre fable de Jean de La Fontaine, avec une morale sur la flatterie.',
     funFact: "La morale de la fable est : « Tout flatteur vit aux dépens de celui qui l'écoute. »",
     games: {
-      fillblank: {
-        sentence: "Dans la fable, le Renard flatte le Corbeau pour lui faire lâcher son {{blank}}.",
-        answer: 'fromage',
-        choices: ['fromage', 'chapeau', 'nid'],
-      },
       qcm: {
         question: 'Qui a écrit la fable Le Corbeau et le Renard ?',
         choices: ['Jean de La Fontaine', 'Victor Hugo', 'Charles Perrault'],
@@ -199,11 +194,6 @@ export const CP_FRANCAIS: Notion[] = [
     summary: 'Une phrase commence par une majuscule et se termine par un point.',
     funFact: "Les noms propres, comme les prénoms ou les pays, prennent toujours une majuscule, même au milieu d'une phrase.",
     games: {
-      fillblank: {
-        sentence: 'Une phrase commence toujours par une {{blank}} et se termine par un point.',
-        answer: 'majuscule',
-        choices: ['majuscule', 'minuscule', 'virgule'],
-      },
       qcm: {
         question: 'Par quoi commence toujours une phrase ?',
         choices: ['Une majuscule', 'Un point', 'Une virgule'],

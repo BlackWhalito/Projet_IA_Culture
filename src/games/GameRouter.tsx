@@ -4,7 +4,6 @@ import { QcmGame } from './QcmGame/QcmGame'
 import { MatchGame } from './MatchGame/MatchGame'
 import { TimelineGame } from './TimelineGame/TimelineGame'
 import { SortGame } from './SortGame/SortGame'
-import { FillBlankGame } from './FillBlankGame/FillBlankGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
 import { CapSurGame } from './CapSurGame/CapSurGame'
@@ -24,8 +23,6 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <TimelineGame content={selected.content} onComplete={onComplete} />
     case 'sort':
       return <SortGame content={selected.content} onComplete={onComplete} />
-    case 'fillblank':
-      return <FillBlankGame content={selected.content} onComplete={onComplete} />
     case 'riviere':
       return <RiviereGame content={selected.content} onComplete={onComplete} />
     case 'incarnation':

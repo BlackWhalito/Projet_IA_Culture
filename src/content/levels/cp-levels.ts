@@ -20,7 +20,7 @@ export const CP_LEVELS: LevelDef[] = [
     order: 2,
     title: 'Niveau 2',
     notionIds: [
-      { notionId: 'cp-geographie-oceans-mers', gameType: 'fillblank' },
+      { notionId: 'cp-geographie-oceans-mers', gameType: 'qcm' },
       { notionId: 'cp-sciences-etats-eau', gameType: 'riviere' },
       { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
       { notionId: 'cp-histoire-chateaux-chevaliers', gameType: 'qcm' },
@@ -48,9 +48,9 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
       { notionId: 'cp-histoire-louis-xiv', gameType: 'incarnation' },
-      { notionId: 'cp-geographie-ile', gameType: 'fillblank' },
+      { notionId: 'cp-geographie-ile', gameType: 'qcm' },
       { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
-      { notionId: 'cp-francais-majuscule-point', gameType: 'fillblank' },
+      { notionId: 'cp-francais-majuscule-point', gameType: 'qcm' },
     ],
   },
   {
@@ -98,7 +98,7 @@ export const CP_LEVELS: LevelDef[] = [
     order: 8,
     title: 'Niveau 8',
     notionIds: [
-      { notionId: 'cp-francais-corbeau-renard', gameType: 'fillblank' },
+      { notionId: 'cp-francais-corbeau-renard', gameType: 'qcm' },
       { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
       { notionId: 'cp-geographie-loire', gameType: 'mapclick' },
       { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
