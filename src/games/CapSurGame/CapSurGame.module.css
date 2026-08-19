@@ -1,0 +1,98 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.consigne {
+  font-family: var(--font-family-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.carteZone {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-domain-geographie) 6%, var(--color-surface));
+  border: 2px solid color-mix(in srgb, var(--color-domain-geographie) 20%, var(--color-surface));
+  padding: var(--space-2);
+}
+
+/* Le brouillard qui se referme : opacité croissante sur la durée impartie, animée en
+   CSS pur (aucun Date.now/Math.random dans le composant, voir la skill pieges-du-projet).
+   Remis à zéro à chaque cible via `key={index}` sur l'élément. */
+.brouillard {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 0%, var(--violet-brume) 140%);
+  opacity: 0;
+  animation-name: refermer;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes refermer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.55;
+  }
+}
+
+.brouillardStatique {
+  opacity: 0.2;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brouillard {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.correctText {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.incorrectText {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.primaryButton {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--violet);
+  color: var(--color-surface);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primaryButton:active {
+  transform: scale(0.98);
+}

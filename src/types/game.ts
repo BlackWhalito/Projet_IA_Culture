@@ -38,8 +38,10 @@ export interface FillBlankContent {
 }
 
 export interface MapClickContent {
-  mapId: string
-  targetId: string
+  carteId: 'france' | 'europe' | 'monde'
+  /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */
+  cibles: string[]
+  secondesParCible: number
 }
 
 export interface IncarnationContent {

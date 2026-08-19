@@ -43,3 +43,7 @@ export const FRANCE_ZONES: MapZone[] = [
   { id: 'suisse', label: 'Suisse', kind: 'pays-voisin', cx: 595, cy: 340 },
   { id: 'italie', label: 'Italie', kind: 'pays-voisin', cx: 595, cy: 480 },
 ]
+
+export const FRANCE_ZONES_BY_ID: Record<string, MapZone> = Object.fromEntries(
+  FRANCE_ZONES.map((zone) => [zone.id, zone]),
+)

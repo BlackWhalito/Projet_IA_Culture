@@ -7,6 +7,7 @@ import { SortGame } from './SortGame/SortGame'
 import { FillBlankGame } from './FillBlankGame/FillBlankGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
+import { CapSurGame } from './CapSurGame/CapSurGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -29,7 +30,7 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <RiviereGame content={selected.content} onComplete={onComplete} />
     case 'incarnation':
       return <FilDesJoursGame content={selected.content} onComplete={onComplete} />
-    default:
-      throw new Error(`Mécanique de jeu pas encore implémentée : ${selected.gameType}`)
+    case 'mapclick':
+      return <CapSurGame content={selected.content} onComplete={onComplete} />
   }
 }
