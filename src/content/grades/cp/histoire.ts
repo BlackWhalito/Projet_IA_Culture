@@ -47,6 +47,163 @@ export const CP_HISTOIRE: Notion[] = [
         choices: ['Versailles', 'Le Louvre', 'Chambord'],
         correctIndex: 0,
       },
+      incarnation: {
+        personnage: { nom: 'Louis XIV', annee: '1685', role: 'Roi de France, à Versailles' },
+        jauges: [
+          { id: 'autorite', label: 'Autorité', depart: 60 },
+          { id: 'attentionCour', label: 'Attention de la Cour', depart: 40 },
+        ],
+        etapes: [
+          {
+            titre: "Huit heures, la chambre s'ouvre",
+            scene: "8h. Le premier valet de chambre tire les courtines du lit à baldaquin. Derrière la porte, un petit groupe patiente déjà : le premier médecin, le premier chirurgien, et deux ou trois favoris qui ont reçu ce privilège rarissime, les « grandes entrées » — le droit d'assister aux tout premiers instants du jour du roi, avant même le reste de la Cour. Il faut décider qui franchit la porte en premier.",
+            options: [
+              {
+                texte: "Faire entrer d'abord le médecin, pour l'examen du matin",
+                effets: { autorite: 8, attentionCour: -5 },
+                consequence: "Le premier médecin s'approche, prend le pouls, interroge sur la nuit passée. Derrière lui, les favoris des grandes entrées patientent en silence, un peu déçus de ne pas passer les premiers.",
+                historique: "Les « grandes entrées » n'étaient accordées qu'à une poignée de personnes à la fois : quelques princes, quelques favoris, les médecins du roi. Ce tout petit cercle avait seul le droit d'assister au tout début du Petit Lever.",
+              },
+              {
+                texte: "Faire entrer d'abord les favoris, pour prendre des nouvelles en s'habillant",
+                effets: { attentionCour: 10, autorite: -5 },
+                consequence: "Les favoris s'approchent du lit, glissent une nouvelle, une remarque flatteuse. Le médecin patiente à son tour, un peu vexé de ne pas passer en premier ce matin.",
+              },
+              {
+                texte: 'Faire entrer tout le monde en même temps, sans distinction de rang',
+                effets: { autorite: -10, attentionCour: 6 },
+                consequence: "Le petit groupe se presse dans la chambre sans ordre établi. Certains s'amusent du désordre ; d'autres, plus attachés à leur rang, s'en offusquent visiblement.",
+              },
+            ],
+          },
+          {
+            titre: 'La prière, depuis le lit',
+            scene: "Le roi ne se lève pas encore. Assis contre ses oreillers, il suit l'office récité par son aumônier, debout à son chevet. Dans la chambre, ceux déjà admis se tiennent debout, immobiles, pendant que résonne sa voix.",
+            options: [
+              {
+                texte: 'Suivre l\'office sans rien précipiter',
+                effets: { attentionCour: 8, autorite: -5 },
+                consequence: "L'aumônier égrène les prières à son rythme habituel. Dans la chambre, chacun observe le roi prier — un roi pieux devant témoins vaut, aux yeux de la Cour, autant qu'un roi puissant.",
+              },
+              {
+                texte: "Demander à l'aumônier d'abréger, la journée presse",
+                effets: { autorite: 6, attentionCour: -8 },
+                consequence: "L'office se referme plus vite qu'à l'accoutumée. Quelques regards se croisent dans la chambre : le roi presse le pas, ce matin — la Cour retiendra qu'il n'avait pas de temps à lui donner.",
+              },
+              {
+                texte: "Faire réciter l'office à voix haute, pour que la chambre entière l'entende",
+                effets: { autorite: 10, attentionCour: 4 },
+                consequence: "La voix de l'aumônier emplit la pièce. Chacun baisse la tête. Un roi qui prie devant sa Cour, à voix haute, rappelle sans un mot d'où vient son pouvoir.",
+                historique: "L'office du matin durait un bon quart d'heure ; le roi le suivait depuis son lit, entouré de ceux déjà admis dans la chambre — la prière elle-même se faisait devant témoins.",
+              },
+            ],
+          },
+          {
+            titre: 'Rasage et choix de la perruque',
+            scene: "Le roi se lève enfin. Un jour sur deux, c'est jour de rasage : le barbier attend, rasoir en main. À côté, le valet de la garde-robe présente plusieurs perruques sur leurs supports de bois, pour que le roi choisisse celle qu'il portera. Un message urgent, apporté par un secrétaire, attend aussi une réponse.",
+            options: [
+              {
+                texte: 'Laisser le barbier raser pendant que le valet peigne la perruque choisie',
+                effets: { autorite: 6 },
+                consequence: "Le rasoir glisse avec soin sous l'œil attentif du valet, qui brosse déjà la perruque élue. Un geste réglé depuis des années, sans un mot de trop.",
+              },
+              {
+                texte: 'Demander à un favori présent son avis sur la perruque à porter',
+                effets: { attentionCour: 12, autorite: -4 },
+                consequence: "Le favori consulté rosit de plaisir — on lui a demandé son avis, à lui, devant tous les autres. La nouvelle circulera dans les couloirs de Versailles avant midi.",
+              },
+              {
+                texte: 'Faire attendre le barbier pour écouter le message du secrétaire',
+                effets: { autorite: 10, attentionCour: -6 },
+                consequence: "Le barbier range son rasoir sans un mot. Le secrétaire chuchote son rapport à l'oreille du roi, pendant que dans la pièce, l'attente se fait un peu pesante pour tous les autres.",
+              },
+            ],
+          },
+          {
+            titre: 'Le bougeoir',
+            scene: "C'est l'heure d'un tout petit rituel que toute la Cour surveille de près : désigner qui, ce jour, aura l'honneur de tenir le bougeoir pendant que le roi achève sa toilette. Plusieurs courtisans se tiennent un peu trop près de la lumière, dans l'espoir silencieux d'être choisis.",
+            options: [
+              {
+                texte: 'Choisir un courtisan fidèle depuis longtemps, sans faire de vagues',
+                effets: { autorite: 8, attentionCour: 2 },
+                consequence: "Le vieux courtisan s'avance, bougeoir en main, presque ému. Personne ne s'étonne du choix — la fidélité a payé, une fois de plus.",
+              },
+              {
+                texte: 'Choisir un tout jeune arrivant à la Cour, pour le distinguer',
+                effets: { attentionCour: 14, autorite: -6 },
+                consequence: "Le jeune homme s'avance, rouge de fierté, sous les regards surpris des plus anciens. D'ici ce soir, toute la Cour saura son nom — et se demandera pourquoi lui.",
+                historique: "Tenir le bougeoir du roi ne demandait aucun talent particulier, mais c'était l'un des honneurs les plus recherchés de Versailles : être vu, quelques minutes, dans la lumière la plus proche du roi.",
+              },
+              {
+                texte: 'Ne désigner personne tout de suite, et laisser la Cour deviner',
+                effets: { attentionCour: -8, autorite: 10 },
+                consequence: "Les courtisans échangent des regards inquiets, sans oser bouger ni parler. Le silence, ce matin, en dit plus long que n'importe quel nom prononcé.",
+              },
+            ],
+          },
+          {
+            titre: 'La chemise, honneur suprême',
+            scene: "Le Grand Lever commence : la porte de la chambre s'ouvre plus largement, et cette fois toute une partie de la Cour entre pour de bon. Le maître de la garde-robe et le premier valet s'apprêtent à ôter la chemise de nuit, une manche après l'autre. Reste à savoir qui, dans la pièce, aura l'honneur suprême de présenter la chemise neuve : le privilège est réservé au dauphin — mais ce matin, il n'est pas là.",
+            options: [
+              {
+                texte: 'Confier l\'honneur au duc de Bourgogne, le petit-fils présent',
+                effets: { autorite: 6, attentionCour: 10 },
+                consequence: "Le jeune duc s'avance, la chemise pliée sur les bras, sous le regard de toute la chambre. La lignée est respectée : à défaut du dauphin, c'est son propre sang qui s'approche le plus près du roi.",
+                historique: "En l'absence du dauphin, ce sont en principe les ducs de Bourgogne, de Berry ou d'Orléans — les princes du sang les plus proches — qui présentaient la chemise neuve au roi.",
+              },
+              {
+                texte: "Confier l'honneur au grand chambellan, en l'absence d'un prince",
+                effets: { autorite: 10, attentionCour: -4 },
+                consequence: "Le grand chambellan s'avance avec la solennité de sa charge. L'ordre est respecté à la lettre — mais dans la pièce, plus d'un prince du sang aurait aimé qu'on pense à lui d'abord.",
+              },
+              {
+                texte: "Faire attendre un instant, le temps qu'un prince du sang arrive",
+                effets: { attentionCour: 8, autorite: -6 },
+                consequence: "Toute la chambre patiente, chemise en main, pendant qu'on va chercher un prince du sang dans l'antichambre. Personne ne s'assoit, personne ne parle fort : on attend, ensemble, que l'honneur trouve son destinataire.",
+              },
+            ],
+          },
+          {
+            titre: 'Vers dix heures, le départ',
+            scene: "Il est presque dix heures. Le roi est habillé, coiffé, chaussé. Dans la galerie, une file de courtisans et de quémandeurs attend déjà son passage vers la messe, chapeau, canne et gants prêts à être saisis au moment de sortir.",
+            options: [
+              {
+                texte: "Traverser la galerie d'un pas rapide, sans s'arrêter",
+                effets: { autorite: 10, attentionCour: -10 },
+                consequence: "Le roi avance sans ralentir. Les courtisans s'inclinent au passage, chapeau bas — mais aucun n'a pu placer un mot, et certains repartiront ce matin sans la faveur espérée.",
+              },
+              {
+                texte: 'S\'arrêter un instant pour écouter une requête, en marchant',
+                effets: { attentionCour: 12, autorite: -4 },
+                consequence: "Un gentilhomme profite de l'instant pour glisser sa demande. Le roi l'écoute deux pas durant, sans rien promettre — mais dans la galerie, on retiendra surtout qu'il a été écouté.",
+              },
+              {
+                texte: 'Se faire accompagner par les princes présents jusqu\'à la sortie',
+                effets: { autorite: 8, attentionCour: 6 },
+                consequence: "Le roi sort entouré des princes du sang, chapeau, canne et gants déjà en main. La petite troupe traverse la galerie où les courtisans s'inclinent en rangs, comme chaque matin depuis toujours.",
+              },
+            ],
+          },
+        ],
+        epilogues: [
+          {
+            condition: { autorite: [75, 100] },
+            texte: "Dix heures sonnent. Le roi sort enfin de sa chambre, chapeau, canne et gants en main, et la galerie s'incline tout entière sur son passage, sans un murmure. Ce matin encore, une trentaine de mains ont participé à habiller un seul homme — et pas une seule fois il n'est resté seul avec lui-même.",
+          },
+          {
+            condition: { autorite: [0, 30] },
+            texte: "Dix heures sonnent, un peu tard. Le roi sort enfin de sa chambre parmi les rires et les apartés qui ne se sont jamais vraiment tus. Rien de grave ne s'est produit — mais dans les couloirs de Versailles, on retient surtout, ce matin, qu'un roi qui rit avec sa Cour est un roi qu'on croit pouvoir approcher d'un peu trop près.",
+          },
+          {
+            condition: { attentionCour: [75, 100] },
+            texte: "Dix heures sonnent. Le roi sort enfin de sa chambre, et la galerie bruisse de sourires, de saluts appuyés, de noms qu'on se répète déjà d'une oreille à l'autre — celui qui a tenu le bougeoir, celui qui a présenté la chemise. Versailles a de nouveau trouvé, ce matin, cent bonnes raisons de rester à portée du roi.",
+          },
+          {
+            condition: {},
+            texte: "Dix heures sonnent. Le roi quitte enfin sa chambre, chapeau, canne et gants en main, pour rejoindre la messe. Médecin, aumônier, barbier, valets, princes, courtisans : ce matin encore, une trentaine de personnes se sont relayées autour de lui pour l'habiller, le peigner, lui tendre sa chemise — et pas un instant, du réveil à la sortie, le roi de France n'a été seul.",
+          },
+        ],
+      },
     },
   },
   {

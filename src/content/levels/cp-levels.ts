@@ -47,7 +47,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 4',
     notionIds: [
       { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
-      { notionId: 'cp-histoire-louis-xiv', gameType: 'qcm' },
+      { notionId: 'cp-histoire-louis-xiv', gameType: 'incarnation' },
       { notionId: 'cp-geographie-ile', gameType: 'fillblank' },
       { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
       { notionId: 'cp-francais-majuscule-point', gameType: 'fillblank' },
