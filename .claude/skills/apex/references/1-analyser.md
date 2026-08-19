@@ -28,6 +28,8 @@ Lance en parallèle quand tu as **2 à 4 questions sans lien entre elles**, par 
 
 **Ne lance pas d'agent** pour ce qu'un seul `grep` ou une seule lecture de fichier règle. Un agent coûte plus cher qu'une commande, et attendre sa réponse coûte plus que la lancer.
 
+> Cette phase dit **quand** explorer en parallèle. Pour savoir **quel** agent choisir et **comment** le briefer, c'est la skill `orchestration`.
+
 ## Le précédent interne prime
 
 Avant d'inventer une manière de faire, cherche si le projet en a déjà une. Un code qui ressemble à son voisin se maintient mieux qu'un code « meilleur » mais isolé.

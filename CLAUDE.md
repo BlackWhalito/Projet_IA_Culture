@@ -19,7 +19,8 @@ npx vitest run chemin/du/fichier.test.ts
 ## Méthode de travail
 
 - **Invoque la skill `apex`** avant d'implémenter une fonctionnalité ou de corriger un bug : Analyser → Planifier → Exécuter → eXaminer, une phase chargée à la fois.
-- **Lance l'agent `verificateur`** avant d'annoncer que quoi que ce soit est fini.
+- **Lance l'agent `verificateur`** avant d'annoncer que quoi que ce soit est fini. Ne crois jamais un agent sur parole : rejoue ses vérifications toi-même.
+- **La session principale orchestre** — il n'existe pas d'agent chef, et il ne doit pas en exister. Avant de déléguer, voir la skill `orchestration` : routage, brief, et surtout quand ne PAS déléguer.
 - **Toute friction qui coûte du temps se range dans une skill immédiatement.** On ne redécouvre pas deux fois le même piège. Son contrepoids : lancer `audit-des-skills` tous les deux ou trois ajouts, pour que la bibliothèque ne dérive pas.
 - **Garde ce fichier court.** Le détail va dans les skills, chargées à la demande.
 - Le propriétaire n'est pas développeur : il tranche le produit, pas la technique. Recommander plutôt que faire arbitrer, et expliquer sans jargon.
@@ -50,5 +51,5 @@ Direction artistique **aquarelle** au CP (skill `aquarelle`) ; arcade rétro pr�
 
 - [docs/feuille-de-route.md](docs/feuille-de-route.md) — toutes les tâches restantes, découpées et expliquées
 - [docs/plan-jeux.md](docs/plan-jeux.md) — diagnostic et spécifications des mécaniques
-- Skills : `apex`, `aquarelle`, `pieges-du-projet`, `nouvelle-mecanique`, `nouvelle-notion`, `audit-des-skills`
+- Skills : `apex`, `orchestration`, `aquarelle`, `pieges-du-projet`, `nouvelle-mecanique`, `nouvelle-notion`, `audit-des-skills`
 - Agents : `verificateur`, `game-designer`, `redacteur-contenu`

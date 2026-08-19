@@ -32,10 +32,10 @@ Puis lis toutes les descriptions d'un coup — c'est le seul texte qui décide d
 for f in .claude/skills/*/SKILL.md .claude/agents/*.md; do echo "=== $f"; sed -n '2,5p' "$f"; done
 ```
 
-Et la taille de chaque fichier, pour repérer l'obésité :
+Et la taille de chaque fichier, avec le verdict — ne te contente pas de lire des chiffres bruts, l'œil les laisse filer :
 
 ```bash
-wc -l .claude/skills/*/SKILL.md .claude/skills/*/references/*.md .claude/agents/*.md
+for f in .claude/skills/*/SKILL.md .claude/skills/*/references/*.md .claude/agents/*.md; do n=$(wc -l < "$f"); if [ "$n" -gt 250 ]; then echo "SURPOIDS  $n  $f"; elif [ "$n" -gt 150 ]; then echo "surveiller $n  $f"; fi; done; echo "(rien listé au-dessus = tout est dans les clous)"
 ```
 
 ## Étape 2 — Les huit défauts
@@ -82,9 +82,21 @@ Elle existe, elle est propre, et personne ne l'appelle jamais. Deux causes possi
 
 ### 5. La skill devenue obèse
 
-Un `SKILL.md` qui dépasse ~150 lignes annule le bénéfice du chargement à la demande : on paie tout le contexte pour n'utiliser qu'un tiers du contenu.
+**C'est le défaut qui coûte le plus cher sans jamais produire d'erreur visible.** Une skill trop longue ne casse rien : elle se charge, elle répond, tout semble normal. Ce qu'elle coûte réellement, c'est du contexte gâché à chaque invocation — moins de place pour le reste de la tâche, une lecture plus lente à traiter. La performance se dégrade en silence, jamais par un message d'erreur.
 
-**Correction** — scinder en `references/`, et réduire le `SKILL.md` à un routeur qui dit quel fichier lire à quel moment. La skill `apex` est le modèle : un routeur court, quatre fichiers de phase chargés un par un.
+Trois seuils, pas un seul, et ils s'appliquent identiquement à un `SKILL.md`, à un fichier de `references/`, et à un agent :
+
+- **Sous 150 lignes** — sain, rien à faire.
+- **150 à 250 lignes** — à surveiller. Pas urgent, mais le prochain ajout de contenu doit être scindé plutôt qu'empilé.
+- **Au-delà de 250 lignes** — surpoids réel. Corrige à cet audit-ci, ne reporte pas.
+
+Ces seuils comptent les **lignes**, pas les octets ni les mots : c'est ce que `wc -l` mesure à l'étape 1, et c'est ce qui approxime le mieux le coût réel de lecture.
+
+**Corriger un `SKILL.md` obèse** — scinder en `references/`, réduire le `SKILL.md` à un routeur qui dit quel fichier lire à quel moment, pas à un résumé de leur contenu. La skill `apex` est le modèle : un routeur de 35 lignes, quatre fichiers de phase chargés un par un, jamais tous ensemble.
+
+**Corriger un fichier de `references/` lui-même obèse** — le symptôme est le même, mais scinder en sous-fichiers ne suffit pas toujours : demande-toi d'abord s'il essaie de couvrir plusieurs situations distinctes qui mériteraient chacune sa propre entrée, plutôt qu'une seule section qui grossit.
+
+**Corriger un agent obèse** — même traitement qu'un `SKILL.md` : un agent n'a pas de mécanisme de `references/`, donc son fichier doit rester court par discipline d'écriture, pas par découpage. Vise la moitié du seuil skill (125 lignes) : un agent n'a pas de propriétaire pour relire son brief avant qu'il parte en tâche de fond, l'erreur s'y voit moins vite.
 
 ### 6. La contradiction
 
