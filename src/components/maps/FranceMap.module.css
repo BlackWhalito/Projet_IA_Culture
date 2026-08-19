@@ -1,0 +1,94 @@
+.carte {
+  width: 100%;
+  height: auto;
+  max-width: 480px;
+  margin: 0 auto;
+  display: block;
+}
+
+.contourCouches {
+  mix-blend-mode: multiply;
+}
+
+.contourTrait {
+  fill: var(--color-domain-geographie);
+  stroke: none;
+}
+
+.fleuveZoneHit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 26;
+  cursor: pointer;
+}
+
+.fleuveTrait {
+  fill: none;
+  stroke: var(--violet);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.labelFleuve {
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  font-size: 15px;
+  fill: var(--violet-profond);
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.zone {
+  cursor: pointer;
+}
+
+.zone:focus-visible .zoneHitArea {
+  stroke: var(--violet);
+  stroke-width: 3;
+  fill: color-mix(in srgb, var(--violet) 15%, transparent);
+}
+
+.zoneHitArea {
+  fill: transparent;
+}
+
+.pointVille {
+  fill: var(--color-domain-histoire);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.pointPays {
+  fill: var(--violet-brume);
+  stroke: var(--violet);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.labelVille {
+  font-size: 17px;
+  font-weight: 700;
+  fill: var(--encre);
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.labelPays {
+  font-size: 15px;
+  font-style: italic;
+  fill: var(--encre-pale, var(--color-text-muted));
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+
+.zoneActive .pointVille,
+.zoneActive .pointPays {
+  fill: var(--violet);
+  r: 10;
+}
