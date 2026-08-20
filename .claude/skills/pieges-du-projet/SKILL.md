@@ -60,7 +60,7 @@ Cas voisin : `useRef(Date.now())` est un vrai appel impur au rendu, celui-là es
 
 **Contournement.** Pour la session en cours, lancer `general-purpose` en recopiant le contenu du fichier d'agent dans le prompt. Le fichier servira normalement aux sessions suivantes. Même logique pour une skill fraîchement écrite : appliquer son contenu à la main jusqu'au prochain démarrage.
 
-## Piloter le navigateur : les trois pièges
+## Piloter le navigateur : les cinq pièges
 
 **Les `ref_N` deviennent obsolètes dès que le DOM change.** Après un clic qui fait avancer le jeu, les références lues précédemment pointent dans le vide (`ref is stale`). Refais un `read_page` après chaque changement d'écran plutôt que de réutiliser une liste de refs.
 
@@ -69,6 +69,10 @@ Cas voisin : `useRef(Date.now())` est un vrai appel impur au rendu, celui-là es
 **`javascript_tool` expire au bout de 30 s.** Une boucle longue qui enchaîne des clics avec des attentes dépasse facilement ce plafond et ne rend rien. Découpe en scripts courts (moins de 10 actions), ou clique via l'outil `computer`.
 
 Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'événements native), c'est le moyen le plus rapide de traverser plusieurs écrans — tant que le script reste court.
+
+**Un clic réel via `computer` peut silencieusement ne rien déclencher**, sans erreur, sans lien mort, avec une cible confirmée correcte par `elementFromPoint`. Constaté sur des cartes de `MatchGame` : le même bouton, au même endroit, marchait une fois sur deux. Avant de conclure à un bug applicatif, revérifie l'état après coup (`get_page_text` ou une lecture de classe séparée) — si rien n'a bougé, retente une fois. Si ça persiste, un `element.click()` en JS confirme si le gestionnaire lui-même fonctionne.
+
+**Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
 ## `window.matchMedia` absent en test
 
