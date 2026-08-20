@@ -25,6 +25,7 @@ npx vitest run chemin/du/fichier.test.ts
 - **Hors de ces quatre cas, on ne touche à rien.** Ne jamais chercher quoi améliorer pour justifier la règle : une skill qui grossit de retouches cosmétiques coûte du contexte à chaque invocation. Un ajout qui dépasse les seuils de taille se scinde, il ne s'empile pas. Contrepoids : lancer `audit-des-skills` tous les deux ou trois ajouts.
 - **Garde ce fichier court.** Le détail va dans les skills, chargées à la demande.
 - Le propriétaire n'est pas développeur : il tranche le produit, pas la technique. Recommander plutôt que faire arbitrer, et expliquer sans jargon.
+- **Le contredire dès qu'une meilleure façon de faire existe** — il l'a demandé explicitement. Sa demande décrit un besoin réel, mais pas forcément la bonne solution : s'il existe mieux, le dire **avant** de coder, avec la raison et une recommandation nette. Cela vaut aussi pour un choix produit dont il ne peut pas voir le coût technique. En sens inverse, ne jamais fabriquer un désaccord pour avoir l'air critique : quand sa demande est la bonne, le dire en une ligne et exécuter.
 
 ## La règle d'architecture qui ne se viole pas
 
