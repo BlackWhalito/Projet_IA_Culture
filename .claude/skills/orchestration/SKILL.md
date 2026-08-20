@@ -22,6 +22,7 @@ Il n'existe **pas** d'agent chef, et il ne doit pas en exister un. Un orchestrat
 | Vérifier qu'un travail est réellement fini | `verificateur` | Ne peut modifier aucun fichier : il diagnostique, tu corriges |
 | Inventer ou critiquer une mécanique de jeu | `game-designer` | Lecture seule + web, explore largement sans polluer |
 | Écrire ou réviser du contenu en volume | `redacteur-contenu` | Cantonné à `src/content/`, ne touche jamais au code |
+| Chercher des failles de sécurité | `auditeur-securite` | Lecture seule : il qualifie le risque, tu décides du correctif |
 | Trouver où est défini X, qui utilise Y | `Explore` | Rapide, lecture seule, conçu pour la recherche |
 | Chantier large sans spécialiste dédié | `general-purpose` | Le repli quand aucun agent ne colle |
 
