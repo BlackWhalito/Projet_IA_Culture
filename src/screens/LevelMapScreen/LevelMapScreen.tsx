@@ -4,6 +4,7 @@ import type { GradeId } from '../../types/content'
 import { GRADE_LEVELS } from '../../content/grades'
 import { getLevelsByGrade } from '../../content/levels'
 import { useProgressStore } from '../../state/progressStore'
+import { clampStarRating } from '../../engine/scoring'
 import styles from './LevelMapScreen.module.css'
 
 export function LevelMapScreen() {
@@ -39,7 +40,7 @@ export function LevelMapScreen() {
         {levels.map((level, i) => {
           const progress = levelsProgress[level.id]
           const unlocked = i === 0 || Boolean(levelsProgress[levels[i - 1].id]?.completed)
-          const stars = progress?.starRating ?? 0
+          const stars = clampStarRating(progress?.starRating)
           const side = i % 2 === 0 ? styles.left : styles.right
 
           if (!unlocked) {

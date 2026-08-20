@@ -16,6 +16,20 @@ export function computeStarRating(correctCount: number, total: number): 0 | 1 | 
   return 0
 }
 
+/**
+ * Ramène un nombre d'étoiles dans les bornes affichables.
+ *
+ * Le type `0 | 1 | 2 | 3` n'existe plus à l'exécution : une valeur relue du
+ * `localStorage` peut être négative, énorme, ou pas un nombre du tout. Or
+ * l'affichage passe par `String.repeat`, qui lève une `RangeError` sur un
+ * compte négatif — assez pour rendre la carte des niveaux inaccessible.
+ */
+export function clampStarRating(value: unknown): 0 | 1 | 2 | 3 {
+  const n = Math.trunc(Number(value))
+  if (!Number.isFinite(n) || n < 0) return 0
+  return (n > 3 ? 3 : n) as 0 | 1 | 2 | 3
+}
+
 const POINTS_JUSTE = 100
 const PENALITE_ERREUR = 15
 const BONUS_RAPIDITE_MAX = 50

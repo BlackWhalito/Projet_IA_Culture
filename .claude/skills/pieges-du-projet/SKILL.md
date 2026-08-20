@@ -94,6 +94,31 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Contournement.** Envelopper l'avancée du temps dans `act()` : `act(() => { vi.advanceTimersByTime(6000) })`, import depuis `@testing-library/react`.
 
+## Un correctif qui "ne marche pas" alors que le jeu de test est faux
+
+Rencontré en vérifiant un garde-fou sur la progression : l'écran refusait
+obstinément d'afficher la progression injectée dans `localStorage`, et le
+correctif semblait donc inopérant. Il l'était en réalité depuis le début — le
+jeu de test utilisait des identifiants de niveaux **inventés** (`cp-01`) au lieu
+des vrais (`cp-level-1`). L'app lisait fidèlement une progression qui ne
+correspondait à aucun niveau existant.
+
+**La règle** : quand un correctif paraît sans effet, soupçonne le jeu de test
+avant de soupçonner le code. Un `grep` sur les identifiants réels coûte dix
+secondes ; défaire un correctif juste coûte bien plus.
+
+Et n'en conclus rien avant d'avoir instrumenté : un `console.log` temporaire à
+l'entrée **et** à la sortie de la fonction suspecte tranche en un rechargement
+si elle reçoit les bonnes données, et si elle rend ce qu'on croit. Retire-le
+ensuite, et vérifie par `grep` qu'il ne reste rien.
+
+> **Piège dans le piège**, rencontré en écrivant cette entrée même : les
+> backticks de ce texte, passés au shell dans une chaîne, ont été interprétés
+> comme des substitutions de commande et **tous les termes entre backticks ont
+> disparu du fichier**, silencieusement. Pour écrire du Markdown contenant du
+> code, passe par l'outil d'édition, jamais par un script shell. Le même piège
+> est décrit côté `grep` dans la skill `audit-des-skills`.
+
 ## Environnement Windows
 
 - Le shell principal est **PowerShell**, pas bash. `&&` n'existe pas en PowerShell 5.1 : utiliser `;` ou `if ($?) { }`.
