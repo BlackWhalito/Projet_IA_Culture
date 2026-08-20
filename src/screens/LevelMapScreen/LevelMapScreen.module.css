@@ -65,7 +65,7 @@
 
 .locked {
   background: var(--papier-ombre);
-  color: var(--color-text-muted);
+  color: var(--violet-profond);
 }
 
 .stars {

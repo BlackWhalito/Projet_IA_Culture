@@ -1,15 +1,15 @@
 .home {
   position: relative;
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-5) var(--space-4) var(--space-6);
   text-align: center;
 }
 
 .hero {
   display: block;
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   height: auto;
   margin: 0 auto calc(var(--space-4) * -1);
 }
@@ -17,42 +17,58 @@
 .title {
   position: relative;
   margin: 0;
-  font-size: 2.25rem;
+  font-family: var(--font-family-heading);
+  font-size: 2.5rem;
   color: var(--violet-profond);
 }
 
 .subtitle {
   position: relative;
+  margin: var(--space-2) 0 0;
   color: var(--color-text-muted);
 }
 
 .grid {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--space-3);
-  margin-top: var(--space-4);
+  margin-top: var(--space-5);
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  min-height: 88px;
+  overflow: hidden;
   border-radius: var(--radius-md);
-  font-size: 1.25rem;
-  font-weight: 700;
+  background: var(--papier);
+  border: 2px solid var(--papier-ombre);
   text-decoration: none;
-  border: 2px solid transparent;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.label {
+  padding: var(--space-2) var(--space-2) 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.soon {
+  padding: var(--space-1) var(--space-2) var(--space-2);
+  font-size: 0.75rem;
+  color: var(--violet-profond);
 }
 
 .enabled {
-  background: var(--color-domain-sciences);
-  color: white;
   cursor: pointer;
+  border-color: var(--color-domain-sciences);
 }
 
 .enabled:active {
@@ -60,12 +76,13 @@
 }
 
 .disabled {
-  background: var(--papier-ombre);
-  color: var(--color-text-muted);
-  border-color: var(--violet-brume);
+  cursor: default;
 }
 
-.soon {
-  font-size: 0.7rem;
-  font-weight: 400;
+.disabled .art {
+  opacity: 0.75;
+}
+
+.disabled .label {
+  color: var(--violet-profond);
 }

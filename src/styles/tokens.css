@@ -6,7 +6,7 @@
 
   --encre: #3f3542;
   --color-text: var(--encre);
-  --color-text-muted: #7d7183;
+  --color-text-muted: #75667f; /* contraste >=4.5:1 sur --papier, voir la skill aquarelle */
 
   --violet-brume: #c3b0d4;
   --violet: #8d6aa8;
