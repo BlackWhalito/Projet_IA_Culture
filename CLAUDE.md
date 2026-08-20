@@ -21,7 +21,8 @@ npx vitest run chemin/du/fichier.test.ts
 - **Invoque la skill `apex`** avant d'implémenter une fonctionnalité ou de corriger un bug : Analyser → Planifier → Exécuter → eXaminer, une phase chargée à la fois.
 - **Lance l'agent `verificateur`** avant d'annoncer que quoi que ce soit est fini. Ne crois jamais un agent sur parole : rejoue ses vérifications toi-même.
 - **La session principale orchestre** — il n'existe pas d'agent chef, et il ne doit pas en exister. Avant de déléguer, voir la skill `orchestration` : routage, brief, et surtout quand ne PAS déléguer.
-- **Toute friction qui coûte du temps se range dans une skill immédiatement.** On ne redécouvre pas deux fois le même piège. Son contrepoids : lancer `audit-des-skills` tous les deux ou trois ajouts, pour que la bibliothèque ne dérive pas.
+- **Les skills et les agents s'entretiennent tout seuls, sans qu'on le demande.** Quatre déclencheurs, et eux seuls : une friction a coûté du temps ; un fichier affirme quelque chose devenu faux ; une skill aurait dû se déclencher et ne l'a pas fait (sa `description` est en cause) ; un agent a mal travaillé (son brief est en cause, pas lui). Corriger dans la foulée, en un commit à part qui dit le gain obtenu.
+- **Hors de ces quatre cas, on ne touche à rien.** Ne jamais chercher quoi améliorer pour justifier la règle : une skill qui grossit de retouches cosmétiques coûte du contexte à chaque invocation. Un ajout qui dépasse les seuils de taille se scinde, il ne s'empile pas. Contrepoids : lancer `audit-des-skills` tous les deux ou trois ajouts.
 - **Garde ce fichier court.** Le détail va dans les skills, chargées à la demande.
 - Le propriétaire n'est pas développeur : il tranche le produit, pas la technique. Recommander plutôt que faire arbitrer, et expliquer sans jargon.
 
