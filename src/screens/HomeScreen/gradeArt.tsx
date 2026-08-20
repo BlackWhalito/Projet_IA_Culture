@@ -12,17 +12,13 @@ import type { GradeId } from '../../types/content'
  */
 export const GRADE_ART: Record<GradeId, ReactNode> = {
   cp: (
-    <>
-      <path
-        d="M32,72 Q46,52 61,30"
-        fill="none"
-        stroke="var(--encre)"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <path d="M61,30 L71,19 L67,33 Z" fill="var(--encre)" />
-      <circle cx="30" cy="73" r="7" fill="var(--_accent)" stroke="var(--encre)" strokeWidth="2" />
-    </>
+    <g transform="rotate(-50 50 50)">
+      <rect x="15" y="43" width="10" height="14" rx="2" fill="var(--_accent)" stroke="var(--encre)" strokeWidth="2" />
+      <rect x="25" y="43" width="4" height="14" fill="var(--encre)" opacity="0.55" />
+      <rect x="29" y="43" width="41" height="14" fill="var(--papier)" stroke="var(--encre)" strokeWidth="3" />
+      <path d="M70,43 L83,50 L70,57 Z" fill="var(--papier)" stroke="var(--encre)" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M79,46.5 L88,50 L79,53.5 Z" fill="var(--encre)" />
+    </g>
   ),
   ce1: (
     <>
