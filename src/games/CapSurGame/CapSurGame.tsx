@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { MapClickContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
+import type { CapSurContent, GameCompleteResult } from '../../types/game'
 import { elapsedSince } from '../../engine/timing'
 import { shuffle } from '../../engine/shuffle'
 import { FranceMap } from '../../components/maps/FranceMap'
@@ -11,7 +10,7 @@ import { EUROPE_ZONES_BY_ID } from '../../content/maps/europe'
 import styles from './CapSurGame.module.css'
 
 interface CapSurGameProps {
-  content: MapClickContent
+  content: CapSurContent
   onComplete: (result: GameCompleteResult) => void
 }
 
@@ -23,7 +22,7 @@ interface Feedback {
   cibleLabel: string
 }
 
-function zonesPourCarte(carteId: MapClickContent['carteId']) {
+function zonesPourCarte(carteId: CapSurContent['carteId']) {
   if (carteId === 'france') return FRANCE_ZONES_BY_ID
   if (carteId === 'europe') return EUROPE_ZONES_BY_ID
   throw new Error(`Carte pas encore disponible pour Cap sur : ${carteId}`)

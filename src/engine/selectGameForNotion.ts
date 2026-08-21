@@ -1,6 +1,6 @@
 import type {
-  IncarnationContent,
-  MapClickContent,
+  FilDesJoursContent,
+  CapSurContent,
   MatchContent,
   QcmContent,
   RiviereContent,
@@ -12,11 +12,11 @@ export type SelectedGame =
   | { gameType: 'qcm'; content: QcmContent }
   | { gameType: 'match'; content: MatchContent }
   | { gameType: 'timeline'; content: TimelineContent }
-  | { gameType: 'mapclick'; content: MapClickContent }
+  | { gameType: 'capsur'; content: CapSurContent }
   | { gameType: 'riviere'; content: RiviereContent }
-  | { gameType: 'incarnation'; content: IncarnationContent }
+  | { gameType: 'fildesjours'; content: FilDesJoursContent }
 
-const GAME_PRIORITY: GameTypeId[] = ['incarnation', 'match', 'timeline', 'riviere', 'mapclick', 'qcm']
+const GAME_PRIORITY: GameTypeId[] = ['fildesjours', 'match', 'timeline', 'riviere', 'capsur', 'qcm']
 
 export function selectGameForNotion(notion: Notion, pinnedGameType?: GameTypeId): SelectedGame {
   const gameType =

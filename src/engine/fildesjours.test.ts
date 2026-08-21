@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from './incarnation'
-import type { IncarnationContent } from '../types/game'
+import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from './fildesjours'
+import type { FilDesJoursContent } from '../types/game'
 
 describe('jaugesInitiales', () => {
   it('initialise chaque jauge à sa valeur de départ', () => {
-    const jauges: IncarnationContent['jauges'] = [
+    const jauges: FilDesJoursContent['jauges'] = [
       { id: 'moral', label: 'Moral', depart: 60 },
       { id: 'vivres', label: 'Vivres', depart: 80 },
     ]
@@ -41,7 +41,7 @@ describe('appliquerEffets', () => {
 })
 
 describe('resoudreEpilogue', () => {
-  const epilogues: IncarnationContent['epilogues'] = [
+  const epilogues: FilDesJoursContent['epilogues'] = [
     { condition: { moral: [70, 100] }, texte: 'Triomphe' },
     { condition: { moral: [30, 69] }, texte: 'Fortune diverse' },
     { condition: {}, texte: 'Naufrage' },
@@ -60,7 +60,7 @@ describe('resoudreEpilogue', () => {
   })
 
   it('gère plusieurs jauges dans une même condition', () => {
-    const multi: IncarnationContent['epilogues'] = [
+    const multi: FilDesJoursContent['epilogues'] = [
       { condition: { moral: [50, 100], vivres: [50, 100] }, texte: 'Bien' },
       { condition: {}, texte: 'Replis' },
     ]

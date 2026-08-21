@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { TimelineContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
+import type { TimelineContent, GameCompleteResult } from '../../types/game'
 import { shuffle } from '../../engine/shuffle'
 import { elapsedSince } from '../../engine/timing'
 import styles from './TimelineGame.module.css'

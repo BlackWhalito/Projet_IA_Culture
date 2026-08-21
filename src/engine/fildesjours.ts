@@ -1,9 +1,9 @@
-import type { IncarnationContent } from '../types/game'
+import type { FilDesJoursContent } from '../types/game'
 
 const JAUGE_MIN = 0
 const JAUGE_MAX = 100
 
-export function jaugesInitiales(jauges: IncarnationContent['jauges']): Record<string, number> {
+export function jaugesInitiales(jauges: FilDesJoursContent['jauges']): Record<string, number> {
   const etat: Record<string, number> = {}
   for (const jauge of jauges) {
     etat[jauge.id] = jauge.depart
@@ -28,8 +28,8 @@ export function appliquerEffets(jauges: Record<string, number>, effets: Record<s
  */
 export function resoudreEpilogue(
   jauges: Record<string, number>,
-  epilogues: IncarnationContent['epilogues'],
-): IncarnationContent['epilogues'][number] {
+  epilogues: FilDesJoursContent['epilogues'],
+): FilDesJoursContent['epilogues'][number] {
   const trouve = epilogues.find((epilogue) =>
     Object.entries(epilogue.condition).every(([id, [min, max]]) => {
       const valeur = jauges[id] ?? 0

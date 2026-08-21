@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { GradeId } from '../types/content'
-import type { NotionResult } from '../games/gameTypes'
+import type { NotionResult } from '../types/game'
 import { createEmptyProgress, PROGRESS_SCHEMA_VERSION, type UserProgress } from '../types/progress'
 import { computeNextMastery, computeSessionScore, computeStarRating } from '../engine/scoring'
 

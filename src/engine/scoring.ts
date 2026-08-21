@@ -1,3 +1,5 @@
+import type { GameCompleteResult } from '../types/game'
+
 const MASTERY_CORRECT_DELTA = 20
 const MASTERY_INCORRECT_DELTA = -10
 export const MASTERY_THRESHOLD = 70
@@ -37,20 +39,10 @@ const BONUS_RAPIDITE_MAX = 50
 const PLAFOND_RAPIDITE_MS = 15_000
 
 /**
- * Forme minimale attendue par le score. `GameCompleteResult` la satisfait
- * structurellement, sans que le moteur dépende du dossier des jeux.
- */
-export interface ScoredAttempt {
-  correct: boolean
-  timeMs: number
-  mistakes?: number
-}
-
-/**
  * Score d'une session, la seule chose qu'on puisse battre en rejouant.
  * Les étoiles restent la porte de déverrouillage ; le score, lui, mesure la manière.
  */
-export function computeSessionScore(attempts: ScoredAttempt[]): number {
+export function computeSessionScore(attempts: GameCompleteResult[]): number {
   let total = 0
   for (const attempt of attempts) {
     if (!attempt.correct) continue

@@ -1,5 +1,5 @@
 import type { SelectedGame } from '../engine/selectGameForNotion'
-import type { GameCompleteResult } from './gameTypes'
+import type { GameCompleteResult } from '../types/game'
 import { QcmGame } from './QcmGame/QcmGame'
 import { MatchGame } from './MatchGame/MatchGame'
 import { TimelineGame } from './TimelineGame/TimelineGame'
@@ -22,9 +22,9 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <TimelineGame content={selected.content} onComplete={onComplete} />
     case 'riviere':
       return <RiviereGame content={selected.content} onComplete={onComplete} />
-    case 'incarnation':
+    case 'fildesjours':
       return <FilDesJoursGame content={selected.content} onComplete={onComplete} />
-    case 'mapclick':
+    case 'capsur':
       return <CapSurGame content={selected.content} onComplete={onComplete} />
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { MatchContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
+import type { MatchContent, GameCompleteResult } from '../../types/game'
 import { shuffle } from '../../engine/shuffle'
 import { elapsedSince } from '../../engine/timing'
 import styles from './MatchGame.module.css'

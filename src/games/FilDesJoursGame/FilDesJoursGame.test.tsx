@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { FilDesJoursGame } from './FilDesJoursGame'
-import type { IncarnationContent } from '../../types/game'
+import type { FilDesJoursContent } from '../../types/game'
 
-const SCENARIO_BIDON: IncarnationContent = {
+const SCENARIO_BIDON: FilDesJoursContent = {
   personnage: { nom: 'Test', annee: '1000', role: 'Cobaye' },
   jauges: [{ id: 'moral', label: 'Moral', depart: 50 }],
   etapes: [

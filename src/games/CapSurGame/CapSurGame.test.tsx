@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { CapSurGame } from './CapSurGame'
-import type { MapClickContent } from '../../types/game'
+import type { CapSurContent } from '../../types/game'
 
-const CONTENU: MapClickContent = {
+const CONTENU: CapSurContent = {
   carteId: 'france',
   cibles: ['paris', 'lyon', 'marseille', 'lille', 'nantes'],
   secondesParCible: 6,
@@ -44,7 +44,7 @@ describe('CapSurGame', () => {
 
   it('joue aussi sur la carte d\'Europe', () => {
     const onComplete = vi.fn()
-    const contenuEurope: MapClickContent = {
+    const contenuEurope: CapSurContent = {
       carteId: 'europe',
       cibles: ['europe', 'afrique', 'asie'],
       secondesParCible: 6,

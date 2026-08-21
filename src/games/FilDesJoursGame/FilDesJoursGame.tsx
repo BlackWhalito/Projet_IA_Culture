@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import type { IncarnationContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
-import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from '../../engine/incarnation'
+import type { FilDesJoursContent, GameCompleteResult } from '../../types/game'
+import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from '../../engine/fildesjours'
 import { elapsedSince } from '../../engine/timing'
 import styles from './FilDesJoursGame.module.css'
 
 interface FilDesJoursGameProps {
-  content: IncarnationContent
+  content: FilDesJoursContent
   onComplete: (result: GameCompleteResult) => void
 }
 
@@ -31,7 +30,7 @@ export function FilDesJoursGame({ content, onComplete }: FilDesJoursGameProps) {
   const etape = content.etapes[stepIndex]
   const epilogue = phase === 'epilogue' ? resoudreEpilogue(jauges, content.epilogues) : null
 
-  function handleChoix(option: IncarnationContent['etapes'][number]['options'][number]) {
+  function handleChoix(option: FilDesJoursContent['etapes'][number]['options'][number]) {
     setJauges((j) => appliquerEffets(j, option.effets))
     setConsequence({ texte: option.consequence, historique: option.historique })
     setPhase('consequence')
