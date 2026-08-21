@@ -7,6 +7,8 @@ Direction artistique des **petites classes** (CP). Les grandes classes basculero
 
 Objectif : **beau et contemplatif, sans jamais gêner le jeu.** Tout ce qui suit sert cet arbitrage.
 
+> **Tu vas peindre une scène dans un `<canvas>`** (les tableaux de l'accueil, `src/components/watercolor/`) ? Lis d'abord `references/peinture-generative.md`. Il rassemble les pièges qui ont chacun coûté une itération jugée ratée — dont le plus coûteux : ajouter de la matière quand c'est le dessin qui manque. Ce qui suit ici traite du SVG et du CSS, pas du moteur génératif.
+
 ## Montage dans l'app
 
 Les filtres et le grain de papier sont déclarés une seule fois, montés à la racine (`src/components/AquarelleAtmosphere.tsx`, appelé dans `App.tsx`) — ne les redéclare jamais dans un écran ou un composant de jeu, référence-les simplement par `filter="url(#aq-bord-1)"` etc. Pour teinter un badge ou un élément avec une couleur dynamique (ex. la couleur du domaine), passe-la en propriété CSS personnalisée via `style` plutôt qu'en valeur figée dans le module CSS :

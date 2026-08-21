@@ -1,6 +1,6 @@
 import { dryStroke, hatch, wash } from './engine'
 import type { Point } from './engine'
-import { VALEUR, attenue } from './light'
+import { VALEUR, attenue, litFromLeft } from './light'
 import type { LightPlan } from './light'
 
 /**
@@ -97,7 +97,7 @@ export function facade(
   const { stone, shade, distance = 0, floors = 4, bays = 2 } = options
   const x0 = x - width / 2
   const x1 = x + width / 2
-  const litFromLeft = Math.cos((plan.angleDeg * Math.PI) / 180) < 0
+  const lit = litFromLeft(plan)
 
   wash(ctx, [
     [x0, yBase],
@@ -112,10 +112,28 @@ export function facade(
     jitter: 0.03,
   })
 
+  // La face au soleil se réchauffe. Une masse d'une seule teinte reste
+  // plate quel que soit son modelé : c'est l'écart de température entre le
+  // côté éclairé et le côté à l'ombre qui la fait tourner dans l'espace.
+  const warmFrom = lit ? x0 : x0 + width * 0.5
+  const warmTo = lit ? x0 + width * 0.5 : x1
+  wash(ctx, [
+    [warmFrom, yBase],
+    [warmFrom, yTop],
+    [warmTo, yTop],
+    [warmTo, yBase],
+  ], rng, {
+    color: plan.warm,
+    layers: 8,
+    alpha: attenue(VALEUR.CLAIR, distance) / 8,
+    spread: 0.03,
+    jitter: 0.05,
+  })
+
   // Le côté opposé à la lumière prend l'ombre — toujours du même côté pour
   // toute la scène, c'est ce qui fait tenir l'ensemble.
-  const shadeFrom = litFromLeft ? x0 + width * 0.55 : x0
-  const shadeTo = litFromLeft ? x1 : x0 + width * 0.45
+  const shadeFrom = lit ? x0 + width * 0.55 : x0
+  const shadeTo = lit ? x1 : x0 + width * 0.45
   wash(ctx, [
     [shadeFrom, yBase],
     [shadeFrom, yTop],
@@ -132,7 +150,7 @@ export function facade(
   windows(ctx, x0, yTop, x1, yBase, floors, bays, rng, plan, distance)
 
   // L'arête éclairée, nette : le seul bord franc de la façade.
-  const edgeX = litFromLeft ? x0 : x1
+  const edgeX = lit ? x0 : x1
   dryStroke(ctx, [[edgeX, yTop], [edgeX, yBase]], 1.1, rng, {
     color: plan.accent,
     alpha: attenue(0.42, distance),
@@ -285,13 +303,13 @@ export function dome(
     jitter: 0.05,
   })
   // La moitié à l'ombre, du côté opposé à la lumière.
-  const litFromLeft = Math.cos((plan.angleDeg * Math.PI) / 180) < 0
+  const lit = litFromLeft(plan)
   const shadeSide: Point[] = []
   for (let a = 0; a <= 8; a += 1) {
-    const t = litFromLeft ? Math.PI * 1.5 + (a / 8) * Math.PI * 0.5 : Math.PI + (a / 8) * Math.PI * 0.5
+    const t = lit ? Math.PI * 1.5 + (a / 8) * Math.PI * 0.5 : Math.PI + (a / 8) * Math.PI * 0.5
     shadeSide.push([x + Math.cos(t) * radius, yBase + Math.sin(t) * radius * 1.15])
   }
-  shadeSide.push([x + (litFromLeft ? radius : -radius), yBase], [x, yBase])
+  shadeSide.push([x + (lit ? radius : -radius), yBase], [x, yBase])
   wash(ctx, shadeSide, rng, {
     color: shade,
     layers: 10,
@@ -325,12 +343,14 @@ export function stoneTexture(
   // Des coulures fines et longues, pas des touches épaisses : `dryStroke`
   // effile ses deux bouts, donc une touche large et courte prend une forme
   // de feuille — sur un mur, ça se lit comme du feuillage collé à la façade.
-  // Un rapport longueur/largeur d'au moins 20:1 la ramène à une trace d'eau.
-  hatch(ctx, cx, cy, rx, ry, 90, Math.round(8 + (1 - distance) * 8), rng, {
+  // Mais trop fines et trop contrastées, elles basculent dans l'autre excès
+  // et rayent la façade comme des griffures : la coulure doit rester une
+  // variation de la pierre, pas un trait posé dessus.
+  hatch(ctx, cx, cy, rx, ry, 90, Math.round(5 + (1 - distance) * 5), rng, {
     color: plan.cool,
-    alpha: attenue(0.22, distance),
-    layers: 2,
-    length: ry * 0.85,
-    width: rx * 0.035,
+    alpha: attenue(0.09, distance),
+    layers: 1,
+    length: ry * 0.7,
+    width: rx * 0.09,
   })
 }

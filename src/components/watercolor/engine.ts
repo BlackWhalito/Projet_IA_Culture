@@ -119,12 +119,20 @@ export function wash(
   options: WashOptions,
 ): void {
   const { color, layers = 34, alpha = 0.03, spread = 0.16, jitter = 0.085 } = options
-  const parent = deform(base, 4, spread, rng)
+  // La silhouette parente ne se subdivise que 2 fois, pas 4. C'est le
+  // réglage le plus subtil du moteur : `deform` déplace chaque point d'une
+  // fraction de la LONGUEUR DE SON ARÊTE. Si le parent est déjà finement
+  // subdivisé, ses arêtes sont courtes, donc la déformation par couche
+  // devient minuscule — toutes les couches se superposent presque
+  // exactement et le lavis rend un aplat à bord net, d'autant plus visible
+  // que la forme est grande. En gardant le parent grossier, chaque couche
+  // se déforme sur de longues arêtes et les bords redeviennent vivants.
+  const parent = deform(base, 2, spread, rng)
   ctx.save()
   ctx.fillStyle = color
   ctx.globalAlpha = alpha
   for (let i = 0; i < layers; i += 1) {
-    tracePath(ctx, deform(parent, 2, jitter, rng))
+    tracePath(ctx, deform(parent, 3, jitter, rng))
     ctx.fill()
   }
   ctx.restore()
@@ -293,7 +301,11 @@ export function hatch(
  * un entre-deux fade — c'est le contraste de valeurs qui manque le plus.
  */
 export function highlight(ctx: CanvasRenderingContext2D, base: Point[], rng: () => number, options: WashOptions): void {
-  wash(ctx, base, rng, { layers: 18, alpha: 0.09, spread: 0.12, jitter: 0.08, ...options })
+  // `spread`/`jitter` volontairement élevés : un éclat de lumière est la
+  // forme la plus facile à trahir. Trop régulier, il garde la silhouette du
+  // polygone qui l'a engendré et se lit comme un jeton posé sur l'eau —
+  // exactement ce qu'un blanc réservé ne doit jamais faire.
+  wash(ctx, base, rng, { layers: 16, alpha: 0.09, spread: 0.34, jitter: 0.22, ...options })
 }
 
 /**

@@ -1,7 +1,8 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { dryStroke, flecks, hatch, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, flecks, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import { arcade, cornice, dome, facade, pitchedRoof, stoneTexture } from '../../components/watercolor/architecture'
+import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
 import type { LightPlan } from '../../components/watercolor/light'
 
 /**
@@ -91,26 +92,32 @@ function voile(
 export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   const horizon = h * 0.34
 
-  // Ciel : un dégradé simple et calme, du chaud en haut vers le pâle sur
-  // l'horizon. Confiné au-dessus de l'horizon (voir la note `multiply` de
-  // la scène de droite).
-  wash(ctx, polygon(w * 0.5, h * 0.06, w * 0.9, h * 0.12, 12, 0, rng), rng, {
-    color: SABLE,
-    layers: 18,
-    alpha: 0.02,
-    spread: 0.2,
+  // Ciel : un vrai dégradé continu, plus dense et plus froid en haut, se
+  // vidant vers l'horizon où le papier reste presque nu. C'est cette bande
+  // claire juste au-dessus de l'eau qui donne la lumière du tableau.
+  gradedWash(ctx, -w * 0.05, 0, w * 1.05, horizon, [
+    { at: 0, color: VIOLET, alpha: 0.5 },
+    { at: 0.45, color: VIOLET_BRUME, alpha: 0.32 },
+    { at: 0.8, color: SABLE, alpha: 0.16 },
+    { at: 1, color: SABLE, alpha: 0.05 },
+  ], rng, 3)
+
+  // Trois nuages, décalés et de tailles franchement inégales — alignés ou
+  // de même taille, ils redeviennent une frise décorative.
+  cloud(ctx, w * 0.32, h * 0.13, w * 0.7, h * 0.06, rng, LUMIERE, {
+    light: PIERRE_PALE,
+    shade: VIOLET,
+    alpha: 0.16,
   })
-  wash(ctx, polygon(w * 0.35, h * 0.16, w * 0.6, h * 0.1, 11, 0, rng), rng, {
-    color: VIOLET_BRUME,
-    layers: 16,
-    alpha: 0.016,
-    spread: 0.22,
+  cloud(ctx, w * 0.78, h * 0.2, w * 0.5, h * 0.038, rng, LUMIERE, {
+    light: PIERRE_PALE,
+    shade: VIOLET_BRUME,
+    alpha: 0.12,
   })
-  wash(ctx, polygon(w * 0.75, h * 0.1, w * 0.4, h * 0.08, 10, 0, rng), rng, {
-    color: OCRE,
-    layers: 12,
-    alpha: 0.012,
-    spread: 0.24,
+  cloud(ctx, w * 0.5, h * 0.28, w * 0.85, h * 0.022, rng, LUMIERE, {
+    light: SABLE,
+    shade: VIOLET_BRUME,
+    alpha: 0.08,
   })
 
   // La rive lointaine : des silhouettes très pâles, à peine posées, avec un
@@ -148,65 +155,37 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // L'eau : des masses larges et superposées, de plus en plus sombres et
   // franches en descendant — c'est la perspective, l'eau lointaine est
   // toujours plus pâle que celle qui est à nos pieds.
-  // Chaque masse déborde largement sur ses voisines (`ry` vaut près du
-  // double de l'écart entre deux centres) : sans ce recouvrement, les
-  // teintes se juxtaposent et l'eau se lit comme un empilement de bandes
-  // au lieu d'une seule étendue qui change de couleur.
-  const bandes: Array<[number, number, string, number, number]> = [
-    [0.42, 0.2, BLEU_CLAIR, 0.017, 12],
-    [0.55, 0.22, TURQUOISE, 0.016, 13],
-    [0.68, 0.23, BLEU, 0.019, 12],
-    [0.81, 0.24, VIOLET, 0.017, 14],
-    [0.94, 0.26, VIOLET_PROFOND, 0.021, 12],
-  ]
-  for (const [cy, ry, color, alpha, sides] of bandes) {
-    wash(ctx, polygon(w * 0.5, h * cy, w * 0.85, h * ry, sides, rng() * 6, rng), rng, {
-      color,
-      layers: 24,
-      alpha,
-      spread: 0.14,
-      jitter: 0.11,
-    })
-  }
+  // L'eau : un seul dégradé continu du pâle (horizon) au profond (premier
+  // plan). Des ellipses de couleurs différentes empilées se liraient
+  // toujours comme des bandes — l'œil trouve la frontière quel que soit le
+  // recouvrement.
+  // Un dégradé natif est bien plus faible qu'une accumulation de lavis à
+  // opacité comparable : il ne passe qu'une fois. Les valeurs doivent donc
+  // être nettement plus hautes qu'on ne l'attend.
+  gradedWash(ctx, -w * 0.05, horizon, w * 1.05, h * 1.02, [
+    { at: 0, color: BLEU_CLAIR, alpha: 0.22 },
+    { at: 0.26, color: TURQUOISE, alpha: 0.42 },
+    { at: 0.56, color: BLEU, alpha: 0.56 },
+    { at: 0.8, color: VIOLET, alpha: 0.6 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.72 },
+  ], rng, 4)
 
   // Les reflets de la rive, tirés verticalement juste sous l'horizon.
-  for (let i = 0; i < 7; i += 1) {
-    const rx = w * (0.1 + rng() * 0.8)
-    dryStroke(ctx, [[rx, horizon], [rx + (rng() - 0.5) * w * 0.04, horizon + h * (0.02 + rng() * 0.05)]], w * 0.05, rng, {
-      color: VIOLET_BRUME,
-      alpha: 0.1 + rng() * 0.08,
-      layers: 2,
-      jitter: 0.14,
-    })
-  }
+  reflection(ctx, w * 0.24, w * 0.3, horizon, h * 0.045, VIOLET_BRUME, rng, 5)
+  reflection(ctx, w * 0.62, w * 0.34, horizon, h * 0.038, VIOLET_BRUME, rng, 5)
+  reflection(ctx, w * 0.44, w * 0.04, horizon, h * 0.055, VIOLET, rng, 2)
 
-  // Granulation, dispersée pour ne pas dessiner de motif.
-  flecks(ctx, w * 0.5, h * 0.68, w * 0.42, h * 0.3, 22, rng, { color: VIOLET_PROFOND, alpha: 0.02 })
-  flecks(ctx, w * 0.5, h * 0.5, w * 0.4, h * 0.14, 12, rng, { color: BLEU_CLAIR, alpha: 0.028 })
+  // Granulation, très discrète : sur une surface d'eau, des éclats trop
+  // marqués se lisent comme des objets qui flottent, pas comme du pigment.
+  flecks(ctx, w * 0.5, h * 0.72, w * 0.42, h * 0.26, 10, rng, { color: VIOLET_PROFOND, alpha: 0.012 })
 
-  // Les rides : très longues et très fines. Une touche courte et épaisse se
-  // lit comme un débris flottant ; c'est l'allongement extrême (plus de
-  // 60:1) qui la fait basculer en reflet posé à la surface.
-  hatch(ctx, w * 0.5, h * 0.47, w * 0.44, h * 0.06, 1, 8, rng, {
+  // Les rides, en perspective : serrées et fines près de l'horizon, plus
+  // rares et plus marquées au premier plan. C'est cette variation d'échelle
+  // qui couche le plan d'eau — des touches de taille constante feraient
+  // lire un mur vertical texturé.
+  ripples(ctx, 0, w, horizon + h * 0.02, h * 1.0, 34, rng, {
     color: BLEU,
-    alpha: 0.07,
-    layers: 1,
-    length: w * 0.62,
-    width: h * 0.0022,
-  })
-  hatch(ctx, w * 0.5, h * 0.73, w * 0.44, h * 0.15, 2, 11, rng, {
-    color: VIOLET_PROFOND,
-    alpha: 0.1,
-    layers: 1,
-    length: w * 0.56,
-    width: h * 0.0026,
-  })
-  hatch(ctx, w * 0.5, h * 0.94, w * 0.42, h * 0.08, -2, 7, rng, {
-    color: ENCRE_SOMBRE,
-    alpha: 0.1,
-    layers: 1,
-    length: w * 0.5,
-    width: h * 0.003,
+    accent: VIOLET_PROFOND,
   })
 
   // Les voiles : deux au loin, minuscules, une plus près et plus franche.
@@ -240,21 +219,28 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
  * sujet : la barque doit rester petite pour que la ville paraisse immense.
  */
 export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
-  // Brume de fond, confinée au ciel. En `multiply`, rien n'occulte rien :
-  // un lavis qui déborde sur la ville reste visible À TRAVERS les façades
-  // et se lit comme une écharpe qui traverse les bâtiments. Chaque masse
-  // doit donc rester dans sa zone plutôt que compter sur l'ordre de dessin.
-  wash(ctx, polygon(w * 0.5, h * 0.1, w * 0.85, h * 0.16, 11, 0, rng), rng, {
-    color: OCRE,
-    layers: 18,
-    alpha: 0.014,
-    spread: 0.22,
+  // Ciel : même construction que la lagune — un dégradé continu qui se vide
+  // vers le bas, et des nuages structurés. C'est ce qui fait que les deux
+  // tableaux se répondent au lieu de coexister.
+  //
+  // Confiné au ciel : en `multiply`, rien n'occulte rien, un lavis qui
+  // déborde sur la ville reste visible À TRAVERS les façades et se lit
+  // comme une écharpe qui traverse les bâtiments.
+  gradedWash(ctx, -w * 0.05, 0, w * 1.05, h * 0.34, [
+    { at: 0, color: OCRE, alpha: 0.34 },
+    { at: 0.5, color: VIOLET_BRUME, alpha: 0.26 },
+    { at: 0.85, color: SABLE, alpha: 0.12 },
+    { at: 1, color: SABLE, alpha: 0.04 },
+  ], rng, 3)
+  cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
+    light: PIERRE_PALE,
+    shade: VIOLET,
+    alpha: 0.14,
   })
-  wash(ctx, polygon(w * 0.5, h * 0.22, w * 0.8, h * 0.13, 11, 0, rng), rng, {
-    color: VIOLET_BRUME,
-    layers: 18,
-    alpha: 0.016,
-    spread: 0.2,
+  cloud(ctx, w * 0.22, h * 0.2, w * 0.5, h * 0.026, rng, LUMIERE, {
+    light: SABLE,
+    shade: VIOLET_BRUME,
+    alpha: 0.09,
   })
 
   // La ville. Chaque bâtiment est un vrai volume d'architecture — façade
@@ -340,53 +326,30 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   // Les reflets : tirés vers le bas en traits verticaux, puis cassés par des
   // rides horizontales. Un reflet qui ne serait qu'une copie délavée reste
   // une tache ; ce sont les cassures qui en font de l'eau.
-  for (const [cx, largeur, color] of [
-    [0.3, 0.13, PIERRE_CHAUDE],
-    [0.56, 0.17, PIERRE_PALE],
-    [0.82, 0.3, VIOLET_PROFOND],
-    [0.08, 0.2, PIERRE_PALE],
-  ] as Array<[number, number, string]>) {
-    const x = w * cx
-    const bw = w * largeur
-    for (let s = 0; s < 5; s += 1) {
-      const sx = x - bw / 2 + (bw * (s + 0.5)) / 5
-      dryStroke(ctx, [[sx, quai], [sx + (rng() - 0.5) * bw * 0.1, quai + h * (0.05 + rng() * 0.09)]], bw * 0.14, rng, {
-        color,
-        alpha: 0.12 + rng() * 0.1,
-        layers: 2,
-        jitter: 0.12,
-      })
-    }
+  for (const [cx, largeur, color, longueur] of [
+    [0.3, 0.13, PIERRE_CHAUDE, 0.16],
+    [0.56, 0.17, PIERRE_PALE, 0.13],
+    [0.82, 0.3, VIOLET_PROFOND, 0.15],
+    [0.08, 0.2, PIERRE_PALE, 0.12],
+  ] as Array<[number, number, string, number]>) {
+    reflection(ctx, w * cx, w * largeur, quai, h * longueur, color, rng, 9)
   }
 
-  // L'eau, tenue sous la ligne de quai (0.66) pour la même raison que la
-  // brume : en `multiply`, une bande d'eau qui remonte trop haut traverse
+  // L'eau, tenue sous la ligne de quai pour la même raison que le ciel :
+  // en `multiply`, une bande d'eau qui remonte trop haut traverse
   // visiblement les façades.
-  for (const [cy, ry, color, alpha] of [
-    [0.75, 0.1, BLEU_CLAIR, 0.024],
-    [0.85, 0.12, BLEU, 0.028],
-    [0.96, 0.14, VIOLET_PROFOND, 0.026],
-  ] as Array<[number, number, string, number]>) {
-    wash(ctx, polygon(w * 0.5, h * cy, w * 0.78, h * ry, 11, rng() * 6, rng), rng, {
-      color,
-      layers: 24,
-      alpha,
-      spread: 0.13,
-      jitter: 0.1,
-    })
-  }
-  flecks(ctx, w * 0.5, h * 0.85, w * 0.38, h * 0.14, 12, rng, { color: VIOLET_PROFOND, alpha: 0.02 })
-  stroke(ctx, houle(h * 0.7, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
-  stroke(ctx, houle(h * 0.86, 3.5, w * 0.75, rng), 1.8, rng, { color: BLEU_CLAIR, alpha: 0.03, layers: 8 })
-  // Ondulations : des hachures presque horizontales plutôt qu'un voile
-  // uniforme — c'est le même geste que sur les tours, à l'échelle de l'eau.
-  hatch(ctx, w * 0.5, h * 0.78, w * 0.4, h * 0.14, 4, 20, rng, {
-    color: VIOLET_PROFOND,
-    alpha: 0.22,
-    layers: 2,
-    length: w * 0.09,
-    width: h * 0.006,
+  gradedWash(ctx, -w * 0.05, quai, w * 1.05, h * 1.02, [
+    { at: 0, color: BLEU_CLAIR, alpha: 0.26 },
+    { at: 0.35, color: BLEU, alpha: 0.46 },
+    { at: 0.72, color: VIOLET, alpha: 0.56 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.68 },
+  ], rng, 4)
+  // Les rides, en perspective comme sur la lagune.
+  ripples(ctx, 0, w, quai + h * 0.01, h * 1.0, 26, rng, {
+    color: BLEU,
+    accent: VIOLET_PROFOND,
   })
+  stroke(ctx, houle(h * 0.72, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
   // Deux éclats de lumière francs sur l'eau — le papier qui perce net,
   // pas seulement un voile pâle.
   highlight(ctx, polygon(w * 0.68, h * 0.73, w * 0.06, h * 0.014, 7, rng() * 6, rng), rng, {

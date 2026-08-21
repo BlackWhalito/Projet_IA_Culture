@@ -22,29 +22,37 @@ export interface LightPlan {
   accent: string
 }
 
-/** Une face est-elle tournée vers la lumière ? `nx` = normale horizontale. */
-export function isLit(plan: LightPlan, nx: number): boolean {
-  return Math.cos((plan.angleDeg * Math.PI) / 180) * nx > 0
+/**
+ * La lumière vient-elle de la gauche ? Décide de quel côté tombe l'ombre
+ * pour tout élément de la scène. À utiliser partout plutôt que de recopier
+ * le calcul : trois copies de la même formule finissent par diverger.
+ */
+export function litFromLeft(plan: LightPlan): boolean {
+  return Math.cos((plan.angleDeg * Math.PI) / 180) < 0
 }
 
 /**
- * Les cinq valeurs d'une scène, de la plus claire à la plus sombre.
+ * Les cinq valeurs d'une scène.
  *
- * Un tableau lisible en utilise peu et les espace franchement. La règle qui
- * compte : `LUMIERE` reste du papier presque nu, et `ACCENT` ne couvre qu'une
- * poignée de pixels — les fenêtres, une proue, une silhouette. C'est ce
- * rapport entre de très petits noirs et de grandes zones claires qui fait
- * qu'une aquarelle « claque » ; l'étaler en grandes masses sombres produit
- * l'inverse, une image lourde et sans air.
+ * Ce sont des **densités de pigment cumulées**, pas des niveaux de gris :
+ * `OMBRE` s'ajoute par-dessus `MOYEN` déjà posé, donc sa valeur propre est
+ * plus basse alors que le résultat à l'écran est plus sombre. Ne pas les
+ * comparer entre elles comme une échelle.
+ *
+ * La règle qui compte : `LUMIERE` reste du papier presque nu, et `ACCENT`
+ * ne couvre qu'une poignée de pixels — les fenêtres, une proue, une
+ * silhouette. C'est ce rapport entre de très petits noirs et de grandes
+ * zones claires qui fait qu'une aquarelle « claque » ; étaler l'accent en
+ * grandes masses produit l'inverse, une image lourde et sans air.
  */
 export const VALEUR = {
   /** Papier réservé : on ne peint pas, ou à peine. */
   LUMIERE: 0.04,
   /** Surface éclairée, encore très claire. */
   CLAIR: 0.1,
-  /** La valeur moyenne, celle qui occupe le plus de surface. */
+  /** Le corps d'une masse, posé en premier. Couvre le plus de surface. */
   MOYEN: 0.42,
-  /** Les ombres franches, par masses limitées. */
+  /** L'ombre, ajoutée PAR-DESSUS le corps. Par masses limitées. */
   OMBRE: 0.34,
   /** Les tout petits accents. Jamais sur une grande surface. */
   ACCENT: 0.62,
