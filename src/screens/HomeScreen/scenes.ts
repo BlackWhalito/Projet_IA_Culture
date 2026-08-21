@@ -637,22 +637,31 @@ export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
   stroke(ctx, houle(h * 0.8, 3, w * 0.96, rng), 2, rng, { color: VIOLET_PROFOND, alpha: 0.014, layers: 8 })
 
   // Deux adultes qui lisent, à la place des deux lavis abstraits d'origine
-  // — même emplacement, mêmes teintes (VIOLET_BRUME et BLEU_CLAIR, qui
-  // étaient déjà la charte graphique de ce coin du bandeau), mais des
-  // silhouettes reconnaissables plutôt que des taches de couleur. Postées
-  // au même niveau de sol que la fillette (`h*0.74`, l'ourlet de sa robe)
-  // pour que les trois figures partagent une seule ligne de base.
+  // — même emplacement, même famille de teintes (violet/bleu, déjà la
+  // charte graphique de ce coin du bandeau), mais des silhouettes
+  // reconnaissables plutôt que des taches de couleur. Postées au même
+  // niveau de sol que la fillette (`h*0.74`, l'ourlet de sa robe) pour que
+  // les trois figures partagent une seule ligne de base.
+  //
+  // `VIOLET`/`BLEU`, pas `VIOLET_BRUME`/`BLEU_CLAIR` (les teintes des
+  // lavis d'origine) : ces variantes pâles étaient pensées pour une
+  // atmosphère de fond à faible contraste, pas pour porter un livre. En
+  // `multiply`, un livre `PAPIER` (quasi blanc) posé sur un vêtement déjà
+  // quasi blanc ne produit presque aucun contraste — signalé par le
+  // `verificateur` : la lecture ne se lisait plus, seul le contour du
+  // livre restait visible. `girlWriting`, juste à côté, pose le même
+  // `PAPIER` sur `VIOLET` (nettement plus saturé) sans ce problème.
   adultReading(ctx, w * 0.14, h * 0.74, h * 0.24, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
-    clothes: VIOLET_BRUME,
+    clothes: VIOLET,
     paper: PAPIER,
     accent: ENCRE_SOMBRE,
   })
   adultReading(ctx, w * 0.32, h * 0.74, h * 0.22, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
-    clothes: BLEU_CLAIR,
+    clothes: BLEU,
     paper: PAPIER,
     accent: ENCRE_SOMBRE,
   })

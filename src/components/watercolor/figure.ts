@@ -372,18 +372,28 @@ export function adultReading(
     [bookX + bookW / 2, bookY - bookH / 2],
     [bookX + bookW / 2, bookY + bookH / 2],
   ], rng, { color: paper, layers: 14, alpha: 0.55 / 14, spread: 0.04, jitter: 0.06 })
+  // Contour nettement plus appuyé que celui du carnet de `girlWriting`
+  // (largeur et alpha nettement relevés, pas seulement copiés) : le carnet
+  // repose sur le bureau (bois `SABLE`), jamais sur la robe — ce livre-ci
+  // est tenu contre le vêtement lui-même. Le remplissage `paper` reste
+  // quasi indifférent au fond en `multiply` (un blanc cassé ne peut
+  // qu'assombrir très légèrement ce qu'il recouvre, quelle que soit sa
+  // couleur — la même limite que le highlight des nuages d'un chantier
+  // précédent), donc c'est ce contour, seul, qui doit rendre le rectangle
+  // du livre lisible. Signalé par le `verificateur` : à l'alpha/largeur du
+  // carnet, le livre restait quasi invisible ici.
   dryStroke(ctx, [
     [bookX - bookW / 2, bookY - bookH / 2],
     [bookX + bookW / 2, bookY - bookH / 2],
     [bookX + bookW / 2, bookY + bookH / 2],
     [bookX - bookW / 2, bookY + bookH / 2],
     [bookX - bookW / 2, bookY - bookH / 2],
-  ], scale * 0.02, rng, { color: accent, alpha: 0.28, layers: 1 })
+  ], scale * 0.035, rng, { color: accent, alpha: 0.5, layers: 2 })
   // La reliure : un trait central qui sépare les deux pages, suggéré plutôt
   // que du texte — jamais de texte lisible, seulement le geste du livre.
-  dryStroke(ctx, [[bookX, bookY - bookH * 0.4], [bookX, bookY + bookH * 0.4]], scale * 0.016, rng, {
+  dryStroke(ctx, [[bookX, bookY - bookH * 0.4], [bookX, bookY + bookH * 0.4]], scale * 0.02, rng, {
     color: accent,
-    alpha: 0.24,
+    alpha: 0.4,
     layers: 1,
   })
 
