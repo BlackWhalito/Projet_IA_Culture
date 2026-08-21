@@ -234,6 +234,14 @@ export function cloud(
     // « pastille détachée » que ce correctif visait à éliminer.
     const hw = Math.min(litLobe.lw, width / lobes)
     const hh = Math.min(litLobe.lh, height)
+    // Densité proportionnelle à `alpha` du nuage, pas une valeur fixe : un
+    // nuage pâle (petit `alpha`, ex. le deuxième nuage de `oceanScene` à
+    // 0.13) a un corps à peine visible, mais l'éclat restait aussi dense
+    // que sur un nuage franc — plus visible que le lobe censé le porter,
+    // il se lisait comme un point flottant sans support. Repéré par le
+    // `verificateur` sur `scenes.ts:137`, reproductible à chaque rendu
+    // (seed fixe).
+    const highlightAlpha = Math.max(0.06, Math.min(0.16, alpha * 0.7))
     highlight(
       ctx,
       polygon(
@@ -246,7 +254,7 @@ export function cloud(
         rng,
       ),
       rng,
-      { color: highlightColor, alpha: 0.11 },
+      { color: highlightColor, alpha: highlightAlpha },
     )
   }
 }
