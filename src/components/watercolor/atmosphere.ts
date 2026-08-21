@@ -237,7 +237,7 @@ export function cloud(
   // sur `scenes.ts:137` et `:258`). Plus simple et plus robuste : un nuage
   // pâle (fond, brume) n'a pas besoin d'un sommet qui « attrape la
   // lumière » — cet accent n'a de sens que sur les nuages francs du
-  // premier plan, précisément ceux où il était déjà confirmé conforme.
+  // premier plan.
   if (litLobe && alpha >= 0.15) {
     // Rayon plafonné à celui d'un lobe « moyen » (`width/lobes`), pas
     // celui du lobe élu — sinon, quand le chevauchement forcé plus haut a
@@ -258,7 +258,17 @@ export function cloud(
         rng,
       ),
       rng,
-      { color: highlightColor, alpha: 0.11 },
+      // Alpha bien plus basse que l'ancienne constante (0.11) : en
+      // `multiply`, 16 couches à 0.11 cumulent une couverture proche de
+      // 85 % — quasi opaque, donc quasi la couleur brute de `highlightColor`
+      // plutôt qu'un voile translucide. Le `verificateur` a mesuré le
+      // résultat réel (PAPIER × PIERRE_PALE ≈ 223,206,178 — un kaki net,
+      // pas un blanc réservé) et confirmé que ça se lisait comme une
+      // pastille détachée, pas comme un sommet qui attrape la lumière.
+      // À 0.035, la couverture cumulée tombe autour de 30 % : assez pour
+      // rester un clair perceptible, assez peu pour que le ton du nuage en
+      // dessous reste dominant.
+      { color: highlightColor, alpha: 0.035 },
     )
   }
 }
