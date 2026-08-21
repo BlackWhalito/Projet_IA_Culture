@@ -1,8 +1,9 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { dryStroke, flecks, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { arcade, dome, facade, ruinFacade } from '../../components/watercolor/architecture'
+import { arcade, column, dome, facade, fallenColumn, ruinFacade } from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
+import { girlWriting } from '../../components/watercolor/figure'
 import type { LightPlan } from '../../components/watercolor/light'
 
 /**
@@ -37,6 +38,29 @@ const LUMIERE: LightPlan = {
   warm: SABLE,
   cool: VIOLET_PROFOND,
   accent: ENCRE_SOMBRE,
+}
+
+/**
+ * Un éclat de lumière réservée sur l'eau : un trait fin et allongé, jamais
+ * une nappe. `highlight()`/`wash()` déforme toujours une forme aussi plate
+ * (un ratio largeur/hauteur élevé) vers un disque, quels que soient les
+ * réglages de `spread`/`jitter` — le contour fermé finit par s'arrondir.
+ * `dryStroke`, fait pour les traits, garde le fil de lumière.
+ */
+function glint(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  length: number,
+  thickness: number,
+  rng: () => number,
+  alpha: number,
+): void {
+  dryStroke(ctx, [
+    [cx - length / 2, cy],
+    [cx, cy + (rng() - 0.5) * thickness],
+    [cx + length / 2, cy],
+  ], thickness, rng, { color: PAPIER, alpha, layers: 2, jitter: 0.05 })
 }
 
 /** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
@@ -100,7 +124,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.45, color: VIOLET_BRUME, alpha: 0.32 },
     { at: 0.8, color: SABLE, alpha: 0.16 },
     { at: 1, color: SABLE, alpha: 0.05 },
-  ], rng, 3)
+  ])
 
   // Trois nuages, décalés et de tailles franchement inégales — alignés ou
   // de même taille, ils redeviennent une frise décorative.
@@ -171,16 +195,12 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.56, color: BLEU, alpha: 0.56 },
     { at: 0.8, color: VIOLET, alpha: 0.6 },
     { at: 1, color: VIOLET_PROFOND, alpha: 0.72 },
-  ], rng, 4)
+  ])
 
   // Les reflets de la rive, tirés verticalement juste sous l'horizon.
   reflection(ctx, w * 0.24, w * 0.3, horizon, h * 0.045, VIOLET_BRUME, rng, 5)
   reflection(ctx, w * 0.62, w * 0.34, horizon, h * 0.038, VIOLET_BRUME, rng, 5)
   reflection(ctx, w * 0.44, w * 0.04, horizon, h * 0.055, VIOLET, rng, 2)
-
-  // Granulation, très discrète : sur une surface d'eau, des éclats trop
-  // marqués se lisent comme des objets qui flottent, pas comme du pigment.
-  flecks(ctx, w * 0.5, h * 0.72, w * 0.42, h * 0.26, 10, rng, { color: VIOLET_PROFOND, alpha: 0.012 })
 
   // Les rides, en perspective : serrées et fines près de l'horizon, plus
   // rares et plus marquées au premier plan. C'est cette variation d'échelle
@@ -198,14 +218,8 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
 
   // Éclats de lumière réservée sur les crêtes.
   stroke(ctx, houle(h * 0.55, 4, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.045, layers: 10 })
-  highlight(ctx, polygon(w * 0.66, h * 0.49, w * 0.07, h * 0.008, 7, rng() * 6, rng), rng, {
-    color: PAPIER,
-    alpha: 0.09,
-  })
-  highlight(ctx, polygon(w * 0.26, h * 0.76, w * 0.06, h * 0.009, 7, rng() * 6, rng), rng, {
-    color: PAPIER,
-    alpha: 0.08,
-  })
+  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
+  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
 
   // Une profondeur qui referme le bas du tableau.
   wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.9, h * 0.14, 11, 0, rng), rng, {
@@ -234,7 +248,7 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.5, color: VIOLET_BRUME, alpha: 0.26 },
     { at: 0.85, color: SABLE, alpha: 0.12 },
     { at: 1, color: SABLE, alpha: 0.04 },
-  ], rng, 3)
+  ])
   cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET,
@@ -282,6 +296,42 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     distance: 0.4,
     floors: 4,
     bays: 2,
+  })
+
+  // Un fragment de colonnade brisée, entre le campanile et le dôme : le
+  // repère qui dit « Antiquité », pas seulement « vieux » — une façade
+  // rongée peut aussi bien être une usine abandonnée. Trois colonnes,
+  // cassures inégales, une seule encore couronnée de son chapiteau.
+  // Rayons doublés par rapport au premier essai : à la taille d'affichage
+  // réelle du canvas (220px de source, réduit encore par le CSS), un rayon
+  // sous ~0.02 * w tombe sous le seuil de lisibilité — vérifié à l'échelle
+  // réelle, pas seulement sur une capture zoomée qui masque le problème.
+  column(ctx, w * 0.37, quai, h * 0.22, w * 0.024, rng, LUMIERE, {
+    stone: PIERRE_PALE,
+    shade: VIOLET_PROFOND,
+    distance: 0.35,
+    broken: true,
+  })
+  column(ctx, w * 0.425, quai, h * 0.16, w * 0.022, rng, LUMIERE, {
+    stone: PIERRE_PALE,
+    shade: VIOLET_PROFOND,
+    distance: 0.38,
+    broken: true,
+  })
+  column(ctx, w * 0.48, quai, h * 0.27, w * 0.026, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.32,
+    broken: false,
+  })
+
+  // Un tambour effondré, à moitié submergé au bord de l'eau — la colonne
+  // qui n'a pas tenu, contrepoint au premier plan de celles qui tiennent
+  // encore debout au loin.
+  fallenColumn(ctx, w * 0.19, quai - h * 0.006, w * 0.15, w * 0.018, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.12,
   })
 
   // Le dôme, contrepoint rond d'une skyline sinon toute en verticales — le
@@ -349,7 +399,7 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.35, color: BLEU, alpha: 0.46 },
     { at: 0.72, color: VIOLET, alpha: 0.56 },
     { at: 1, color: VIOLET_PROFOND, alpha: 0.68 },
-  ], rng, 4)
+  ])
   // Les rides, en perspective comme sur la lagune.
   ripples(ctx, 0, w, quai + h * 0.01, h * 1.0, 26, rng, {
     color: BLEU,
@@ -358,14 +408,8 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   stroke(ctx, houle(h * 0.72, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
   // Deux éclats de lumière francs sur l'eau — le papier qui perce net,
   // pas seulement un voile pâle.
-  highlight(ctx, polygon(w * 0.68, h * 0.73, w * 0.06, h * 0.014, 7, rng() * 6, rng), rng, {
-    color: PAPIER,
-    alpha: 0.1,
-  })
-  highlight(ctx, polygon(w * 0.22, h * 0.88, w * 0.05, h * 0.012, 7, rng() * 6, rng), rng, {
-    color: PAPIER,
-    alpha: 0.08,
-  })
+  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5)
+  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45)
 
   // La barque : petite, décalée, avec sa voile et son sillage.
   const bx = w * 0.32
@@ -393,14 +437,12 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     alpha: 0.045,
     layers: 10,
   })
-  highlight(ctx, polygon(w * 0.6, h * 0.72, w * 0.05, h * 0.02, 7, rng() * 6, rng), rng, {
-    color: PAPIER,
-    alpha: 0.07,
-  })
-  highlight(ctx, polygon(w * 0.4, h * 0.9, w * 0.06, h * 0.018, 7, rng() * 6, rng), rng, {
-    color: BLEU_CLAIR,
-    alpha: 0.06,
-  })
+  // Un éclat réservé est toujours un trait fin, jamais une nappe — voir
+  // `glint()`. Une couleur saturée (essayé ici avec `BLEU_CLAIR`) se lisait
+  // comme une tache posée sur l'eau, pas comme un reflet ; une forme ronde
+  // (essayé ensuite avec `highlight()`) se lisait comme un galet flottant.
+  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4)
+  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35)
 
   // Un dernier voile vert-de-gris sur l'eau basse, pour le côté submergé.
   wash(ctx, polygon(w * 0.5, h * 0.9, w * 0.7, h * 0.1, 10, 0, rng), rng, {
@@ -412,31 +454,36 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
 }
 
 /**
- * Le bandeau au-dessus du titre. Doit rester très léger : le titre se pose
- * dessus, donc aucun lavis ne dépasse une opacité faible (règle de
- * lisibilité de la skill `aquarelle`). Les couleurs sont espacées plutôt que
- * toutes superposées au centre — sous `multiply`, trois teintes qui se
- * recouvrent au même endroit tournent au brun sale.
+ * Le bandeau au-dessus du titre : une enfant qui écrit à son bureau, qui
+ * lève les yeux vers le joueur. Le bas du canvas passe légèrement sous le
+ * titre (marge négative en CSS) — le bureau peut y mordre sans problème,
+ * mais la tête doit rester nettement au-dessus de cette ligne, elle est le
+ * seul endroit où un défaut se verrait vraiment.
+ *
+ * L'atmosphère (deux lavis pâles) reste à gauche, sobre : la figure est le
+ * sujet, pas un élément de plus au milieu des autres.
  */
 export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
-  wash(ctx, polygon(w * 0.16, h * 0.48, w * 0.22, h * 0.34, 11, 0, rng), rng, {
+  wash(ctx, polygon(w * 0.14, h * 0.5, w * 0.2, h * 0.36, 11, 0, rng), rng, {
     color: VIOLET_BRUME,
     layers: 22,
     alpha: 0.02,
     spread: 0.22,
   })
-  wash(ctx, polygon(w * 0.5, h * 0.42, w * 0.24, h * 0.32, 10, 0, rng), rng, {
+  wash(ctx, polygon(w * 0.38, h * 0.4, w * 0.18, h * 0.3, 10, 0, rng), rng, {
     color: BLEU_CLAIR,
     layers: 20,
-    alpha: 0.016,
+    alpha: 0.014,
     spread: 0.24,
   })
-  wash(ctx, polygon(w * 0.84, h * 0.5, w * 0.2, h * 0.3, 10, 0, rng), rng, {
-    color: SABLE,
-    layers: 16,
-    alpha: 0.014,
-    spread: 0.26,
+  stroke(ctx, houle(h * 0.8, 3, w * 0.96, rng), 2, rng, { color: VIOLET_PROFOND, alpha: 0.014, layers: 8 })
+
+  girlWriting(ctx, w * 0.74, h * 0.7, h * 0.27, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    dress: VIOLET,
+    wood: SABLE,
+    paper: PAPIER,
+    accent: ENCRE_SOMBRE,
   })
-  flecks(ctx, w * 0.5, h * 0.5, w * 0.46, h * 0.24, 10, rng, { color: VIOLET, alpha: 0.014 })
-  stroke(ctx, houle(h * 0.74, 4, w * 0.96, rng), 2, rng, { color: VIOLET_PROFOND, alpha: 0.018, layers: 10 })
 }

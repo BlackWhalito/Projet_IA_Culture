@@ -44,11 +44,25 @@ Le noir le plus dense d'une aquarelle réussie couvre **une poignée de pixels**
 
 Symétriquement, `VALEUR.LUMIERE` doit rester du papier presque nu quelque part dans l'image. Sans vrai clair, pas de vrai sombre.
 
-## Une texture qui doit disparaître veut un dégradé radial, pas un `wash()` adouci
+## Sur un dégradé, aucune touche de texture isolée ne se cache — même sans bord
 
-`wash()` produit toujours un contour **fermé** : même avec `spread`/`jitter` au maximum, la forme a un dedans et un dehors. Posée en petite touche isolée sur un fond uni ou un dégradé (`gradedWash`), elle se repère instantanément — c'est exactement le défaut « il y a des taches au milieu » remonté par le propriétaire alors même que le bord de la forme avait déjà été assoupli deux fois.
+Trois tentatives successives, toutes jugées ratées par le propriétaire : des `wash()` adoucis, puis un `createRadialGradient` sans bord fermé, puis (ailleurs, via `highlight()`) une couleur de palette au lieu d'un ton papier. Le point commun n'est **pas** la netteté du bord — le radial n'en a aucun et se voyait quand même. La vraie cause : tout se peint en `mix-blend-mode: multiply`, donc n'importe quelle touche de couleur posée sur un dégradé l'**assombrit localement**, et un assombrissement isolé se repère, bord dur ou pas.
 
-**La règle** : une nappe de texture qui doit se sentir sans se voir se peint avec un `createRadialGradient` qui s'annule à son rayon (voir `softPatch` dans `atmosphere.ts`), jamais avec `wash()`. `wash()` reste le bon outil dès qu'une forme doit garder une silhouette identifiable (nuage, façade, voile) — la distinction est : est-ce que cet élément est *un objet*, ou seulement *du grain* ?
+**La règle** : sur une grande surface en dégradé (ciel, eau), ne pose **aucune** texture décorative séparée du sujet. Le grain de `WatercolorScene` (appliqué une fois sur toute la scène) donne déjà la matière ; le sujet lui-même (nuages, reflets, rides, bâtiments) donne le reste. `gradedWash()` a fini par redevenir un pur dégradé natif, sans rien ajouté par-dessus — voir son commentaire dans `atmosphere.ts`.
+
+Corollaire pour tout ce qui reste posé isolément sur une grande surface (ex. les éclats de lumière réservée) : la couleur doit être un ton **papier/clair**, jamais une teinte saturée de la palette — un ton clair n'assombrit presque rien, une teinte saturée assombrit assez pour se voir comme une tache colorée.
+
+Un deuxième bug s'est caché derrière le premier : même repeints en papier, ces éclats ressortaient encore en ronds pleins sur l'eau. `highlight()`/`wash()` ne peuvent PAS peindre une forme fine et allongée — `spread`/`jitter` finissent toujours par arrondir un contour plat en disque, quels que soient ses proportions d'origine. Pour un trait de lumière (un fil, pas une nappe), c'est `dryStroke` qu'il faut — voir `glint()` dans `scenes.ts`, qui remplace ces `highlight()` par des traits fins.
+
+Un troisième bug, plus bête, s'est glissé en corrigeant le deuxième : `glint()` a d'abord été appelé en recopiant telles quelles les anciennes valeurs `ry` des `highlight()` qu'elle remplaçait — sauf que ces valeurs avaient été choisies pour une ellipse, pas pour l'épaisseur d'un trait, et sur l'un des deux tableaux elles rendaient l'épaisseur presque égale à la longueur (le rond revenait). **La règle** : un correctif qui dépend d'un ratio (ici longueur/épaisseur) doit être vérifié À CHAQUE site d'appel, pas seulement au premier — recopier d'anciens paramètres dans une nouvelle fonction ne transfère pas leur intention.
+
+Règle plus générale qui ressort de ce round : **une forme dérivée (une ombre, un reflet, un écho) doit partager la géométrie de son parent, pas être une nouvelle forme positionnée à côté.** L'ombre de chaque lobe de `cloud()` était d'abord une ellipse indépendante calculée à une position approchée ; elle pouvait atterrir légèrement décalée du lobe et se lire comme un rond qui flotte tout seul. Corrigé en construisant l'ombre à partir des points MÊMES du lobe (translatés/réduits), ce qui la garde géométriquement à l'intérieur de sa silhouette, quoi qu'il arrive.
+
+## Un tirage aléatoire malchanceux peut annuler tout un effet
+
+`ruinFacade()` calcule la hauteur de chaque pan de mur par un tirage indépendant — en théorie assez pour casser la silhouette, en pratique il est arrivé qu'un bâtiment étroit tire des hauteurs presque identiques et rende un sommet parfaitement droit, sans aucune ruine visible. La graine est fixe (même seed à chaque rendu), donc ce n'était pas un accident ponctuel : c'était reproductible à chaque chargement, pour ce bâtiment précis.
+
+**La règle** : quand un effet dépend d'un **écart** entre plusieurs tirages (pas juste d'un tirage), calcule tous les tirages d'abord, mesure l'écart obtenu, et force-le au minimum voulu s'il n'y est pas — ne fais jamais confiance au hasard seul pour produire une variation qui doit être visible à chaque rendu.
 
 ## Un contour cassé n'est jamais une pente
 
@@ -56,6 +70,20 @@ Pour dessiner une silhouette brisée (toit effondré, sommet de ruine) en alimen
 
 **La règle** : encoder un contour brisé comme une fonction en **plateaux** — un segment horizontal à une hauteur, une chute quasi verticale, un nouveau segment horizontal à une autre hauteur. Deux points par palier (début et fin), jamais un point unique reliant deux hauteurs différentes. Le flou fractal de `wash()` arrondit ensuite les angles sans détruire la lecture « mur cassé, pas montagne ».
 
+## Une ruine se lit par sa silhouette, une ruine antique par ses colonnes
+
+Un mur au sommet cassé (`ruinFacade()`) dit « vieux et abandonné » — n'importe quelle époque. Pour dire spécifiquement « Antiquité », il faut le repère iconographique dédié : une **colonne** (`column()`), debout ou cassée à mi-hauteur, et un **tambour effondré** couché au sol (`fallenColumn()`, toujours 2-3 disques disjoints — une colonne qui tombe se brise à ses jointures, elle ne reste pas entière). Une colonnade, même réduite à 2-3 éléments discrets en fond de scène, change la lecture entière d'une skyline plus sûrement qu'un ajustement de palette.
+
+## Une figure humaine reste iconique, jamais anatomique
+
+Le risque est spécifique et plus élevé qu'ailleurs : un visage raté se voit immédiatement, plus que n'importe quel bâtiment raté. `figure.ts` (`girlWriting()`) applique la même logique que `voile()` (le bateau) : peu de formes déterminantes plutôt que du détail.
+
+- **Les yeux** : deux tout petits accents sombres (`VALEUR.ACCENT`), rien de plus — ils suffisent à faire « un regard vers le joueur ». Une bouche détaillée est plus risquée qu'utile à cette échelle ; mieux vaut l'omettre que la rater.
+- **La coiffure** est le repère le plus fiable pour l'âge/le genre d'une silhouette (ex. deux couettes → « une enfant ») — plus fiable qu'aucun détail de visage, et sans aucun risque puisque c'est une simple masse de `wash()`.
+- **Un petit objet posé sur une surface de teinte proche disparaît** : le carnet (papier clair sur bois clair) était invisible tant qu'il n'avait pas son propre contour sombre (`dryStroke` en rectangle). Toute forme claire posée sur un fond clair a besoin d'un bord tracé, pas seulement d'un remplissage.
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
+
+**Juge à la taille d'affichage réelle, pas seulement sur une capture zoomée.** Des colonnes ajoutées à `citeEngloutieScene` paraissaient nettes sur une capture agrandie (le canvas source, en résolution `devicePixelRatio`) mais étaient sous le seuil de lisibilité une fois réduites à la largeur CSS réellement affichée (170px, contre 220px de source — sans compter que la page peut encore la rétrécir sur un écran étroit). Avant de juger un détail petit ou fin, capture le canvas à sa taille CSS réelle (`getBoundingClientRect()`), pas sa résolution interne.

@@ -1,4 +1,4 @@
-import { dryStroke, hatch, wash } from './engine'
+import { dryStroke, hatch, polygon, wash } from './engine'
 import type { Point } from './engine'
 import { VALEUR, attenue, litFromLeft } from './light'
 import type { LightPlan } from './light'
@@ -448,6 +448,124 @@ export function ruinFacade(
     alpha: attenue(0.4, distance),
     layers: 2,
   })
+}
+
+/**
+ * Une colonne : le signe le plus reconnaissable d'une ruine antique, plus
+ * encore qu'un mur cassé. Un fût simple, une cannelure suggérée par un seul
+ * trait, un chapiteau plus large en couronnement — sauf si `broken`, où le
+ * fût s'arrête net sur une cassure penchée et rien ne le coiffe. Sans
+ * colonnes, une ville en ruine reste un empilement de murs quelconque ; ce
+ * sont elles qui disent « antique » au premier regard.
+ */
+export function column(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yBase: number,
+  height: number,
+  radius: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number; broken?: boolean },
+): void {
+  const { stone, shade, distance = 0, broken = false } = options
+  const lit = litFromLeft(plan)
+  const yTop = broken ? yBase - height * (0.3 + rng() * 0.4) : yBase - height
+  // Une colonne cassée penche légèrement — une cassure parfaitement
+  // verticale a l'air dessinée à la règle, pas rompue par le temps.
+  const lean = broken ? (rng() - 0.5) * radius * 1.6 : 0
+
+  wash(ctx, [
+    [x - radius, yBase],
+    [x - radius * 0.82 + lean, yTop],
+    [x + radius * 0.82 + lean, yTop],
+    [x + radius, yBase],
+  ], rng, {
+    color: stone,
+    layers: 18,
+    alpha: attenue(VALEUR.MOYEN, distance) / 18,
+    spread: 0.03,
+    jitter: 0.04,
+  })
+
+  // La cannelure : un seul trait ombré qui court le long du fût, côté
+  // ombre — sans lui, un fût reste un rectangle quelconque, indissociable
+  // d'un simple pilier.
+  const fluteX = lit ? x + radius * 0.28 : x - radius * 0.28
+  dryStroke(ctx, [[fluteX, yBase], [fluteX + lean, yTop]], radius * 0.16, rng, {
+    color: shade,
+    alpha: attenue(0.3, distance),
+    layers: 2,
+  })
+
+  if (!broken) {
+    // Le chapiteau : le seul bloc plus large que le fût, repère net qui
+    // couronne la colonne.
+    wash(ctx, [
+      [x - radius * 1.3, yTop],
+      [x - radius * 1.05, yTop - radius * 0.55],
+      [x + radius * 1.05, yTop - radius * 0.55],
+      [x + radius * 1.3, yTop],
+    ], rng, {
+      color: stone,
+      layers: 12,
+      alpha: attenue(VALEUR.CLAIR, distance) / 12,
+      spread: 0.06,
+      jitter: 0.07,
+    })
+  }
+
+  // L'arête éclairée, nette, comme sur une façade.
+  const edgeX = lit ? x - radius * 0.82 : x + radius * 0.82
+  dryStroke(ctx, [[edgeX, yBase], [edgeX + lean, yTop]], 1, rng, {
+    color: plan.accent,
+    alpha: attenue(0.35, distance),
+    layers: 2,
+  })
+}
+
+/**
+ * Un tambour de colonne effondré, couché au sol : ce qu'il reste d'une
+ * colonne tombée. Toujours plusieurs disques légèrement disjoints, jamais
+ * un seul bloc long — une colonne qui tombe se brise à ses jointures, elle
+ * ne reste pas entière.
+ */
+export function fallenColumn(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  length: number,
+  radius: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number },
+): void {
+  const { stone, shade, distance = 0 } = options
+  const drums = 2 + Math.floor(rng() * 2)
+  let cursor = x - length / 2
+  for (let d = 0; d < drums; d += 1) {
+    const dw = (length / drums) * (0.75 + rng() * 0.25)
+    const cx = cursor + dw / 2
+    wash(ctx, polygon(cx, y - radius * 0.25, dw * 0.48, radius * 0.75, 10, 0, rng), rng, {
+      color: stone,
+      layers: 16,
+      alpha: attenue(VALEUR.MOYEN, distance) / 16,
+      spread: 0.05,
+      jitter: 0.06,
+    })
+    // L'ombre courte au sol, du côté opposé à la lumière — c'est elle qui
+    // pose le tambour au sol plutôt que de le laisser flotter.
+    const lit = litFromLeft(plan)
+    const shadowShift = lit ? dw * 0.12 : -dw * 0.12
+    wash(ctx, polygon(cx + shadowShift, y + radius * 0.1, dw * 0.42, radius * 0.22, 8, 0, rng), rng, {
+      color: shade,
+      layers: 8,
+      alpha: attenue(VALEUR.OMBRE, distance) / 8,
+      spread: 0.1,
+      jitter: 0.1,
+    })
+    cursor += dw + radius * 0.4
+  }
 }
 
 /**

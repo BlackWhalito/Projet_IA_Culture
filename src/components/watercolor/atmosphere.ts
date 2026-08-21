@@ -26,6 +26,15 @@ import type { LightPlan } from './light'
  * différentes empilées », qui se lit toujours comme des bandes quel que
  * soit leur recouvrement — l'œil trouve la frontière. Ici il n'y a aucune
  * frontière à trouver.
+ *
+ * Volontairement SANS texture ajoutée par-dessus. Deux tentatives l'ont
+ * fait ici (des `wash()` adoucis, puis des dégradés radiaux sans bord) et
+ * les deux ont fini identifiées comme « des taches » par le propriétaire.
+ * La raison tient au blend `multiply` lui-même, pas à la netteté du bord :
+ * n'importe quelle touche de couleur posée sur un dégradé assombrit
+ * localement, et un assombrissement isolé se voit — bord dur ou pas. Le
+ * grain de `WatercolorScene` (appliqué une fois sur toute la scène) donne
+ * déjà la texture ; ce dégradé n'a besoin de rien d'autre.
  */
 export function gradedWash(
   ctx: CanvasRenderingContext2D,
@@ -34,8 +43,6 @@ export function gradedWash(
   x1: number,
   y1: number,
   stops: Array<{ at: number; color: string; alpha: number }>,
-  rng: () => number,
-  patches = 7,
 ): void {
   // Le fond est un vrai dégradé natif. Le peindre en tranches empilées
   // — même très recouvrantes — laisse toujours un rayage horizontal
@@ -48,68 +55,6 @@ export function gradedWash(
   ctx.save()
   ctx.fillStyle = gradient
   ctx.fillRect(x0, y0, x1 - x0, y1 - y0)
-  ctx.restore()
-
-  // La matière vient ensuite : un semis dense de petites nappes SANS AUCUN
-  // BORD (`softPatch`, un dégradé radial), qui cassent l'uniformité
-  // mécanique du dégradé sans jamais se lire comme un objet posé dessus.
-  //
-  // La première version utilisait `wash()` ici — une poignée de grandes
-  // formes déformées. Même très adouci (`spread`/`jitter` élevés), un
-  // `wash()` reste un contour FERMÉ : au milieu d'un dégradé lisse, l'œil
-  // le trouve à coup sûr et le lit comme une tache posée dessus. Un
-  // dégradé radial n'a rien à trouver — il n'existe aucun point où sa
-  // couleur s'arrête net, seulement une décroissance continue vers zéro.
-  const height = y1 - y0
-  const width = x1 - x0
-  const count = patches * 5
-  for (let p = 0; p < count; p += 1) {
-    const t = rng()
-    let near = stops[0]
-    for (const stop of stops) if (Math.abs(stop.at - t) < Math.abs(near.at - t)) near = stop
-    const cx = x0 + width * rng()
-    const cy = y0 + height * t
-    const r = Math.min(width, height) * (0.05 + rng() * 0.09)
-    softPatch(
-      ctx,
-      cx,
-      cy,
-      r * (0.7 + rng() * 0.6),
-      r * (0.45 + rng() * 0.4),
-      near.color,
-      near.alpha * (0.05 + rng() * 0.06),
-    )
-  }
-}
-
-/**
- * Une nappe de texture sans aucun bord : un dégradé radial qui s'annule
- * progressivement à son rayon, plutôt qu'un `wash()` dont même le contour le
- * plus adouci reste un contour fermé qu'on repère au milieu d'un dégradé
- * lisse. Réservé à la texture de `gradedWash` — pour une forme qui doit
- * garder une vraie silhouette (nuage, façade), c'est `wash()` qu'il faut.
- */
-function softPatch(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  rx: number,
-  ry: number,
-  color: string,
-  alpha: number,
-): void {
-  if (alpha <= 0 || rx <= 0 || ry <= 0) return
-  const r = Math.max(rx, ry)
-  ctx.save()
-  ctx.translate(cx, cy)
-  ctx.scale(rx / r, ry / r)
-  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, r)
-  gradient.addColorStop(0, hexToRgba(color, alpha))
-  gradient.addColorStop(1, hexToRgba(color, 0))
-  ctx.fillStyle = gradient
-  ctx.beginPath()
-  ctx.arc(0, 0, r, 0, Math.PI * 2)
-  ctx.fill()
   ctx.restore()
 }
 
@@ -175,19 +120,23 @@ export function cloud(
     })
     if (!litLobe || (lit ? lx < litLobe.lx : lx > litLobe.lx)) litLobe = { lx, lw, lh }
 
-    // L'ombre de CE lobe, à sa base, décalée du côté opposé à la lumière.
-    // Une seule grande bande d'ombre pour tout le nuage, à alpha assez haut
-    // pour se voir, sature en un disque plein à bord net — la même
-    // « tache » que le round visait à éliminer ailleurs. Plusieurs petites
-    // ombres bosselées, une par lobe, restent en dessous du seuil de
-    // saturation et suivent le contour irrégulier de la masse.
-    const lobeShadeShift = lit ? lw * 0.1 : -lw * 0.1
-    wash(ctx, polygon(lx + lobeShadeShift, cy + lh * 0.12, lw * 0.34, lh * 0.3, 9, rng() * 6, rng), rng, {
+    // L'ombre de CE lobe : un écho compressé du MÊME contour `base`, pas
+    // une nouvelle ellipse posée à côté. Une forme indépendante, même
+    // petite, peut atterrir décalée du lobe qui l'a produite et se lire
+    // comme un disque qui flotte tout seul sous les nuages — exactement le
+    // défaut que ce remplacement visait à corriger, sous une autre forme.
+    // En reprenant les points de `base` et en les resserrant vers le bas,
+    // l'ombre reste géométriquement à l'intérieur de la silhouette du lobe.
+    const shadeBase: Point[] = base.map(([px, py]) => [
+      lx + (px - lx) * 0.8,
+      cy + (py - cy) * 0.55 + lh * 0.22,
+    ])
+    wash(ctx, shadeBase, rng, {
       color: shade,
       layers: 9,
       alpha: (alpha * 1.1) / 9,
-      spread: 0.24,
-      jitter: 0.2,
+      spread: 0.14,
+      jitter: 0.16,
     })
   }
 
