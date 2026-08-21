@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ALL_NOTIONS, getNotionById } from './notions'
-import { CP_LEVELS } from './levels/cp-levels'
+import { ALL_LEVELS } from './levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
 import { EUROPE_ZONES_BY_ID } from './maps/europe'
 import type { MapZone } from '../types/maps'
@@ -17,17 +17,39 @@ const ATLAS: Record<string, Record<string, MapZone>> = {
  * mécanique qui retombe silencieusement sur une autre (voir la skill `nouvelle-mecanique`).
  */
 describe('intégrité du contenu', () => {
-  it("aucun id de notion n'est utilisé deux fois", () => {
+  function doublons(ids: string[]): string[] {
     const vus = new Map<string, number>()
-    for (const notion of ALL_NOTIONS) {
-      vus.set(notion.id, (vus.get(notion.id) ?? 0) + 1)
+    for (const id of ids) vus.set(id, (vus.get(id) ?? 0) + 1)
+    return [...vus.entries()].filter(([, n]) => n > 1).map(([id]) => id)
+  }
+
+  it('deux notions ne portent jamais le même id', () => {
+    const d = doublons(ALL_NOTIONS.map((n) => n.id))
+    expect(d, `ids de notions en double : ${d.join(', ')}`).toEqual([])
+  })
+
+  it('deux niveaux ne portent jamais le même id', () => {
+    // `getLevelById` fait un `find` — le premier gagne — mais la progression est
+    // indexée par `levelId` : deux niveaux homonymes partageraient une seule
+    // ligne de progression, donc les étoiles de l'un déverrouilleraient l'autre.
+    const d = doublons(ALL_LEVELS.map((l) => l.id))
+    expect(d, `ids de niveaux en double : ${d.join(', ')}`).toEqual([])
+  })
+
+  it('un même niveau ne joue jamais deux fois la même notion', () => {
+    // `GameSessionScreen` identifie une entrée de file par sa position ET sa
+    // notion. Ce test protège une autre chose : rejouer la même notion dans un
+    // niveau la compte deux fois dans le score et la maîtrise, pour un seul
+    // apprentissage. Si un jour c'est voulu (découverte puis révision), c'est ce
+    // test qu'il faut assouplir sciemment, pas contourner.
+    for (const level of ALL_LEVELS) {
+      const d = doublons(level.notionIds.map((e) => e.notionId))
+      expect(d, `${level.id} joue deux fois : ${d.join(', ')}`).toEqual([])
     }
-    const doublons = [...vus.entries()].filter(([, n]) => n > 1).map(([id]) => id)
-    expect(doublons, `ids en double : ${doublons.join(', ')}`).toEqual([])
   })
 
   it('chaque notionId épinglé dans un niveau existe réellement', () => {
-    for (const level of CP_LEVELS) {
+    for (const level of ALL_LEVELS) {
       for (const entry of level.notionIds) {
         expect(getNotionById(entry.notionId), `${level.id} référence ${entry.notionId}`).toBeDefined()
       }
@@ -35,7 +57,7 @@ describe('intégrité du contenu', () => {
   })
 
   it('chaque gameType épinglé dans un niveau existe bien dans les jeux de la notion', () => {
-    for (const level of CP_LEVELS) {
+    for (const level of ALL_LEVELS) {
       for (const entry of level.notionIds) {
         if (!entry.gameType) continue
         const notion = getNotionById(entry.notionId)

@@ -78,7 +78,10 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
         {index + 1} / {queue.length}
       </p>
       <GameShell
-        key={notion.id}
+        // La position dans la file, pas la notion : une même notion peut revenir
+        // dans un niveau (jouée en qcm puis en capsur). Une clé identique ne
+        // remonterait pas GameShell, qui resterait bloqué sur son écran de feedback.
+        key={`${index}-${notion.id}`}
         notion={notion}
         pinnedGameType={current.gameType}
         onContinue={handleContinue}
