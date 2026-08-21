@@ -162,6 +162,140 @@ export function stroke(
   wash(ctx, [...top, ...bottom], rng, { layers: 14, alpha: 0.02, spread: 0.04, jitter: 0.07, ...options })
 }
 
+export interface StrokeOptions {
+  /** Couleur du trait, en `rgb(r g b)` ou `#rrggbb`. */
+  color: string
+  /** Opacité de chaque passe. Un vrai coup de pinceau est dense : 0.4 à 0.7, pas 0.03. */
+  alpha?: number
+  /** Nombre de passes. 3 à 6 : assez pour un bord un peu vivant, pas assez pour lisser en aplat. */
+  layers?: number
+  /** Irrégularité du bord, plus fine que celle d'un lavis. */
+  jitter?: number
+}
+
+/**
+ * Un vrai coup de pinceau : un ruban effilé aux deux bouts, peint en peu de
+ * passes denses plutôt qu'en dizaines de passes translucides. `wash` fond
+ * une masse ; `dryStroke` marque un geste — c'est la différence entre une
+ * tache de couleur et un trait qui donne l'impression d'une main qui a
+ * décrit une arête, un mât, une hachure d'ombre.
+ */
+/**
+ * Ajoute des points intermédiaires par interpolation linéaire jusqu'à
+ * atteindre `minPoints`, sans changer la forme du chemin. `dryStroke` calcule
+ * l'effilement à partir de l'index du point le long du chemin : avec
+ * seulement 2 points (une simple droite, le cas le plus courant — un mât, un
+ * bord droit), les deux seules valeurs de `sin` tombent près de 0 aux deux
+ * bouts et le trait entier reste quasi invisible, faute d'un point au milieu
+ * qui atteindrait la pleine largeur.
+ */
+export function resample(path: Point[], minPoints: number): Point[] {
+  if (path.length >= minPoints) return path
+  const lengths: number[] = [0]
+  for (let i = 1; i < path.length; i += 1) {
+    lengths.push(lengths[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]))
+  }
+  const total = lengths[lengths.length - 1] || 1
+  const out: Point[] = []
+  for (let s = 0; s < minPoints; s += 1) {
+    const target = (s / (minPoints - 1)) * total
+    let seg = 0
+    while (seg < lengths.length - 2 && lengths[seg + 1] < target) seg += 1
+    const segLen = lengths[seg + 1] - lengths[seg] || 1
+    const t = (target - lengths[seg]) / segLen
+    const [x0, y0] = path[seg]
+    const [x1, y1] = path[seg + 1]
+    out.push([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t])
+  }
+  return out
+}
+
+export function dryStroke(
+  ctx: CanvasRenderingContext2D,
+  rawPath: Point[],
+  width: number,
+  rng: () => number,
+  options: StrokeOptions,
+): void {
+  const { color, alpha = 0.55, layers = 4, jitter = 0.05 } = options
+  const path = resample(rawPath, 7)
+  const n = path.length
+  const top: Point[] = []
+  const bottom: Point[] = []
+  for (let i = 0; i < n; i += 1) {
+    const a = path[Math.max(0, i - 1)]
+    const b = path[Math.min(n - 1, i + 1)]
+    const dx = b[0] - a[0]
+    const dy = b[1] - a[1]
+    const len = Math.hypot(dx, dy) || 1
+    // Effilé aux deux bouts, comme un pinceau qui se lève du papier — sans
+    // ça, chaque touche a l'air coupée au ciseau plutôt que posée.
+    const taper = n > 1 ? Math.sin((i / (n - 1)) * Math.PI) ** 0.6 : 1
+    const w = (width / 2) * taper * (0.75 + rng() * 0.5)
+    const nx = -(dy / len) * w
+    const ny = (dx / len) * w
+    top.push([path[i][0] + nx, path[i][1] + ny])
+    bottom.unshift([path[i][0] - nx, path[i][1] - ny])
+  }
+  const base = [...top, ...bottom]
+  ctx.save()
+  ctx.fillStyle = color
+  ctx.globalAlpha = alpha
+  for (let l = 0; l < layers; l += 1) {
+    tracePath(ctx, deform(base, 2, jitter, rng))
+    ctx.fill()
+  }
+  ctx.restore()
+}
+
+/**
+ * Une trame de hachures dirigées : beaucoup de petites touches (`dryStroke`)
+ * dispersées dans une zone, orientées globalement selon `angleDeg` avec une
+ * déviation individuelle. C'est ce qui donne une surface — un mur, une
+ * ombre portée — sans jamais dessiner deux fois le même motif répété.
+ */
+export function hatch(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  angleDeg: number,
+  count: number,
+  rng: () => number,
+  options: StrokeOptions & { length?: number; width?: number },
+): void {
+  const { length = Math.max(rx, ry) * 0.5, width = Math.min(rx, ry) * 0.12, ...strokeOptions } = options
+  const angle = (angleDeg * Math.PI) / 180
+  for (let i = 0; i < count; i += 1) {
+    const x = cx + (rng() - 0.5) * 2 * rx
+    const y = cy + (rng() - 0.5) * 2 * ry
+    const a = angle + (rng() - 0.5) * 0.35
+    const len = length * (0.6 + rng() * 0.8)
+    const dx = Math.cos(a) * len * 0.5
+    const dy = Math.sin(a) * len * 0.5
+    const path: Point[] = [
+      [x - dx, y - dy],
+      [x - dx * 0.4, y - dy * 0.4],
+      [x, y],
+      [x + dx * 0.4, y + dy * 0.4],
+      [x + dx, y + dy],
+    ]
+    dryStroke(ctx, path, width * (0.6 + rng() * 0.8), rng, strokeOptions)
+  }
+}
+
+/**
+ * Un blanc réservé : réaffirme la couleur du papier (ou une teinte claire)
+ * par-dessus ce qui est déjà peint, comme le papier qu'on laisse vierge à
+ * l'aquarelle plutôt que peint puis gratté. Sans vrais clairs face aux
+ * sombres de `dryStroke`/`wash` dense, une peinture générative reste dans
+ * un entre-deux fade — c'est le contraste de valeurs qui manque le plus.
+ */
+export function highlight(ctx: CanvasRenderingContext2D, base: Point[], rng: () => number, options: WashOptions): void {
+  wash(ctx, base, rng, { layers: 18, alpha: 0.09, spread: 0.12, jitter: 0.08, ...options })
+}
+
 /**
  * Éclats de pigment : une poignée de petites taches irrégulières dispersées
  * dans une zone, plus foncées ou plus claires que le lavis qu'elles

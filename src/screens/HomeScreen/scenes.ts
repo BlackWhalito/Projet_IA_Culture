@@ -1,5 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { flecks, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, flecks, hatch, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 
 /**
@@ -19,6 +19,7 @@ const OCRE = '#c1663f'
 const SABLE = '#d9a35f'
 const VERT = '#7a9455'
 const PAPIER = '#f7f2e7'
+const ENCRE_SOMBRE = '#241d2b'
 
 /** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
 function houle(y: number, amplitude: number, w: number, rng: () => number): Point[] {
@@ -75,11 +76,34 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   flecks(ctx, w * 0.5, h * 0.55, w * 0.42, h * 0.42, 26, rng, { color: VIOLET_PROFOND, alpha: 0.022 })
   flecks(ctx, w * 0.5, h * 0.4, w * 0.4, h * 0.3, 14, rng, { color: BLEU_CLAIR, alpha: 0.03 })
 
+  // Hachures : dans la masse la plus profonde, quelques touches obliques
+  // qui modèlent le courant plutôt qu'un aplat uniforme — le même geste que
+  // sur les tours de la cité engloutie, en très atténué.
+  hatch(ctx, w * 0.5, h * 0.88, w * 0.36, h * 0.09, -18, 14, rng, {
+    color: VIOLET_PROFOND,
+    alpha: 0.16,
+    layers: 2,
+    length: w * 0.1,
+    width: h * 0.012,
+  })
+
   // Fils de lumière sur les crêtes : fins, pâles, discontinus. Trois suffit —
   // un de plus et ça redevient des rayures.
   stroke(ctx, houle(h * 0.3, 4, w * 0.7, rng), 2.2, rng, { color: PAPIER, alpha: 0.05, layers: 10 })
   stroke(ctx, houle(h * 0.58, 5, w * 0.8, rng), 2, rng, { color: BLEU_CLAIR, alpha: 0.035, layers: 10 })
   stroke(ctx, houle(h * 0.79, 4.5, w * 0.75, rng), 1.8, rng, { color: VIOLET_BRUME, alpha: 0.035, layers: 9 })
+
+  // Deux éclats de lumière réservée sur les crêtes : le papier qui perce
+  // franchement, pas seulement un voile pâle — c'est ce contraste net qui
+  // manquait le plus face à un lavis uniquement doux.
+  highlight(ctx, polygon(w * 0.62, h * 0.29, w * 0.05, h * 0.014, 7, rng() * 6, rng), rng, {
+    color: PAPIER,
+    alpha: 0.06,
+  })
+  highlight(ctx, polygon(w * 0.3, h * 0.57, w * 0.045, h * 0.012, 7, rng() * 6, rng), rng, {
+    color: PAPIER,
+    alpha: 0.05,
+  })
 
   // Une profondeur lointaine qui referme le bas du tableau.
   wash(ctx, polygon(w * 0.5, h * 1.04, w * 0.85, h * 0.16, 11, 0, rng), rng, {
@@ -120,19 +144,51 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     [0.72, 0.34, 0.08, VIOLET, 0.03],
     [0.84, 0.4, 0.06, VIOLET_PROFOND, 0.026],
   ]
-  for (const [cx, top, largeur, color, alpha] of tours) {
+  tours.forEach(([cx, top, largeur, color, alpha], i) => {
     const x = w * cx
     const bw = w * largeur
     const y0 = h * top
     const y1 = h * 0.66
+    const roofY = y0 - h * 0.03
     wash(ctx, [
       [x - bw / 2, y1],
       [x - bw / 2, y0],
-      [x, y0 - h * 0.03],
+      [x, roofY],
       [x + bw / 2, y0],
       [x + bw / 2, y1],
     ], rng, { color, layers: 26, alpha, spread: 0.05, jitter: 0.05 })
-  }
+
+    // Une tour sur deux reçoit un vrai traitement de valeur : un flanc
+    // sombre net, des hachures qui modèlent la façade, une arête à l'encre
+    // et un filet de lumière réservé — sans ça tout reste dans un même
+    // gris moyen, jamais aussi contrasté qu'un vrai lavis.
+    if (i % 2 === 1) {
+      wash(ctx, [
+        [x + bw * 0.15, y1],
+        [x + bw * 0.15, y0],
+        [x + bw / 2, y0],
+        [x + bw / 2, y1],
+      ], rng, { color: ENCRE_SOMBRE, layers: 9, alpha: 0.045, spread: 0.03, jitter: 0.04 })
+      hatch(ctx, x + bw * 0.3, (y0 + y1) / 2, bw * 0.2, (y1 - y0) / 2, 90, 16, rng, {
+        color: ENCRE_SOMBRE,
+        alpha: 0.32,
+        layers: 2,
+        length: (y1 - y0) * 0.14,
+        width: bw * 0.055,
+      })
+      dryStroke(ctx, [[x - bw / 2, y1], [x - bw / 2, y0], [x, roofY]], 1.6, rng, {
+        color: ENCRE_SOMBRE,
+        alpha: 0.5,
+        layers: 2,
+      })
+      highlight(ctx, [
+        [x - bw / 2, y1],
+        [x - bw / 2, y0],
+        [x - bw * 0.32, y0],
+        [x - bw * 0.32, y1],
+      ], rng, { color: BLEU_CLAIR, layers: 8, alpha: 0.05, spread: 0.05, jitter: 0.06 })
+    }
+  })
 
   // Les reflets des tours, retournés et délavés dans l'eau.
   for (const [cx, top, largeur, color] of tours) {
@@ -179,11 +235,24 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     [bx + s * 0.85, by - s * 0.1],
     [bx - s * 0.2, by - s * 0.1],
   ], rng, { color: OCRE, layers: 24, alpha: 0.04, spread: 0.06, jitter: 0.06 })
-  stroke(ctx, [[bx, by - s * 2], [bx, by]], 2, rng, { color: VIOLET_PROFOND, alpha: 0.05, layers: 12 })
+  dryStroke(ctx, [[bx, by - s * 2], [bx, by]], 1.4, rng, { color: ENCRE_SOMBRE, alpha: 0.5, layers: 3 })
+  dryStroke(ctx, [[bx - s, by], [bx + s * 0.6, by + s * 0.5]], 1.6, rng, {
+    color: ENCRE_SOMBRE,
+    alpha: 0.4,
+    layers: 2,
+  })
   stroke(ctx, [[bx - s * 1.6, by + s * 0.7], [bx + s * 2.4, by + s * 0.55]], 2.4, rng, {
     color: PAPIER,
     alpha: 0.045,
     layers: 10,
+  })
+  highlight(ctx, polygon(w * 0.6, h * 0.72, w * 0.05, h * 0.02, 7, rng() * 6, rng), rng, {
+    color: PAPIER,
+    alpha: 0.07,
+  })
+  highlight(ctx, polygon(w * 0.4, h * 0.9, w * 0.06, h * 0.018, 7, rng() * 6, rng), rng, {
+    color: BLEU_CLAIR,
+    alpha: 0.06,
   })
 
   // Un dernier voile vert-de-gris sur l'eau basse, pour le côté submergé.
