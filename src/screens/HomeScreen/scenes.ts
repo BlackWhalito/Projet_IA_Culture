@@ -1,7 +1,15 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { arcade, column, dome, facade, fallenColumn, ruinFacade } from '../../components/watercolor/architecture'
+import {
+  arcade,
+  column,
+  dome,
+  facade,
+  fallenColumn,
+  pediment,
+  ruinFacade,
+} from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
 import { childWatchingSea, girlWriting } from '../../components/watercolor/figure'
 import { litFromLeft } from '../../components/watercolor/light'
@@ -481,6 +489,45 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     bays: 3,
   })
   arcade(ctx, w * 0.68, w * 0.97, h * 0.55, quai, 4, rng, LUMIERE, 0.15, 0.22)
+
+  // Un fronton porté par deux colonnes, planté au premier plan — colonnes
+  // et triangle, le repère le plus univoque de l'Antiquité gréco-romaine,
+  // plus encore qu'une colonnade isolée. Placé ici plutôt que dans le
+  // groupe de colonnes plus loin : cette zone est la seule assez dégagée
+  // pour deux fûts nettement espacés. Plus clair (PIERRE_CHAUDE) que la
+  // masse violette derrière lui, pour s'en détacher plutôt que s'y fondre.
+  //
+  // Deux essais ratés avant ces proportions et cette position : le premier
+  // avec des colonnes hauteur/rayon ~12:1 (empruntées telles quelles à la
+  // colonne solitaire voisine) donnait un mât fin coiffé d'un chapeau
+  // pointu, jamais un temple — un vrai fût antique reste autour de 6-8:1.
+  // Le second gardait ce ratio mais espaçait trop peu les deux fûts, qui
+  // fusionnaient en un seul bloc, ET centrait le groupe sur `w*0.88`,
+  // exactement la position de la silhouette lointaine `facade()` du fond
+  // (« Fond lointain », plus haut) — en `multiply`, rien n'occulte rien,
+  // sa teinte bleu-violet ressortait à travers la colonne et le fronton
+  // censés être devant. Ici : rayon élargi, hauteur réduite, écart entre
+  // fûts porté à ~1.7x leur diamètre, et le tout décalé à gauche pour
+  // rester hors de cette silhouette. `yBase` du fronton remonte du rayon
+  // des chapiteaux, pas du fût nu, pour coiffer les colonnes chapiteau
+  // compris.
+  column(ctx, w * 0.665, quai, h * 0.24, w * 0.042, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+    broken: false,
+  })
+  column(ctx, w * 0.805, quai, h * 0.24, w * 0.042, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+    broken: false,
+  })
+  pediment(ctx, w * 0.735, quai - h * 0.24 - w * 0.042 * 0.55, w * 0.25, h * 0.018, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+  })
 
   // Premier plan à gauche : une façade claire, presque du papier nu, pour
   // que la masse sombre de droite ait quelque chose à quoi s'opposer —
