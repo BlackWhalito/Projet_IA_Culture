@@ -317,11 +317,23 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // voile lointaine se perd complètement — le premier plan a besoin d'une
   // masse et d'une valeur nettement plus fortes que tout le reste du
   // tableau pour se lire comme proche plutôt que comme un débris flottant.
+  // `stone` en VIOLET_PROFOND, pas ENCRE_SOMBRE comme la première version :
+  // les deux valaient la même teinte quasi noire, donc toute la masse
+  // restait sombre au sommet. En `multiply`, une couleur posée sur un fond
+  // quasi noir reste quasi noire quelle que soit sa teinte — mesuré par le
+  // `verificateur` sur le vêtement de l'enfant (écart de ~18/255 à peine),
+  // qui fusionnait avec le rocher plutôt que de s'en détacher. `shade`
+  // garde ENCRE_SOMBRE pour l'ombre portée, mais la face éclairée reste
+  // assez claire pour qu'une figure posée dessus s'en distingue encore.
   const rockTop = rocher(ctx, w * 0.76, h * 1.02, w * 0.5, h * 0.15, rng, LUMIERE, {
-    stone: ENCRE_SOMBRE,
+    stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
   })
-  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.014, h * 0.05, rng, LUMIERE, {
+  // Assise relevée au-dessus du sommet plutôt qu'à cheval dessus : posée
+  // dans la masse du rocher, la silhouette (torse, genoux) se fondait dans
+  // sa teinte la plus sombre. Contre le ciel, elle reste nette quelle que
+  // soit la face du rocher sur laquelle tombe le sommet.
+  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.003, h * 0.05, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: OCRE,
