@@ -54,11 +54,13 @@ Cas voisin : `useRef(Date.now())` est un vrai appel impur au rendu, celui-là es
 
 ## Agents et skills créés en cours de session
 
-**Symptôme.** On vient d'écrire `.claude/agents/mon-agent.md`, et l'outil Agent répond `Agent type 'mon-agent' not found`.
+**Ce piège n'en est plus tout à fait un — vérifier avant de contourner.**
 
-**Cause.** Le registre des agents et des skills est chargé au démarrage de la session. Un fichier créé après coup n'est pas vu.
+Il était vrai que le registre était chargé une fois pour toutes au démarrage, et qu'un `.claude/agents/mon-agent.md` écrit après coup donnait `Agent type 'mon-agent' not found`. **Constaté le 21 août 2026 : ce n'est plus le cas pour les agents.** L'agent `avocat-du-diable`, créé en cours de session, a été annoncé comme disponible et invoqué par son nom dans la même session, sans redémarrage.
 
-**Contournement.** Pour la session en cours, lancer `general-purpose` en recopiant le contenu du fichier d'agent dans le prompt. Le fichier servira normalement aux sessions suivantes. Même logique pour une skill fraîchement écrite : appliquer son contenu à la main jusqu'au prochain démarrage.
+**Le réflexe correct est donc inversé** : tente d'abord l'invocation par le nom. Ce n'est qu'en cas d'échec que le contournement s'applique — lancer `general-purpose` en recopiant le contenu du fichier d'agent dans le prompt.
+
+Non vérifié à cette date : le cas d'une **skill** fraîchement écrite. Jusqu'à preuve du contraire, en appliquer le contenu à la main plutôt que de compter sur son invocation.
 
 ## Piloter le navigateur : les cinq pièges
 

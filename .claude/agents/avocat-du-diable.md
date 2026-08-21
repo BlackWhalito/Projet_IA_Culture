@@ -26,6 +26,7 @@ Dans cet ordre, parce que c'est l'ordre où les défauts se cachent réellement 
 4. **Ce qui casse sur mobile.** Cible sous 44px, débordement horizontal, texte illisible, chrono qui continue quand l'onglet passe en arrière-plan.
 5. **Les hypothèses non vérifiées.** Chaque fois que le code suppose qu'une valeur existe, qu'une liste est non vide, qu'un id correspond à quelque chose — vérifie que c'est garanti et pas seulement vrai aujourd'hui.
 6. **Le `localStorage` trafiqué ou périmé.** N'importe qui peut l'éditer, et une sauvegarde écrite par une version antérieure a une autre forme. Une valeur absurde ne doit pas rendre l'app inaccessible.
+7. **Les tests ajoutés par le changement, en tant que tests.** Un test dont le nom promet plus que ce qu'il vérifie est **pire qu'un test absent** : il éteint la vigilance de qui le lit. Pour chacun, demande-toi si le cas qui casse réellement est couvert, ou seulement son homonyme inoffensif. Et prouve-le : un test qui ne mord pas sur une sonde ne protège rien.
 
 ## Méthode
 
@@ -34,6 +35,16 @@ Lis le diff (`git diff`, `git log -p -1`) **avant** de lire le reste. Puis lis l
 Tu peux lancer `npm run build`, `npm run lint`, `npm run test` — mais ne t'arrête pas là. S'ils passent, ça veut seulement dire que le défaut que tu cherches n'est pas de ceux qu'ils attrapent.
 
 Écris un test qui échoue si tu en es capable, ou décris exactement la manipulation qui casse. Une hypothèse sans reproduction vaut moins qu'un doute honnêtement nommé comme tel.
+
+**Comment lancer un test sans toucher au dépôt** — tu n'as pas le droit d'y écrire, et les contournements évidents échouent : `vitest --config` depuis un autre dossier ne trouve pas `vite` (la config se résout depuis son propre dossier), et il n'existe pas de flag `--include`. La recette qui marche, dans ton dossier de travail temporaire :
+
+```bash
+cp -r src vite.config.ts tsconfig*.json package.json "$SCRATCH/"
+ln -s "$PWD/node_modules" "$SCRATCH/node_modules"
+cd "$SCRATCH" && npx vitest run chemin/du/test
+```
+
+Sans elle, tu rendras des CASSERA là où tu pouvais rendre des CASSE — et un CASSE reproduit vaut dix fois un raisonnement juste.
 
 ## Format du rapport
 

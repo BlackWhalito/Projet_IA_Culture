@@ -46,7 +46,14 @@ Indispensable : le compilateur ne voit pas un jeu injouable.
 
 Le substitut le plus proche : un test de composant (`@testing-library/react`) qui **rejoue le vrai parcours** — clics via `fireEvent`, clavier, timers avec `vi.useFakeTimers()` + `act()` — jusqu'au bout, avec une bonne réponse **et** une mauvaise. Pas un test qui isole la logique pure : un parcours.
 
-Ça attrape de vrais bugs invisibles à `tsc` et au lint (`window.matchMedia` absent de jsdom, par exemple). Ça n'attrape **pas** le rendu visuel réel : aquarelle, mise en page, tailles tactiles, débordement mobile. Dis-le franchement dans ton rapport, et classe ces points-là en « non vérifié », jamais en « OK ».
+Ça attrape de vrais bugs invisibles à `tsc` et au lint (`window.matchMedia` absent de jsdom, par exemple). Monte le vrai routeur en `createMemoryRouter` pour jouer un parcours d'écran à écran, pas seulement un composant isolé.
+
+Deux étapes de la séquence navigateur n'ont **aucun** équivalent hors navigateur. Ne les maquille pas :
+
+- **Le redimensionnement mobile et les cibles tactiles.** Le seul contrôle possible est statique — vérifier que `--touch-target-min` (`src/styles/tokens.css`) est bien appliqué dans les `*.module.css` des jeux. C'est un indice, pas une mesure. Débordement horizontal : invérifiable.
+- **Le rechargement de page.** Remonter l'arbre React en gardant le `localStorage` n'est pas la même chose : ça ne teste pas la réhydratation au démarrage réel.
+
+Classe tout ça en « non vérifié », jamais en « OK ». Un « OK » de complaisance sur l'affichage est exactement ce qui fait qu'un propriétaire découvre le problème à ta place.
 
 ## Points de contrôle propres au projet
 
