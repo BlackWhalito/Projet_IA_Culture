@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, flecks, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { arcade, cornice, dome, facade, pitchedRoof, stoneTexture } from '../../components/watercolor/architecture'
+import { arcade, dome, facade, ruinFacade } from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
 import type { LightPlan } from '../../components/watercolor/light'
 
@@ -107,17 +107,20 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   cloud(ctx, w * 0.32, h * 0.13, w * 0.7, h * 0.06, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET,
-    alpha: 0.16,
+    alpha: 0.18,
+    highlight: PAPIER,
   })
   cloud(ctx, w * 0.78, h * 0.2, w * 0.5, h * 0.038, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET_BRUME,
-    alpha: 0.12,
+    alpha: 0.13,
+    highlight: PAPIER,
   })
   cloud(ctx, w * 0.5, h * 0.28, w * 0.85, h * 0.022, rng, LUMIERE, {
     light: SABLE,
     shade: VIOLET_BRUME,
-    alpha: 0.08,
+    alpha: 0.09,
+    highlight: PAPIER,
   })
 
   // La rive lointaine : des silhouettes très pâles, à peine posées, avec un
@@ -235,12 +238,14 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET,
-    alpha: 0.14,
+    alpha: 0.16,
+    highlight: PAPIER,
   })
   cloud(ctx, w * 0.22, h * 0.2, w * 0.5, h * 0.026, rng, LUMIERE, {
     light: SABLE,
     shade: VIOLET_BRUME,
-    alpha: 0.09,
+    alpha: 0.1,
+    highlight: PAPIER,
   })
 
   // La ville. Chaque bâtiment est un vrai volume d'architecture — façade
@@ -267,60 +272,61 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   })
 
   // Plan intermédiaire : le campanile, qui donne la verticale dominante.
-  facade(ctx, w * 0.3, h * 0.2, quai, w * 0.13, rng, LUMIERE, {
+  // Une cité engloutie n'a plus de toits — `ruinFacade` remplace le
+  // toit en pente et la corniche par un sommet rongé, brisé par le temps
+  // plutôt que par l'eau qui l'a fait sombrer.
+  ruinFacade(ctx, w * 0.3, h * 0.2, quai, w * 0.13, rng, LUMIERE, {
     stone: PIERRE_CHAUDE,
     shade: VIOLET_PROFOND,
+    moss: VERT,
     distance: 0.4,
-    floors: 5,
+    floors: 4,
     bays: 2,
   })
-  cornice(ctx, w * 0.3, h * 0.24, w * 0.13, rng, LUMIERE, 0.4)
-  pitchedRoof(ctx, w * 0.3, h * 0.2, w * 0.13, h * 0.07, rng, LUMIERE, {
-    color: OCRE,
-    distance: 0.4,
-    lean: 0.05,
-  })
 
-  // Le dôme, contrepoint rond d'une skyline sinon toute en verticales.
+  // Le dôme, contrepoint rond d'une skyline sinon toute en verticales — le
+  // seul volume encore intact au milieu des ruines, ce qui le rend d'autant
+  // plus frappant. Ses murs, eux, ont vieilli comme les autres.
   dome(ctx, w * 0.56, h * 0.4, w * 0.11, rng, LUMIERE, {
     stone: PIERRE_PALE,
     shade: VIOLET,
     distance: 0.5,
   })
-  facade(ctx, w * 0.56, h * 0.4, quai, w * 0.17, rng, LUMIERE, {
+  ruinFacade(ctx, w * 0.56, h * 0.4, quai, w * 0.17, rng, LUMIERE, {
     stone: PIERRE_PALE,
     shade: VIOLET_PROFOND,
+    moss: VERT,
     distance: 0.5,
-    floors: 3,
+    floors: 2,
     bays: 3,
+    decay: 0.3,
   })
 
   // Premier plan à droite : la grande masse d'ombre, celle qui porte le
-  // contraste du tableau. Son arcade donne le rythme répété qui manquait.
-  facade(ctx, w * 0.82, h * 0.33, quai, w * 0.3, rng, LUMIERE, {
+  // contraste du tableau. Son arcade, trouée de quelques arches
+  // effondrées, donne le rythme brisé d'une colonnade en ruine.
+  ruinFacade(ctx, w * 0.82, h * 0.33, quai, w * 0.3, rng, LUMIERE, {
     stone: VIOLET,
     shade: VIOLET_PROFOND,
+    moss: VERT,
     distance: 0.08,
-    floors: 4,
+    floors: 3,
     bays: 3,
   })
-  stoneTexture(ctx, w * 0.86, h * 0.5, w * 0.12, h * 0.14, rng, LUMIERE, 0.08)
-  cornice(ctx, w * 0.82, h * 0.36, w * 0.3, rng, LUMIERE, 0.08)
-  arcade(ctx, w * 0.68, w * 0.97, h * 0.55, quai, 4, rng, LUMIERE, 0.15)
+  arcade(ctx, w * 0.68, w * 0.97, h * 0.55, quai, 4, rng, LUMIERE, 0.15, 0.22)
 
   // Premier plan à gauche : une façade claire, presque du papier nu, pour
-  // que la masse sombre de droite ait quelque chose à quoi s'opposer.
-  facade(ctx, w * 0.08, h * 0.5, quai, w * 0.2, rng, LUMIERE, {
+  // que la masse sombre de droite ait quelque chose à quoi s'opposer —
+  // moins rongée que les autres (`decay` réduit), pour que toute la ville
+  // ne casse pas à la même hauteur.
+  ruinFacade(ctx, w * 0.08, h * 0.5, quai, w * 0.2, rng, LUMIERE, {
     stone: PIERRE_PALE,
     shade: VIOLET_BRUME,
+    moss: VERT,
     distance: 0.15,
-    floors: 3,
+    floors: 2,
     bays: 2,
-  })
-  pitchedRoof(ctx, w * 0.08, h * 0.5, w * 0.2, h * 0.05, rng, LUMIERE, {
-    color: OCRE,
-    distance: 0.15,
-    lean: 0.2,
+    decay: 0.32,
   })
 
   // Les reflets : tirés vers le bas en traits verticaux, puis cassés par des

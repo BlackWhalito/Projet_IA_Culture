@@ -44,6 +44,18 @@ Le noir le plus dense d'une aquarelle réussie couvre **une poignée de pixels**
 
 Symétriquement, `VALEUR.LUMIERE` doit rester du papier presque nu quelque part dans l'image. Sans vrai clair, pas de vrai sombre.
 
+## Une texture qui doit disparaître veut un dégradé radial, pas un `wash()` adouci
+
+`wash()` produit toujours un contour **fermé** : même avec `spread`/`jitter` au maximum, la forme a un dedans et un dehors. Posée en petite touche isolée sur un fond uni ou un dégradé (`gradedWash`), elle se repère instantanément — c'est exactement le défaut « il y a des taches au milieu » remonté par le propriétaire alors même que le bord de la forme avait déjà été assoupli deux fois.
+
+**La règle** : une nappe de texture qui doit se sentir sans se voir se peint avec un `createRadialGradient` qui s'annule à son rayon (voir `softPatch` dans `atmosphere.ts`), jamais avec `wash()`. `wash()` reste le bon outil dès qu'une forme doit garder une silhouette identifiable (nuage, façade, voile) — la distinction est : est-ce que cet élément est *un objet*, ou seulement *du grain* ?
+
+## Un contour cassé n'est jamais une pente
+
+Pour dessiner une silhouette brisée (toit effondré, sommet de ruine) en alimentant `wash()` avec une ligne faite de points à hauteurs différentes : ne jamais relier deux hauteurs par une **pente continue**. `wash()` applique son propre flou fractal par-dessus n'importe quel contour qu'on lui donne ; une pente reprise par ce flou se courbe et se lit comme un pic de montagne ou un éclat de verre — pas comme un mur cassé. C'est arrivé en écrivant `ruinFacade()` : la première version reliait chaque hauteur à la suivante en diagonale, résultat immédiatement identifié comme « des cristaux », pas des bâtiments.
+
+**La règle** : encoder un contour brisé comme une fonction en **plateaux** — un segment horizontal à une hauteur, une chute quasi verticale, un nouveau segment horizontal à une autre hauteur. Deux points par palier (début et fin), jamais un point unique reliant deux hauteurs différentes. Le flou fractal de `wash()` arrondit ensuite les angles sans détruire la lecture « mur cassé, pas montagne ».
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.

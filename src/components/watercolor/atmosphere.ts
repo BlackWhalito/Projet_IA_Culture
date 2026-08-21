@@ -1,4 +1,4 @@
-import { dryStroke, polygon, wash } from './engine'
+import { dryStroke, highlight, polygon, wash } from './engine'
 import type { Point } from './engine'
 import { litFromLeft } from './light'
 import type { LightPlan } from './light'
@@ -50,27 +50,67 @@ export function gradedWash(
   ctx.fillRect(x0, y0, x1 - x0, y1 - y0)
   ctx.restore()
 
-  // La matière vient ensuite : quelques larges nappes irrégulières posées
-  // par-dessus, qui cassent l'uniformité mécanique du dégradé sans y
-  // réintroduire de frontière horizontale.
+  // La matière vient ensuite : un semis dense de petites nappes SANS AUCUN
+  // BORD (`softPatch`, un dégradé radial), qui cassent l'uniformité
+  // mécanique du dégradé sans jamais se lire comme un objet posé dessus.
+  //
+  // La première version utilisait `wash()` ici — une poignée de grandes
+  // formes déformées. Même très adouci (`spread`/`jitter` élevés), un
+  // `wash()` reste un contour FERMÉ : au milieu d'un dégradé lisse, l'œil
+  // le trouve à coup sûr et le lit comme une tache posée dessus. Un
+  // dégradé radial n'a rien à trouver — il n'existe aucun point où sa
+  // couleur s'arrête net, seulement une décroissance continue vers zéro.
   const height = y1 - y0
-  for (let p = 0; p < patches; p += 1) {
-    const t = (p + 0.5) / patches
+  const width = x1 - x0
+  const count = patches * 5
+  for (let p = 0; p < count; p += 1) {
+    const t = rng()
     let near = stops[0]
     for (const stop of stops) if (Math.abs(stop.at - t) < Math.abs(near.at - t)) near = stop
-    const cx = x0 + (x1 - x0) * (0.2 + rng() * 0.6)
-    const cy = y0 + height * (t + (rng() - 0.5) * 0.12)
-    // Très large et très faible : une nappe qu'on remarque se lit comme un
-    // objet flottant dans l'eau ou un nuage collé au ciel. Elle doit se
-    // sentir, pas se voir.
-    wash(ctx, polygon(cx, cy, (x1 - x0) * (0.45 + rng() * 0.4), height * (0.12 + rng() * 0.12), 12, rng() * 6, rng), rng, {
-      color: near.color,
-      layers: 8,
-      alpha: (near.alpha * 0.07) / 8,
-      spread: 0.22,
-      jitter: 0.16,
-    })
+    const cx = x0 + width * rng()
+    const cy = y0 + height * t
+    const r = Math.min(width, height) * (0.05 + rng() * 0.09)
+    softPatch(
+      ctx,
+      cx,
+      cy,
+      r * (0.7 + rng() * 0.6),
+      r * (0.45 + rng() * 0.4),
+      near.color,
+      near.alpha * (0.05 + rng() * 0.06),
+    )
   }
+}
+
+/**
+ * Une nappe de texture sans aucun bord : un dégradé radial qui s'annule
+ * progressivement à son rayon, plutôt qu'un `wash()` dont même le contour le
+ * plus adouci reste un contour fermé qu'on repère au milieu d'un dégradé
+ * lisse. Réservé à la texture de `gradedWash` — pour une forme qui doit
+ * garder une vraie silhouette (nuage, façade), c'est `wash()` qu'il faut.
+ */
+function softPatch(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  color: string,
+  alpha: number,
+): void {
+  if (alpha <= 0 || rx <= 0 || ry <= 0) return
+  const r = Math.max(rx, ry)
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.scale(rx / r, ry / r)
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, r)
+  gradient.addColorStop(0, hexToRgba(color, alpha))
+  gradient.addColorStop(1, hexToRgba(color, 0))
+  ctx.fillStyle = gradient
+  ctx.beginPath()
+  ctx.arc(0, 0, r, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
 }
 
 /**
@@ -103,14 +143,17 @@ export function cloud(
   height: number,
   rng: () => number,
   plan: LightPlan,
-  options: { light: string; shade: string; alpha?: number },
+  options: { light: string; shade: string; alpha?: number; highlight?: string },
 ): void {
-  const { light, shade, alpha = 0.14 } = options
+  const { light, shade, alpha = 0.16, highlight: highlightColor = light } = options
   const lit = litFromLeft(plan)
 
   // La masse : plusieurs bulbes de tailles inégales alignés sur une base
-  // commune, plutôt qu'une seule forme — un nuage est un agrégat.
+  // commune, plutôt qu'une seule forme — un nuage est un agrégat. On garde
+  // trace du lobe le plus proche de la lumière : c'est lui qui portera le
+  // sommet éclairé plus bas.
   const lobes = 3 + Math.floor(rng() * 3)
+  let litLobe: { lx: number; lw: number; lh: number } | undefined
   for (let i = 0; i < lobes; i += 1) {
     const t = lobes === 1 ? 0.5 : i / (lobes - 1)
     const lx = cx - width / 2 + width * t
@@ -130,18 +173,43 @@ export function cloud(
       spread: 0.11,
       jitter: 0.13,
     })
+    if (!litLobe || (lit ? lx < litLobe.lx : lx > litLobe.lx)) litLobe = { lx, lw, lh }
+
+    // L'ombre de CE lobe, à sa base, décalée du côté opposé à la lumière.
+    // Une seule grande bande d'ombre pour tout le nuage, à alpha assez haut
+    // pour se voir, sature en un disque plein à bord net — la même
+    // « tache » que le round visait à éliminer ailleurs. Plusieurs petites
+    // ombres bosselées, une par lobe, restent en dessous du seuil de
+    // saturation et suivent le contour irrégulier de la masse.
+    const lobeShadeShift = lit ? lw * 0.1 : -lw * 0.1
+    wash(ctx, polygon(lx + lobeShadeShift, cy + lh * 0.12, lw * 0.34, lh * 0.3, 9, rng() * 6, rng), rng, {
+      color: shade,
+      layers: 9,
+      alpha: (alpha * 1.1) / 9,
+      spread: 0.24,
+      jitter: 0.2,
+    })
   }
 
-  // Le dessous, en ombre : une bande basse et étroite, décalée du côté
-  // opposé à la lumière.
-  const shadeShift = lit ? width * 0.08 : -width * 0.08
-  wash(ctx, polygon(cx + shadeShift, cy - height * 0.1, width * 0.42, height * 0.22, 11, 0, rng), rng, {
-    color: shade,
-    layers: 10,
-    alpha: (alpha * 1.5) / 10,
-    spread: 0.14,
-    jitter: 0.15,
-  })
+  // Le sommet éclairé : un blanc réservé net sur le lobe côté lumière. Sans
+  // ce clair franc, le nuage n'a qu'un dégradé mou entre deux tons voisins
+  // de la même famille que le ciel — il s'y noie au lieu de s'en détacher.
+  if (litLobe) {
+    highlight(
+      ctx,
+      polygon(
+        litLobe.lx + (lit ? -litLobe.lw * 0.1 : litLobe.lw * 0.1),
+        cy - litLobe.lh * 0.6,
+        litLobe.lw * 0.24,
+        litLobe.lh * 0.32,
+        9,
+        rng() * 6,
+        rng,
+      ),
+      rng,
+      { color: highlightColor, alpha: 0.14 },
+    )
+  }
 }
 
 /**
