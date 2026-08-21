@@ -32,6 +32,8 @@ npm run test
 
 Indispensable : le compilateur ne voit pas un jeu injouable.
 
+**D'abord, vérifie que le navigateur existe.** Certaines sessions (cloud, Linux) n'ont ni outil de preview ni PowerShell. Si `preview_list` n'est pas disponible, ne bricole pas et n'invente surtout pas un parcours que tu n'as pas fait : passe au repli ci-dessous et dis-le en toutes lettres dans ton rapport.
+
 1. `preview_list` d'abord. S'il existe déjà un serveur, réutilise-le — n'en démarre jamais un deuxième.
 2. Sinon `preview_start` avec `{name: "jeu-culture-dev"}`.
 3. **Ouvre un onglet neuf avant de juger la console.** Piège connu et déjà rencontré sur ce projet : les erreurs affichées dans un onglet resté ouvert pendant des éditions HMR sont souvent des reliquats historiques — typiquement « Invalid hook call » — qui ne correspondent à aucun bug réel. Une erreur console ne compte que si elle réapparaît dans un onglet fraîchement ouvert.
@@ -40,11 +42,18 @@ Indispensable : le compilateur ne voit pas un jeu injouable.
 6. Persistance : lis `localStorage` (clé `jeu-culture-progress-v1`) après une partie, recharge la page, confirme que la progression tient.
 7. `resize_window` en preset `mobile` : aucun débordement horizontal, cibles tactiles ≥ 44px.
 
+### Quand le navigateur n'est pas disponible
+
+Le substitut le plus proche : un test de composant (`@testing-library/react`) qui **rejoue le vrai parcours** — clics via `fireEvent`, clavier, timers avec `vi.useFakeTimers()` + `act()` — jusqu'au bout, avec une bonne réponse **et** une mauvaise. Pas un test qui isole la logique pure : un parcours.
+
+Ça attrape de vrais bugs invisibles à `tsc` et au lint (`window.matchMedia` absent de jsdom, par exemple). Ça n'attrape **pas** le rendu visuel réel : aquarelle, mise en page, tailles tactiles, débordement mobile. Dis-le franchement dans ton rapport, et classe ces points-là en « non vérifié », jamais en « OK ».
+
 ## Points de contrôle propres au projet
 
-- Chaque `notionId` cité dans un `LevelDef` existe dans `ALL_NOTIONS`.
-- Chaque `gameType` épinglé dans un `LevelDef` correspond à un payload réellement présent dans `notion.games`. Sinon `selectGameForNotion` retombe silencieusement sur une autre mécanique : pas de crash, mais pas ce qui était voulu — c'est un bug **IMPORTANT**.
-- Aucun `id` de notion en double dans tout le contenu.
+L'intégrité du contenu est **déjà automatisée** dans `src/content/contentIntegrity.test.ts`, que `npm run test` a lancé : identifiants de notions uniques, `notionId` épinglé qui existe, `gameType` épinglé réellement présent dans `notion.games`, cibles de carte existantes, épilogue filet de sécurité. Ne refais pas ce travail à la main — lis simplement l'échec s'il y en a un, et rapporte-le en **IMPORTANT** (pas de crash, mais le mauvais jeu à l'écran).
+
+Ce qu'aucun test ne voit, et qui est donc ton vrai terrain :
+
 - Aucune faute de français dans ce qui s'affiche (titres, questions, anecdotes, boutons).
 - Le contenu ne doit pas être trivial : le public inclut des adultes qui redécouvrent des notions oubliées. Signale toute notion du niveau « 1+1=2 ».
 - Aucune mécanique ne doit être un QCM déguisé (un choix entre deux boutons sans geste ni tension n'est pas un jeu différent).
