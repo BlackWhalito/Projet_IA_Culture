@@ -93,24 +93,53 @@ export function cloud(
   const { light, shade, alpha = 0.16, highlight: highlightColor = light } = options
   const lit = litFromLeft(plan)
 
-  // La masse : plusieurs bulbes de tailles inégales alignés sur une base
-  // commune, plutôt qu'une seule forme — un nuage est un agrégat. On garde
-  // trace du lobe le plus proche de la lumière : c'est lui qui portera le
-  // sommet éclairé plus bas.
-  const lobes = 3 + Math.floor(rng() * 3)
-  let litLobe: { lx: number; lw: number; lh: number } | undefined
+  // La masse : plusieurs bulbes de tailles inégales, plus haut au centre et
+  // rasé aux extrémités — plutôt qu'une seule forme, un nuage est un agrégat.
+  // On garde trace du lobe le plus proche de la lumière : c'est lui qui
+  // portera le sommet éclairé plus bas.
+  const lobes = 4 + Math.floor(rng() * 3)
+
+  // Les lobes ne sont plus posés sur une grille régulière (`i / lobes`) :
+  // c'est cette régularité — bulbes de même taille, à intervalle constant,
+  // sur une même ligne de base parfaitement droite — qui les faisait lire
+  // comme une frise de bosses ou un feston décoratif plutôt qu'un nuage.
+  // Un décalage CUMULATIF (chaque position dépend de la précédente) casse
+  // l'espacement sans jamais permuter deux lobes dans le désordre.
+  const slots: number[] = []
+  let cursor = 0
   for (let i = 0; i < lobes; i += 1) {
-    const t = lobes === 1 ? 0.5 : i / (lobes - 1)
+    cursor += 1 + (rng() - 0.5) * 0.7
+    slots.push(cursor)
+  }
+  const span = slots[slots.length - 1] || 1
+
+  let litLobe: { lx: number; ly: number; lw: number; lh: number } | undefined
+  for (let i = 0; i < lobes; i += 1) {
+    const t = slots[i] / span
     const lx = cx - width / 2 + width * t
-    const scale = 0.55 + rng() * 0.75
-    const lw = (width / lobes) * 1.5 * scale
+    // Le gabarit qui fait la silhouette AVANT toute couleur : un nuage se
+    // gonfle au centre et s'amenuise vers ses bords. Sans ce gabarit, seul
+    // le tirage aléatoire dessine le contour et rend parfois une rangée de
+    // bosses de taille comparable — exactement la « frise » observée.
+    // Plafonné à 1 au centre : un premier réglage plus haut (1.3) laissait
+    // le lobe central avaler tout le nuage en un seul dôme disproportionné,
+    // le défaut inverse de la frise — un agrégat a besoin de plusieurs
+    // bulbes du même ordre de grandeur, pas d'un géant et des miettes.
+    const taper = 0.4 + Math.sin(t * Math.PI) ** 0.7 * 0.6
+    const scale = taper * (0.6 + rng() * 0.7)
+    const lw = (width / lobes) * 1.6 * scale
     const lh = height * scale
+    // La base reste PRESQUE plate — un nuage a un dessous plat, pas
+    // ondulé — mais un tout petit débattement (12 % de la hauteur du lobe)
+    // évite que tous les lobes s'alignent sur une règle, seconde source de
+    // l'effet « décoratif ».
+    const ly = cy + (rng() - 0.5) * height * 0.12
     const base: Point[] = []
     for (let a = 0; a <= 12; a += 1) {
       const ang = Math.PI + (a / 12) * Math.PI
-      base.push([lx + Math.cos(ang) * lw * 0.5, cy + Math.sin(ang) * lh])
+      base.push([lx + Math.cos(ang) * lw * 0.5, ly + Math.sin(ang) * lh])
     }
-    base.push([lx + lw * 0.5, cy], [lx - lw * 0.5, cy])
+    base.push([lx + lw * 0.5, ly], [lx - lw * 0.5, ly])
     wash(ctx, base, rng, {
       color: light,
       layers: 14,
@@ -118,7 +147,7 @@ export function cloud(
       spread: 0.11,
       jitter: 0.13,
     })
-    if (!litLobe || (lit ? lx < litLobe.lx : lx > litLobe.lx)) litLobe = { lx, lw, lh }
+    if (!litLobe || (lit ? lx < litLobe.lx : lx > litLobe.lx)) litLobe = { lx, ly, lw, lh }
 
     // L'ombre de CE lobe : un écho compressé du MÊME contour `base`, pas
     // une nouvelle ellipse posée à côté. Une forme indépendante, même
@@ -129,7 +158,7 @@ export function cloud(
     // l'ombre reste géométriquement à l'intérieur de la silhouette du lobe.
     const shadeBase: Point[] = base.map(([px, py]) => [
       lx + (px - lx) * 0.8,
-      cy + (py - cy) * 0.55 + lh * 0.22,
+      ly + (py - ly) * 0.55 + lh * 0.22,
     ])
     wash(ctx, shadeBase, rng, {
       color: shade,
@@ -148,7 +177,7 @@ export function cloud(
       ctx,
       polygon(
         litLobe.lx + (lit ? -litLobe.lw * 0.1 : litLobe.lw * 0.1),
-        cy - litLobe.lh * 0.6,
+        litLobe.ly - litLobe.lh * 0.6,
         litLobe.lw * 0.24,
         litLobe.lh * 0.32,
         9,
