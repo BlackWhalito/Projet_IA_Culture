@@ -5,7 +5,6 @@ import type { LightPlan } from './light'
 /**
  * La figure humaine.
  *
- * Un seul sujet pour l'instant : une enfant qui écrit, au-dessus du titre.
  * Le risque ici est spécifique et plus élevé qu'ailleurs — un visage raté
  * se voit tout de suite, plus que n'importe quelle façade ratée. La règle
  * qui s'applique : rester ICONIQUE, jamais anatomique. Deux petits accents
@@ -13,6 +12,11 @@ import type { LightPlan } from './light'
  * détaillée est plus risquée qu'utile à cette échelle et à ce niveau
  * d'abstraction. Même logique que `voile()` dans `scenes.ts` — un bateau
  * reconnaissable en trois formes, jamais une coque détaillée.
+ *
+ * `childWatchingSea` pousse cette règle plus loin : vue de dos, assise,
+ * elle n'a tout simplement aucun visage à risquer. La posture seule (genoux
+ * repliés, bras autour, tête inclinée vers l'horizon) suffit à dire
+ * « regarde au loin » — le motif classique de la figure vue de dos.
  */
 
 export interface GirlOptions {
@@ -195,4 +199,114 @@ export function girlWriting(
     spread: 0.05,
     jitter: 0.06,
   })
+}
+
+export interface ChildOptions {
+  skin: string
+  hair: string
+  clothes: string
+  accent: string
+}
+
+/**
+ * Un enfant assis, vu de dos, genoux repliés contre la poitrine — le motif
+ * classique de la figure qui regarde au loin. `cx` centre la silhouette,
+ * `yGround` place l'assise (le rocher ou le sol sur lequel elle est posée),
+ * `scale` règle toute la figure (la tête a un rayon d'environ `scale * 0.34`).
+ *
+ * Vue de dos : ni yeux ni visage à peindre. La tête, les épaules et la
+ * posture repliée suffisent seules à la lecture « un enfant qui regarde la
+ * mer » — le risque le plus élevé de `figure.ts` (un visage raté) est ici
+ * simplement absent plutôt qu'atténué.
+ */
+export function childWatchingSea(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  yGround: number,
+  scale: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: ChildOptions,
+): void {
+  const { skin, hair, clothes, accent } = options
+  const lit = litFromLeft(plan)
+  // Un tout petit penché du buste vers l'horizon, toujours du même côté que
+  // la lumière — sans lui la silhouette reste plantée bien droite, moins
+  // convaincante qu'une posture relâchée face au large.
+  const lean = lit ? scale * 0.06 : -scale * 0.06
+
+  // Les jambes repliées : une masse simple, plus large à l'assise qu'aux
+  // genoux — le détail du pli du genou n'apporte rien à cette échelle.
+  const hipY = yGround
+  const kneeY = yGround - scale * 0.5
+  const hipW = scale * 0.85
+  const kneeW = scale * 0.5
+  wash(ctx, [
+    [cx - hipW / 2, hipY],
+    [cx - kneeW / 2 + lean, kneeY],
+    [cx + kneeW / 2 + lean, kneeY],
+    [cx + hipW / 2, hipY],
+  ], rng, { color: clothes, layers: 18, alpha: 0.42 / 18, spread: 0.05, jitter: 0.07 })
+
+  // Le dos : une masse qui part des hanches et remonte, plus étroite aux
+  // épaules qu'à l'assise — vue de dos, le dos EST la silhouette, il n'y a
+  // rien d'autre à peindre pour le torse.
+  const shoulderY = kneeY - scale * 0.5
+  const shoulderW = scale * 0.62
+  wash(ctx, [
+    [cx - kneeW / 2 + lean, kneeY],
+    [cx - shoulderW / 2 + lean, shoulderY],
+    [cx + shoulderW / 2 + lean, shoulderY],
+    [cx + kneeW / 2 + lean, kneeY],
+  ], rng, { color: clothes, layers: 20, alpha: 0.42 / 20, spread: 0.05, jitter: 0.06 })
+
+  // Les bras : deux traits qui partent des épaules et enveloppent les
+  // genoux — c'est ce geste, plus que n'importe quel autre détail, qui dit
+  // « repliée sur elle-même à regarder ».
+  dryStroke(ctx, [
+    [cx - shoulderW * 0.4 + lean, shoulderY + scale * 0.08],
+    [cx - kneeW * 0.15 + lean, kneeY - scale * 0.02],
+    [cx + lean * 1.5, kneeY + scale * 0.04],
+  ], scale * 0.13, rng, { color: skin, alpha: 0.42, layers: 3 })
+  dryStroke(ctx, [
+    [cx + shoulderW * 0.4 + lean, shoulderY + scale * 0.08],
+    [cx + kneeW * 0.15 + lean, kneeY - scale * 0.02],
+    [cx + lean * 0.5, kneeY + scale * 0.06],
+  ], scale * 0.13, rng, { color: skin, alpha: 0.42, layers: 3 })
+
+  // La tête : ronde, penchée avec le buste, tournée vers l'horizon.
+  const headR = scale * 0.34
+  const headY = shoulderY - headR * 0.95
+  const headX = cx + lean * 1.4
+  wash(ctx, polygon(headX, headY, headR, headR * 1.05, 12, 0, rng), rng, {
+    color: skin,
+    layers: 18,
+    alpha: 0.4 / 18,
+    spread: 0.05,
+    jitter: 0.06,
+  })
+
+  // Les cheveux : vue de dos, ils couvrent presque toute la tête plutôt que
+  // de la couronner — c'est cette masse, pas un visage, qui fait la tête.
+  // Un peu descendus vers les épaules pour suggérer une chevelure qui
+  // retombe, jamais jusqu'à se confondre avec le vêtement (même piège que
+  // les couettes de `girlWriting` : rester collé à la tête).
+  wash(ctx, [
+    [headX - headR * 1.02, headY + headR * 0.5],
+    [headX - headR * 0.85, headY - headR * 0.75],
+    [headX, headY - headR * 1.05],
+    [headX + headR * 0.85, headY - headR * 0.75],
+    [headX + headR * 1.02, headY + headR * 0.5],
+    [headX + headR * 0.7, headY + headR * 1.3],
+    [headX, headY + headR * 1.5],
+    [headX - headR * 0.7, headY + headR * 1.3],
+  ], rng, { color: hair, layers: 16, alpha: 0.48 / 16, spread: 0.06, jitter: 0.08 })
+
+  // Une petite touche d'accent au col — l'arête sombre qui sépare la
+  // chevelure du vêtement, sans quoi les deux masses proches en teinte
+  // (selon la palette de la scène) risquent de fusionner en un seul bloc.
+  dryStroke(ctx, [
+    [headX - shoulderW * 0.3 + lean, headY + headR * 1.4],
+    [headX + shoulderW * 0.3 + lean, headY + headR * 1.35],
+  ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
 }
