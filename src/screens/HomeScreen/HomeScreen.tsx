@@ -2,8 +2,10 @@ import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { GRADE_LEVELS } from '../../content/grades'
+import { WatercolorScene } from '../../components/watercolor/WatercolorScene'
 import { GRADE_ART } from './gradeArt'
 import { SideArt } from './SideArt'
+import { bandeauScene } from './scenes'
 import styles from './HomeScreen.module.css'
 
 export function HomeScreen() {
@@ -11,48 +13,9 @@ export function HomeScreen() {
     <div className={styles.home}>
       <SideArt side="left" />
       <SideArt side="right" />
-      <svg className={styles.hero} viewBox="0 0 400 140" aria-hidden="true">
-        <g style={{ mixBlendMode: 'multiply' }}>
-          <path
-            d="M40,72 C8,42 58,8 128,16 C198,24 232,54 212,86 C192,118 108,122 58,106 C18,94 4,92 40,72 Z"
-            fill="var(--violet-brume)"
-            opacity="0.42"
-            filter="url(#aq-bord-1)"
-          />
-          <path
-            d="M44,70 C12,44 60,12 130,20 C196,28 228,56 210,84 C188,114 112,120 60,104 C22,92 8,88 44,70 Z"
-            fill="var(--violet-brume)"
-            opacity="0.3"
-            filter="url(#aq-bord-3)"
-          />
-          <path
-            d="M182,52 C162,22 232,6 292,16 C352,26 372,56 352,82 C332,110 262,116 222,102 C186,90 176,76 182,52 Z"
-            fill="var(--violet)"
-            opacity="0.26"
-            filter="url(#aq-bord-2)"
-          />
-          <path
-            d="M186,50 C168,24 234,10 290,18 C348,28 368,54 350,80 C330,106 264,112 226,100 C190,88 180,74 186,50 Z"
-            fill="var(--violet)"
-            opacity="0.18"
-            filter="url(#aq-bord-4)"
-          />
-          <path
-            d="M250,80 C245,64 267,56 282,62 C298,68 302,86 289,97 C276,107 254,101 250,80 Z"
-            fill="var(--color-domain-sciences)"
-            opacity="0.3"
-            filter="url(#aq-bord-2)"
-          />
-          <path
-            d="M60,102 Q140,60 232,76 T 342,50"
-            fill="none"
-            stroke="var(--violet-profond)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            opacity="0.3"
-          />
-        </g>
-      </svg>
+      <div className={styles.hero}>
+        <WatercolorScene paint={bandeauScene} width={460} height={150} seed={904} />
+      </div>
 
       <h1 className={styles.title}>Jeu Culture</h1>
       <p className={styles.subtitle}>Choisis un niveau scolaire pour commencer à jouer.</p>

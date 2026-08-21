@@ -74,6 +74,20 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
+## Voir réellement ce qu'on dessine, quand la capture d'écran refuse
+
+**Symptôme.** `computer{action:"screenshot"}` échoue en boucle avec « the Browser pane is not displayed, so the page is not compositing frames », quel que soit l'onglet, le `tabs_select` ou le redimensionnement. Conséquence grave sur un travail visuel : on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu.
+
+**Contournement.** Ne pas passer par le compositeur : rendre le SVG dans un `<canvas>` depuis la page elle-même, puis lire l'image.
+
+1. Pour un SVG : récupérer le `innerHTML` du `<svg>` des filtres (`svg[width="0"]`) **et** celui de la forme à voir — sans les filtres, le rendu autonome sort des aplats plats. Pour un `<canvas>` déjà peint (moteur aquarelle génératif, voir `src/components/watercolor/`), pas besoin de ce détour : `drawImage` le canvas source directement.
+2. Remplacer chaque `var(--x)` par sa valeur résolue via `getComputedStyle(document.documentElement)` — une image autonome n'a pas accès aux variables CSS du document. Toujours peindre sur un fond `--papier` explicite avant de dessiner par-dessus : exporter en JPEG sur un canvas resté transparent noircit tout le vide, ce qui ressemble à s'y méprendre à un vrai bug de rendu.
+3. Composer dans un `<canvas>` (taille de sortie modeste, on regarde une composition, pas un pixel) via `drawImage`/`fillText`, en reprenant si besoin les vraies dimensions avec `getBoundingClientRect()` plutôt que des tailles inventées.
+4. **Ne pas faire transiter le base64 par le contexte de conversation** — un aller-retour tourne vite à 30-40 ko juste pour une vignette, et une session d'itération en enchaîne des dizaines. Démarrer un petit serveur HTTP local (`node`, une douzaine de lignes) qui écoute sur un port du scratchpad et écrit le `POST` reçu dans un fichier ; la page fait `fetch('http://localhost:PORT/', { method: 'POST', body: canvas.toDataURL(...) })`. Puis lire ce fichier avec l'outil `Read`, qui affiche réellement les images — c'est la seule étape qui consomme du contexte, une seule fois, à la toute fin.
+5. Le serveur de capture ne survit pas à un redémarrage de session (processus arrière-plan perdu) : le relancer avant la première capture d'une nouvelle session, avec le dev server, plutôt que de découvrir la connexion refusée au milieu d'un test.
+
+Sans ce contournement, on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu ce qu'il a vu.
+
 ## `window.matchMedia` absent en test
 
 **Symptôme.** Un composant qui lit `prefers-reduced-motion` au montage (`window.matchMedia(...)` dans un `useState(() => ...)`, voir la skill `aquarelle`) fait planter tout test qui le rend : `TypeError: window.matchMedia is not a function`.
