@@ -488,7 +488,13 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     floors: 3,
     bays: 3,
   })
-  arcade(ctx, w * 0.68, w * 0.97, h * 0.55, quai, 4, rng, LUMIERE, 0.15, 0.22)
+  // Resserrée sur la droite (`w*0.85` à `w*0.97`, 2 arches au lieu de 4) :
+  // à sa portée d'origine (`w*0.68` à `w*0.97`), une arche tombait presque
+  // exactement sur le fronton voisin ajouté plus bas — même profondeur,
+  // rien pour les hiérarchiser, la colonne se lisait traversée par l'arche
+  // plutôt que comme un fût distinct. Ce sous-chantier a la priorité sur la
+  // largeur de l'arcade.
+  arcade(ctx, w * 0.85, w * 0.97, h * 0.55, quai, 2, rng, LUMIERE, 0.15, 0.22)
 
   // Un fronton porté par deux colonnes, planté au premier plan — colonnes
   // et triangle, le repère le plus univoque de l'Antiquité gréco-romaine,
@@ -497,33 +503,33 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   // pour deux fûts nettement espacés. Plus clair (PIERRE_CHAUDE) que la
   // masse violette derrière lui, pour s'en détacher plutôt que s'y fondre.
   //
-  // Deux essais ratés avant ces proportions et cette position : le premier
-  // avec des colonnes hauteur/rayon ~12:1 (empruntées telles quelles à la
-  // colonne solitaire voisine) donnait un mât fin coiffé d'un chapeau
-  // pointu, jamais un temple — un vrai fût antique reste autour de 6-8:1.
-  // Le second gardait ce ratio mais espaçait trop peu les deux fûts, qui
-  // fusionnaient en un seul bloc, ET centrait le groupe sur `w*0.88`,
-  // exactement la position de la silhouette lointaine `facade()` du fond
-  // (« Fond lointain », plus haut) — en `multiply`, rien n'occulte rien,
-  // sa teinte bleu-violet ressortait à travers la colonne et le fronton
-  // censés être devant. Ici : rayon élargi, hauteur réduite, écart entre
-  // fûts porté à ~1.7x leur diamètre, et le tout décalé à gauche pour
-  // rester hors de cette silhouette. `yBase` du fronton remonte du rayon
-  // des chapiteaux, pas du fût nu, pour coiffer les colonnes chapiteau
-  // compris.
-  column(ctx, w * 0.665, quai, h * 0.24, w * 0.042, rng, LUMIERE, {
+  // Plusieurs essais ratés avant ces proportions et cette position : des
+  // colonnes hauteur/rayon ~12:1 (empruntées telles quelles à la colonne
+  // solitaire voisine) donnaient un mât fin coiffé d'un chapeau pointu,
+  // jamais un temple — un vrai fût antique reste autour de 6-8:1. Deux
+  // fûts trop rapprochés fusionnaient en un seul bloc. Centré sur `w*0.88`,
+  // le groupe tombait sur la silhouette lointaine du fond (`facade()` de
+  // « Fond lointain », plus haut) puis, décalé, sur une arche de l'arcade
+  // voisine — en `multiply`, rien n'occulte rien, ces teintes ressortaient
+  // à travers la colonne et le fronton censés être devant. Et à la taille
+  // d'affichage réelle du tableau (~170px CSS de large), la première
+  // version restait trop petite pour se lire comme « colonnes + triangle »
+  // plutôt qu'une texture parmi d'autres sur la façade sombre. `yBase` du
+  // fronton remonte du rayon des chapiteaux, pas du fût nu, pour coiffer
+  // les colonnes chapiteau compris.
+  column(ctx, w * 0.65, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
     stone: PIERRE_CHAUDE,
     shade: VIOLET_PROFOND,
     distance: 0.1,
     broken: false,
   })
-  column(ctx, w * 0.805, quai, h * 0.24, w * 0.042, rng, LUMIERE, {
+  column(ctx, w * 0.81, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
     stone: PIERRE_CHAUDE,
     shade: VIOLET_PROFOND,
     distance: 0.1,
     broken: false,
   })
-  pediment(ctx, w * 0.735, quai - h * 0.24 - w * 0.042 * 0.55, w * 0.25, h * 0.018, rng, LUMIERE, {
+  pediment(ctx, w * 0.73, quai - h * 0.27 - w * 0.048 * 0.55, w * 0.285, h * 0.022, rng, LUMIERE, {
     stone: PIERRE_CHAUDE,
     shade: VIOLET_PROFOND,
     distance: 0.1,
