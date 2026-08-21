@@ -11,7 +11,7 @@ import {
   ruinFacade,
 } from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
-import { childWatchingSea, girlWriting } from '../../components/watercolor/figure'
+import { adultReading, childWatchingSea, girlWriting } from '../../components/watercolor/figure'
 import { litFromLeft } from '../../components/watercolor/light'
 import type { LightPlan } from '../../components/watercolor/light'
 
@@ -634,19 +634,28 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
  * sujet, pas un élément de plus au milieu des autres.
  */
 export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
-  wash(ctx, polygon(w * 0.14, h * 0.5, w * 0.2, h * 0.36, 11, 0, rng), rng, {
-    color: VIOLET_BRUME,
-    layers: 22,
-    alpha: 0.02,
-    spread: 0.22,
-  })
-  wash(ctx, polygon(w * 0.38, h * 0.4, w * 0.18, h * 0.3, 10, 0, rng), rng, {
-    color: BLEU_CLAIR,
-    layers: 20,
-    alpha: 0.014,
-    spread: 0.24,
-  })
   stroke(ctx, houle(h * 0.8, 3, w * 0.96, rng), 2, rng, { color: VIOLET_PROFOND, alpha: 0.014, layers: 8 })
+
+  // Deux adultes qui lisent, à la place des deux lavis abstraits d'origine
+  // — même emplacement, mêmes teintes (VIOLET_BRUME et BLEU_CLAIR, qui
+  // étaient déjà la charte graphique de ce coin du bandeau), mais des
+  // silhouettes reconnaissables plutôt que des taches de couleur. Postées
+  // au même niveau de sol que la fillette (`h*0.74`, l'ourlet de sa robe)
+  // pour que les trois figures partagent une seule ligne de base.
+  adultReading(ctx, w * 0.14, h * 0.74, h * 0.24, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    clothes: VIOLET_BRUME,
+    paper: PAPIER,
+    accent: ENCRE_SOMBRE,
+  })
+  adultReading(ctx, w * 0.32, h * 0.74, h * 0.22, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    clothes: BLEU_CLAIR,
+    paper: PAPIER,
+    accent: ENCRE_SOMBRE,
+  })
 
   girlWriting(ctx, w * 0.74, h * 0.7, h * 0.27, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,

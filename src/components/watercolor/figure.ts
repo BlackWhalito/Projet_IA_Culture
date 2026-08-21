@@ -17,6 +17,11 @@ import type { LightPlan } from './light'
  * elle n'a tout simplement aucun visage à risquer. La posture seule (genoux
  * repliés, bras autour, tête inclinée vers l'horizon) suffit à dire
  * « regarde au loin » — le motif classique de la figure vue de dos.
+ *
+ * `adultReading` applique la même esquive autrement : de face, mais tête
+ * penchée vers son livre plutôt que vers le joueur. Un adulte absorbé dans
+ * sa lecture regarde la page, pas devant lui — la posture dit « lit »,
+ * aucun regard à peindre.
  */
 
 export interface GirlOptions {
@@ -308,5 +313,120 @@ export function childWatchingSea(
   dryStroke(ctx, [
     [headX - shoulderW * 0.3 + lean, headY + headR * 1.4],
     [headX + shoulderW * 0.3 + lean, headY + headR * 1.35],
+  ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
+}
+
+export interface AdultOptions {
+  skin: string
+  hair: string
+  clothes: string
+  paper: string
+  accent: string
+}
+
+/**
+ * Un adulte debout, en train de lire, tête penchée vers son livre. `cx`
+ * centre la silhouette, `yGround` place ses pieds, `scale` règle toute la
+ * figure (la tête a un rayon d'environ `scale * 0.26` — plus petite en
+ * proportion du corps que celle de `girlWriting`, ce qui suffit à lire
+ * « adulte » plutôt que « enfant » sans rien changer d'autre).
+ *
+ * Aucun œil peint : la tête inclinée regarde le livre, pas le joueur.
+ */
+export function adultReading(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  yGround: number,
+  scale: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: AdultOptions,
+): void {
+  const { skin, hair, clothes, paper, accent } = options
+  const lit = litFromLeft(plan)
+  const side = lit ? 1 : -1
+
+  // Le vêtement : une silhouette longue et simple, plus large aux épaules
+  // qu'à l'ourlet — une robe d'enfant s'arrête au bureau, celle-ci descend
+  // jusqu'aux pieds, c'est ce qui fait « adulte debout » avant même la tête.
+  const shoulderY = yGround - scale * 1.55
+  const hipW = scale * 0.42
+  const shoulderW = scale * 0.62
+  wash(ctx, [
+    [cx - hipW / 2, yGround],
+    [cx - shoulderW / 2, shoulderY],
+    [cx + shoulderW / 2, shoulderY],
+    [cx + hipW / 2, yGround],
+  ], rng, { color: clothes, layers: 20, alpha: 0.45 / 20, spread: 0.05, jitter: 0.07 })
+
+  // Le livre, tenu à hauteur de poitrine, légèrement du côté éclairé — même
+  // logique que le carnet de `girlWriting` : un bord sombre net, sans quoi
+  // le papier clair se fond dans un vêtement de teinte proche et disparaît.
+  const bookY = shoulderY + scale * 0.5
+  const bookX = cx + side * scale * 0.06
+  const bookW = scale * 0.5
+  const bookH = scale * 0.36
+  wash(ctx, [
+    [bookX - bookW / 2, bookY + bookH / 2],
+    [bookX - bookW / 2, bookY - bookH / 2],
+    [bookX + bookW / 2, bookY - bookH / 2],
+    [bookX + bookW / 2, bookY + bookH / 2],
+  ], rng, { color: paper, layers: 14, alpha: 0.55 / 14, spread: 0.04, jitter: 0.06 })
+  dryStroke(ctx, [
+    [bookX - bookW / 2, bookY - bookH / 2],
+    [bookX + bookW / 2, bookY - bookH / 2],
+    [bookX + bookW / 2, bookY + bookH / 2],
+    [bookX - bookW / 2, bookY + bookH / 2],
+    [bookX - bookW / 2, bookY - bookH / 2],
+  ], scale * 0.02, rng, { color: accent, alpha: 0.28, layers: 1 })
+  // La reliure : un trait central qui sépare les deux pages, suggéré plutôt
+  // que du texte — jamais de texte lisible, seulement le geste du livre.
+  dryStroke(ctx, [[bookX, bookY - bookH * 0.4], [bookX, bookY + bookH * 0.4]], scale * 0.016, rng, {
+    color: accent,
+    alpha: 0.24,
+    layers: 1,
+  })
+
+  // Les bras : deux traits qui plongent des épaules vers le livre, comme
+  // les bras de `girlWriting` vers son carnet.
+  dryStroke(ctx, [
+    [cx - shoulderW * 0.36, shoulderY + scale * 0.1],
+    [bookX - bookW * 0.28, bookY],
+  ], scale * 0.12, rng, { color: skin, alpha: 0.42, layers: 3 })
+  dryStroke(ctx, [
+    [cx + shoulderW * 0.36, shoulderY + scale * 0.1],
+    [bookX + bookW * 0.28, bookY],
+  ], scale * 0.12, rng, { color: skin, alpha: 0.42, layers: 3 })
+
+  // La tête, penchée vers le livre : décalée vers le bas et son côté
+  // plutôt que centrée sur les épaules — c'est cette inclinaison qui dit
+  // « absorbé dans sa lecture », pas seulement « debout ».
+  const headR = scale * 0.26
+  const headX = cx + side * scale * 0.05
+  const headY = shoulderY - headR * 0.55
+  wash(ctx, polygon(headX, headY, headR, headR * 1.05, 12, 0, rng), rng, {
+    color: skin,
+    layers: 16,
+    alpha: 0.4 / 16,
+    spread: 0.05,
+    jitter: 0.06,
+  })
+
+  // Les cheveux : une masse courte, sans couettes — c'est la silhouette
+  // (épaules larges, vêtement long) qui dit « adulte », pas la coiffure.
+  wash(ctx, [
+    [headX - headR * 1.0, headY + headR * 0.2],
+    [headX - headR * 0.7, headY - headR * 0.85],
+    [headX, headY - headR * 1.05],
+    [headX + headR * 0.7, headY - headR * 0.85],
+    [headX + headR * 1.0, headY + headR * 0.2],
+    [headX, headY - headR * 0.25],
+  ], rng, { color: hair, layers: 14, alpha: 0.45 / 14, spread: 0.06, jitter: 0.08 })
+
+  // Une petite touche d'accent au col, même rôle que sur `girlWriting` :
+  // sans elle, une chevelure et un vêtement de teinte proche fusionnent.
+  dryStroke(ctx, [
+    [headX - shoulderW * 0.28, headY + headR * 1.3],
+    [headX + shoulderW * 0.28, headY + headR * 1.25],
   ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
 }
