@@ -249,8 +249,14 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.85, color: SABLE, alpha: 0.12 },
     { at: 1, color: SABLE, alpha: 0.04 },
   ])
+  // `light: VIOLET_BRUME`, pas `PIERRE_PALE` comme sur la lagune : ce ciel
+  // est chaud (OCRE/SABLE) alors que celui de la lagune est froid (VIOLET).
+  // PIERRE_PALE, un beige pâle, s'y fondait presque entièrement — le corps
+  // du nuage restait quasi invisible et son highlight, pourtant bien posé
+  // dessus, se lisait comme flottant sur du ciel nu. Un lavis froid tranche
+  // sur un ciel chaud là où un lavis chaud s'y noie.
   cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
-    light: PIERRE_PALE,
+    light: VIOLET_BRUME,
     shade: VIOLET,
     alpha: 0.16,
     highlight: PAPIER,
