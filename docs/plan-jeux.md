@@ -16,7 +16,9 @@ Corollaire : 18 des 40 notions n'ont qu'un payload `qcm`, et 55 % des créneaux 
 
 À faire **avant** toute nouvelle mécanique, sinon la coquille les reformatera toutes en QCM.
 
-1. Élargir `GameCompleteResult` en `{ correct, timeMs, score?, mistakes?, streak? }`, et faire enfin lire `timeMs` par `computeStarRating`.
+1. Élargir `GameCompleteResult` en `{ correct, timeMs, mistakes?, streak? }`, et faire enfin servir le `timeMs` que les jeux calculaient pour rien.
+
+   > **Fait, mais autrement — et mieux.** Mettre le temps dans `computeStarRating` aurait mélangé deux rôles dans un seul chiffre. Les étoiles sont restées le ratio de bonnes réponses : elles sont la **porte de déverrouillage**, elles doivent rester lisibles par un enfant de 6 ans. Le temps et les erreurs alimentent un `computeSessionScore` distinct, qui mesure la **manière** et donne la chose qu'on peut battre en rejouant. Voir `src/engine/scoring.ts`.
 2. Supprimer l'écran d'intro systématique de `GameShell`. Le `summary` rejoint le `funFact` **après** le jeu. Le jeu commence à froid ; les mécaniques qui ont besoin d'un cadrage le portent elles-mêmes.
 3. Casser l'uniformité des niveaux : viser 3 jeux courts + 1 temps fort, au lieu de 5 créneaux identiques. Pas de changement de type, c'est de l'écriture de contenu.
 
@@ -55,7 +57,7 @@ Deux règles non négociables :
 Puis **Louis XIV** : jauges autorité / attention de la Cour, et une règle de jeu — *aucune option ne permet d'être seul*. On comprend Versailles comme une machine à tenir la noblesse.
 
 ```ts
-interface IncarnationContent {
+interface FilDesJoursContent {
   personnage: { nom: string; annee: string; role: string }
   jauges: { id: string; label: string; depart: number }[]
   etapes: {
@@ -74,15 +76,17 @@ Code trivial (machine à états + jauges CSS), **coût en écriture** : ~40 lign
 
 Carte muette, un nom à trouver, brouillard qui se referme en 6 s. Juste : la zone s'illumine et son nom y reste. Faux : **le nom de ce qu'on a touché s'affiche** (« Ça, c'est la Seine ») — l'erreur enseigne un second fait.
 
-Aujourd'hui 6 des 10 notions de géographie n'ont qu'un QCM faute de carte : on teste un mot au lieu de construire une image mentale. Le type `mapclick` existe dans `content.ts` et n'a jamais été implémenté.
+Aujourd'hui 6 des 10 notions de géographie n'ont qu'un QCM faute de carte : on teste un mot au lieu de construire une image mentale.
 
 ```ts
-interface CarteContent {
+interface CapSurContent {
   carteId: 'france' | 'europe' | 'monde'
-  cibles: { id: string; label: string; d?: string; cx?: number; cy?: number; rayon: number }[]
+  cibles: string[]            // ids de zones, dans l'ordre où elles sont demandées
   secondesParCible: number
 }
 ```
+
+> **Écart assumé avec le plan d'origine.** Le plan faisait porter la géométrie (`d`, `cx`, `cy`, `rayon`) par le contenu de la notion. À l'implémentation, la géométrie a été sortie dans `src/content/maps/` : une notion ne cite plus qu'un id de zone. Sans ça, la même ville aurait été redessinée dans chaque notion qui la mentionne. `contentIntegrity.test.ts` vérifie que chaque id cité existe bien sur sa carte.
 
 Coût élevé : il faut produire 3 cartes SVG simplifiées. Mais elles resserviront du CP à la 3e — investissement de plateforme. Zone tapable **jamais sous 44px**, quitte à déborder du tracé.
 

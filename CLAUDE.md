@@ -29,9 +29,9 @@ npx vitest run chemin/du/fichier.test.ts
 
 ## La règle d'architecture qui ne se viole pas
 
-`src/content/` = données statiques écrites à la main, jamais mutées à l'exécution.
-`src/state/` = état runtime persisté en `localStorage`.
-Séparées au niveau des types (`types/content.ts` vs `types/progress.ts`), elles ne se mélangent jamais.
+**Contenu et état ne se mélangent jamais.** `src/content/` = données statiques écrites à la main, jamais mutées à l'exécution. `src/state/` = état runtime persisté en `localStorage`. Séparés au niveau des types (`types/content.ts` vs `types/progress.ts`).
+
+**Les dépendances descendent.** `types` n'importe rien ; `content` et `engine` ne connaissent que `types` ; `state` ne connaît que `engine` et `types`. Un import qui remonte vers `games` ou `screens` est un défaut : c'est ainsi que le contrat de sortie des jeux s'était retrouvé recopié en double dans `engine/scoring.ts`, faute de vivre au bon étage. Échelle complète dans le [README](README.md).
 
 ## Décisions non devinables à la lecture du code
 
@@ -54,4 +54,4 @@ Direction artistique **aquarelle** au CP (skill `aquarelle`) ; arcade rétro pr�
 - [docs/feuille-de-route.md](docs/feuille-de-route.md) — toutes les tâches restantes, découpées et expliquées
 - [docs/plan-jeux.md](docs/plan-jeux.md) — diagnostic et spécifications des mécaniques
 - Skills : `apex`, `orchestration`, `aquarelle`, `pieges-du-projet`, `nouvelle-mecanique`, `nouvelle-notion`, `audit-des-skills`
-- Agents : `verificateur`, `auditeur-securite`, `game-designer`, `redacteur-contenu`
+- Agents : `verificateur`, `avocat-du-diable`, `auditeur-securite`, `game-designer`, `redacteur-contenu`

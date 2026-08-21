@@ -14,7 +14,7 @@ Session autonome sur le Jalon 1 de [feuille-de-route.md](feuille-de-route.md), s
 
 Chacune : `npm run build` (tsc + vite), `npm run lint` (oxlint), `npm run test` (vitest) passent, commit séparé. Détail du « vérifié comment » dans la section suivante.
 
-- **1.1 — Moteur du Fil des jours.** Types `IncarnationContent`, logique pure testée (`src/engine/incarnation.ts`), composant `FilDesJoursGame`. Scénario bidon de 3 étapes joué de bout en bout en test, deux embranchements d'épilogue différents.
+- **1.1 — Moteur du Fil des jours.** Types d'incarnation, logique pure testée (`src/engine/fildesjours.ts`), composant `FilDesJoursGame`. *(Écrits cette nuit-là sous les noms `IncarnationContent` et `engine/incarnation.ts`, renommés depuis pour coller au nom de la mécanique.)* Scénario bidon de 3 étapes joué de bout en bout en test, deux embranchements d'épilogue différents.
 - **1.2 — Scénario Christophe Colomb.** 7 étapes, faits vérifiés par recherche web (dates, double journal de bord, mutinerie, Rodrigo de Triana). Rédigé par l'agent `redacteur-contenu`, relu intégralement.
 - **1.3 — Scénario Louis XIV.** 6 étapes (lever du roi), règle « jamais seul » vérifiée sur les 18 options. Même méthode que 1.2.
 - **1.4 — Carte SVG de la France.** Contour + 4 fleuves + 10 villes + 5 pays voisins, chaque zone cliquable et identifiée (clic + clavier).
