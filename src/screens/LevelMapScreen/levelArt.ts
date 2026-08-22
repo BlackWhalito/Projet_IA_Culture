@@ -138,19 +138,29 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
     { at: 1, color: SABLE, alpha: 0.12 },
   ])
 
-  // La lune : un halo large et pâle, puis un disque net réservé par-dessus
-  // — le même principe que le cœur du feu plus bas, un clair franc plutôt
-  // qu'un dégradé mou.
-  wash(ctx, polygon(w * 0.2, h * 0.22, w * 0.09, w * 0.09, 10, 0, rng), rng, {
-    color: VIOLET_BRUME,
-    layers: 14,
-    alpha: 0.16 / 14,
-    spread: 0.2,
-    jitter: 0.12,
-  })
-  highlight(ctx, polygon(w * 0.2, h * 0.2, w * 0.032, w * 0.032, 9, 0, rng), rng, {
+  // La lune : un halo doux et irrégulier (le voile de brume autour), puis
+  // un disque beaucoup plus net et rond par-dessus — même principe que le
+  // cœur du feu plus bas, un clair franc plutôt qu'un dégradé mou. Les deux
+  // dans la même teinte quasi blanche (une seule source de lumière dans le
+  // ciel, pas deux tons qui se contredisent) : le halo en `VIOLET_BRUME`
+  // d'un premier essai restait un voile grisâtre sans lien visible avec le
+  // disque blanc posé dessus, deux objets plutôt qu'une lune et sa brume.
+  wash(ctx, polygon(w * 0.2, h * 0.19, w * 0.12, w * 0.12, 10, 0, rng), rng, {
     color: PRESQUE_BLANC,
-    alpha: 0.045,
+    layers: 16,
+    alpha: 0.13 / 16,
+    spread: 0.22,
+    jitter: 0.16,
+  })
+  // Le disque : spread/jitter nettement réduits par rapport au halo — une
+  // lune reste un cercle propre, pas une tache floue comme le halo qui
+  // l'entoure.
+  wash(ctx, polygon(w * 0.2, h * 0.19, w * 0.038, w * 0.038, 12, 0, rng), rng, {
+    color: PRESQUE_BLANC,
+    layers: 14,
+    alpha: 0.32 / 14,
+    spread: 0.04,
+    jitter: 0.04,
   })
 
   // Un nuage nocturne fin, teinté violet plutôt que blanc — la même
@@ -198,32 +208,32 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
     { at: 1, color: ENCRE_SOMBRE, alpha: 0.72 },
   ])
 
-  // Le rocher : même primitive que le premier plan de la lagune de
-  // l'accueil (`rocher()`, `components/watercolor/terrain.ts`), déjà jugée
-  // belle en production plutôt qu'une géométrie de grotte réinventée pour
-  // ce seul tableau.
-  rocher(ctx, w * 0.66, cyBase, w * 0.62, h * 0.52, rng, LUEUR, {
-    stone: VIOLET_PROFOND,
-    shade: ENCRE_SOMBRE,
-    accent: ENCRE_SOMBRE,
-  })
-  // Un rappel de la même roche, plus petit, à l'autre bord — pour que le
-  // sol se lise comme un terrain qui continue hors cadre, pas un unique
-  // bloc posé au milieu d'un fond vide.
-  rocher(ctx, -w * 0.02, cyBase, w * 0.22, h * 0.2, rng, LUEUR, {
-    stone: VIOLET_PROFOND,
-    shade: ENCRE_SOMBRE,
-    accent: ENCRE_SOMBRE,
-  })
-
-  const foyerX = w * 0.28
+  const foyerX = w * 0.32
   const foyerRayon = h * 0.16
   foyer(ctx, foyerX, cyBase, foyerRayon, rng)
 
-  // La silhouette, assise au pied du rocher, tout contre le feu — assez
-  // près pour appartenir clairement à sa scène. `childWatchingSea`
-  // réutilisée telle quelle : sa posture (genoux repliés, vue de dos) dit
-  // déjà « quelqu'un qui regarde », peu importe ce qui est regardé.
+  const figureX = foyerX + foyerRayon * 1.9
+
+  // Le rocher : à l'échelle d'un vrai rocher contre lequel on s'adosse,
+  // pas d'une falaise qui occupe la moitié du tableau — un premier essai,
+  // bien plus grand, ne se laissait lire ni comme un rocher ni comme une
+  // montagne, sans rôle clair dans la scène. Posé juste derrière et contre
+  // la silhouette (son bord gauche touche presque `figureX`) : c'est ce
+  // contact, pas sa seule présence dans le cadre, qui dit « elle est
+  // assise contre lui », le rocher qui abrite le feu du vent plutôt qu'un
+  // paysage sans rapport avec la scène.
+  const rockWidth = w * 0.3
+  rocher(ctx, figureX + rockWidth * 0.42, cyBase, rockWidth, h * 0.34, rng, LUEUR, {
+    stone: VIOLET_PROFOND,
+    shade: ENCRE_SOMBRE,
+    accent: ENCRE_SOMBRE,
+  })
+
+  // La silhouette, assise entre le feu et le rocher, tout contre les deux
+  // — assez près pour appartenir clairement à cette scène plutôt qu'à un
+  // décor qui l'entoure sans lien. `childWatchingSea` réutilisée telle
+  // quelle : sa posture (genoux repliés, vue de dos) dit déjà « quelqu'un
+  // qui regarde », peu importe ce qui est regardé.
   //
   // Éclairée par le feu (peau et vêtement chauds), pas une silhouette tout
   // en noir : à cette échelle, une figure entièrement sombre sur un rocher
@@ -231,7 +241,7 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
   // rocher, lui, reste dans sa propre famille violette (`VIOLET_PROFOND`/
   // `ENCRE_SOMBRE`) : c'est l'écart de teinte ET de valeur entre les deux
   // qui les sépare, pas un simple contour.
-  childWatchingSea(ctx, foyerX + foyerRayon * 1.7, cyBase, h * 0.22, rng, LUEUR, {
+  childWatchingSea(ctx, figureX, cyBase, h * 0.22, rng, LUEUR, {
     skin: PIERRE_CHAUDE,
     hair: ENCRE_SOMBRE,
     clothes: OCRE,
