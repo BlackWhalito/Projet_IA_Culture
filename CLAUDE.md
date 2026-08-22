@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Ce que c'est
 
-App web française qui fait réapprendre la culture générale en jouant. Contenu classé par niveau scolaire ; seul le **CP** existe. Public double : enfants **et** adultes qui redécouvrent — donc jamais de contenu trivial. Frontend seul, progression en `localStorage`.
+App web française qui fait réapprendre la culture générale en jouant. Contenu classé par niveau scolaire ; seul le **CP** existe. Frontend seul, progression en `localStorage`.
+
+**On conçoit pour un adulte.** Le joueur visé refait le programme scolaire du CP à la 3e, des années après l'avoir oublié. Un enfant est le bienvenu et rien ne doit lui être hostile — mais ni le gameplay ni le contenu ne se règlent sur lui. Conséquence directe et permanente : **un niveau scolaire n'est pas un niveau de difficulté.** Le CP, ce n'est pas « facile », c'est *le programme du CP pris par le bout qui intéresse quelqu'un qui croit déjà le savoir*. « La vue → les yeux » n'apprend rien à personne ; « nous avons bien plus que cinq sens, et la carte des saveurs de la langue est un mythe scolaire » est la même notion, écrite pour son vrai public.
 
 ## Commandes
 

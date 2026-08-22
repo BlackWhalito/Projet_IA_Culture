@@ -48,7 +48,7 @@ Sur papier, pas sur blanc. Le blanc pur n'existe nulle part.
 --francais:      #8d6aa8;   /* prune violette */
 
 --juste:         #6f9457;
---faux:          #c0714f;   /* jamais un rouge vif : on n'engueule pas un enfant */
+--faux:          #c0714f;   /* jamais un rouge vif : se tromper enseigne, ça ne sanctionne pas */
 ```
 
 Règles : **trois couleurs maximum par écran**, fond compris. Une couleur de domaine domine, les autres sont des accents. Les couleurs se superposent en `mix-blend-mode: multiply` — c'est ce qui donne la sensation de pigment, un aplat opaque tue l'effet.
@@ -119,7 +119,7 @@ Jamais une ligne droite parfaite : le tracé à main levée respire. Utiliser de
 
 Une serif douce pour les titres et le contenu narratif, une sans-serif très lisible pour l'interface et les boutons. **Le texte de jeu ne se pose jamais sur une zone peinte chargée** : soit sur le papier nu, soit sur un lavis très pâle (opacité ≤ 0.15).
 
-Taille minimale 17px pour tout ce qu'un enfant doit lire.
+Taille minimale 17px pour tout texte de jeu. On conçoit pour un adulte, mais le confort de lecture reste une contrainte : l'app se joue au téléphone, souvent en extérieur.
 
 ## Mouvement
 

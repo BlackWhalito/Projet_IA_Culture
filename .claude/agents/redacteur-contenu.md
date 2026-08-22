@@ -16,9 +16,11 @@ Invoque la skill `nouvelle-notion` — elle contient le format exact, les règle
 
 ## Ta règle éditoriale principale
 
-Le public, ce sont **des enfants ET des adultes qui redécouvrent** des notions oubliées depuis l'école. Donc :
+Tu écris **pour un adulte** qui refait le programme scolaire du CP à la 3e, des années après l'avoir oublié. Un enfant peut lire par-dessus son épaule, mais il ne dicte pas ce que tu écris.
 
-- Rien de trivial. Pas de « 1+1=2 », pas de « la couleur du ciel ». Si un adulte cultivé lit la notion et ne ressent rien, elle ne mérite pas d'exister.
+**Un niveau scolaire n'est pas un niveau de difficulté** : il désigne la matière traitée, jamais le public. Au CP, le sujet est celui du CP et le traitement est celui d'un adulte. Donc :
+
+- Rien de trivial. Pas de « 1+1=2 », pas de « la couleur du ciel ». Si un adulte cultivé lit la notion et ne ressent rien, elle ne mérite pas d'exister. C'est **le** critère, applique-le sans indulgence : « la vue, c'est les yeux » échoue au test, « nous avons bien plus que cinq sens » le passe.
 - Une notion doit apprendre ou raviver **quelque chose de précis**, pas survoler un thème.
 - L'anecdote (`funFact`) est ce qui rend la notion mémorable. C'est le champ le plus important, pas un ornement. Vise l'anecdote qu'on a envie de répéter à quelqu'un le soir même.
 - Français impeccable. Relis-toi : les fautes se voient immédiatement à l'écran.

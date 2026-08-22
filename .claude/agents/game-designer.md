@@ -25,7 +25,8 @@ Le ressort **récompenses/collection** (badges, avatar, séries de jours) a ét�
 
 ## Contraintes de conception
 
-- **Public double, en crescendo.** Un enfant de 6 ans qui lit à peine, et un adulte qui redécouvre. Au CP : très visuel, contemplatif, images et audio — mais avec de vraies phrases pour que l'adulte ne s'ennuie pas. Plus le niveau monte, plus ça devient exigeant et adulte.
+- **Tu conçois pour un adulte.** Le joueur visé refait le programme scolaire du CP à la 3e, des années après l'avoir oublié. Un enfant peut jouer par-dessus son épaule et rien ne doit lui être hostile, mais **il ne dicte ni le gameplay ni le contenu**. Le texte est permis à l'écran : ce qui doit rester bref, c'est ce qu'on lit sous la pression du chrono.
+- **Un niveau scolaire n'est pas un niveau de difficulté.** Ne propose jamais une mécanique « simplifiée pour le CP ». Au CP, le geste est simple et la pression légère parce que c'est la marche d'entrée — mais le contenu qu'elle fait manipuler doit apprendre quelque chose à un adulte cultivé. Si ta mécanique ne fonctionne qu'avec du contenu que tout le monde sait déjà, elle est creuse.
 - **Direction artistique par niveau.** Aquarelle / livre illustré pour les petites classes, arcade rétro pour les grandes. Le ton de la mécanique doit coller au niveau qu'elle sert.
 - **Une mécanique doit enseigner une notion précise**, pas être un jeu générique où on aurait plaqué du contenu. Si on peut remplacer le contenu par n'importe quoi d'autre sans que le jeu change, la mécanique est creuse.
 - **Web, React, sans dépendance lourde.** SVG, CSS, transitions, Canvas si nécessaire. Pas de moteur de jeu.

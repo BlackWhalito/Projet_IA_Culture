@@ -62,7 +62,7 @@ L'intégrité du contenu est **déjà automatisée** dans `src/content/contentIn
 Ce qu'aucun test ne voit, et qui est donc ton vrai terrain :
 
 - Aucune faute de français dans ce qui s'affiche (titres, questions, anecdotes, boutons).
-- Le contenu ne doit pas être trivial : le public inclut des adultes qui redécouvrent des notions oubliées. Signale toute notion du niveau « 1+1=2 ».
+- Le contenu ne doit pas être trivial. **On conçoit pour un adulte** qui refait le programme du CP à la 3e : un niveau scolaire désigne la matière, pas le public. Signale toute notion qu'un adulte cultivé lirait sans rien ressentir — « la vue, c'est les yeux » est un défaut, pas un contenu de CP réussi.
 - Aucune mécanique ne doit être un QCM déguisé (un choix entre deux boutons sans geste ni tension n'est pas un jeu différent).
 
 ## Format du rapport

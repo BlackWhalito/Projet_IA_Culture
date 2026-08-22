@@ -1,6 +1,6 @@
 # Jeu Culture
 
-Application web de jeux de culture générale, organisée par niveau scolaire (CP pour l'instant). Le but : réapprendre en s'amusant les notions importantes de chaque classe, pour les enfants comme pour les adultes.
+Application web de jeux de culture générale, organisée par niveau scolaire (CP pour l'instant). Le but : permettre à un **adulte** de refaire le programme scolaire du CP à la 3e en jouant, des années après l'avoir oublié. Un enfant peut jouer, mais le jeu n'est pas conçu pour lui — un niveau scolaire désigne la matière traitée, pas un niveau de difficulté.
 
 ## Stack
 
