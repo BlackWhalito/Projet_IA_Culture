@@ -525,6 +525,79 @@ export function column(
 }
 
 /**
+ * Un fronton : le triangle qui coiffe une façade de temple, porté par des
+ * colonnes. Avec `column()`, le repère le plus univoque de l'Antiquité
+ * gréco-romaine — la silhouette « colonnes + triangle » ne se lit comme
+ * rien d'autre, pas même une colonnade isolée. `x`/`width` doivent couvrir
+ * les colonnes qui le portent (avec une petite marge), `yBase` leur sommet
+ * — chapiteau compris, pas le haut du fût nu, sans quoi le triangle
+ * flotte au-dessus d'un vide entre lui et les colonnes.
+ */
+export function pediment(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yBase: number,
+  width: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number },
+): void {
+  const { stone, shade, distance = 0 } = options
+  const lit = litFromLeft(plan)
+  const x0 = x - width / 2
+  const x1 = x + width / 2
+  const apexY = yBase - height
+
+  wash(ctx, [[x0, yBase], [x, apexY], [x1, yBase]], rng, {
+    color: stone,
+    layers: 20,
+    alpha: attenue(VALEUR.MOYEN, distance) / 20,
+    spread: 0.035,
+    jitter: 0.045,
+  })
+
+  // Face éclairée / à l'ombre, coupées à la pointe du triangle — jamais un
+  // rectangle qui déborderait du triangle en `multiply` (le piège déjà
+  // documenté pour `ruinFacade` : une masse doit rester confinée à sa
+  // silhouette, jamais un aplat indépendant posé par-dessus).
+  const warmTri: Point[] = lit ? [[x0, yBase], [x, apexY], [x, yBase]] : [[x, yBase], [x, apexY], [x1, yBase]]
+  wash(ctx, warmTri, rng, {
+    color: plan.warm,
+    layers: 8,
+    alpha: attenue(VALEUR.CLAIR, distance) / 8,
+    spread: 0.03,
+    jitter: 0.05,
+  })
+  const shadeTri: Point[] = lit ? [[x, yBase], [x, apexY], [x1, yBase]] : [[x0, yBase], [x, apexY], [x, yBase]]
+  wash(ctx, shadeTri, rng, {
+    color: shade,
+    layers: 12,
+    alpha: attenue(VALEUR.OMBRE, distance) / 12,
+    spread: 0.03,
+    jitter: 0.04,
+  })
+
+  // La corniche horizontale à la base du fronton, comme `cornice()` mais
+  // sans son propre lavis d'ombre — c'est elle qui sépare visuellement le
+  // triangle des colonnes qu'il coiffe, sans quoi les deux masses se
+  // fondent en une seule forme confuse.
+  dryStroke(ctx, [[x0, yBase], [x1, yBase + height * 0.02]], height * 0.09, rng, {
+    color: plan.accent,
+    alpha: attenue(0.34, distance),
+    layers: 2,
+  })
+
+  // L'arête éclairée, du sommet à la base du côté lit — le seul bord franc.
+  const edgeX = lit ? x0 : x1
+  dryStroke(ctx, [[x, apexY], [edgeX, yBase]], 1, rng, {
+    color: plan.accent,
+    alpha: attenue(0.38, distance),
+    layers: 2,
+  })
+}
+
+/**
  * Un tambour de colonne effondré, couché au sol : ce qu'il reste d'une
  * colonne tombée. Toujours plusieurs disques légèrement disjoints, jamais
  * un seul bloc long — une colonne qui tombe se brise à ses jointures, elle

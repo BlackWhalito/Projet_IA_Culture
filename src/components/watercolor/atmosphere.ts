@@ -93,24 +93,98 @@ export function cloud(
   const { light, shade, alpha = 0.16, highlight: highlightColor = light } = options
   const lit = litFromLeft(plan)
 
-  // La masse : plusieurs bulbes de tailles inégales alignés sur une base
-  // commune, plutôt qu'une seule forme — un nuage est un agrégat. On garde
-  // trace du lobe le plus proche de la lumière : c'est lui qui portera le
-  // sommet éclairé plus bas.
-  const lobes = 3 + Math.floor(rng() * 3)
-  let litLobe: { lx: number; lw: number; lh: number } | undefined
+  // La masse : plusieurs bulbes de tailles inégales, plus haut au centre et
+  // rasé aux extrémités — plutôt qu'une seule forme, un nuage est un agrégat.
+  // On garde trace du lobe le plus proche de la lumière : c'est lui qui
+  // portera le sommet éclairé plus bas.
+  const lobes = 4 + Math.floor(rng() * 3)
+
+  // Les lobes ne sont plus posés sur une grille régulière (`i / lobes`) :
+  // c'est cette régularité — bulbes de même taille, à intervalle constant,
+  // sur une même ligne de base parfaitement droite — qui les faisait lire
+  // comme une frise de bosses ou un feston décoratif plutôt qu'un nuage.
+  // Un décalage CUMULATIF (chaque position dépend de la précédente) casse
+  // l'espacement sans jamais permuter deux lobes dans le désordre.
+  // Amplitude modérée (±0.2, pas ±0.35) : il suffit de casser l'espacement
+  // exactement égal pour perdre la lecture « frise » — un tirage trop large
+  // peut isoler un lobe d'extrémité au-delà de ce que le chevauchement
+  // garanti plus bas peut rattraper sans grossir démesurément.
+  const slots: number[] = []
+  let cursor = 0
   for (let i = 0; i < lobes; i += 1) {
-    const t = lobes === 1 ? 0.5 : i / (lobes - 1)
-    const lx = cx - width / 2 + width * t
-    const scale = 0.55 + rng() * 0.75
-    const lw = (width / lobes) * 1.5 * scale
-    const lh = height * scale
+    cursor += 1 + (rng() - 0.5) * 0.4
+    slots.push(cursor)
+  }
+  const span = slots[slots.length - 1] || 1
+  const lxs = slots.map((s) => cx - width / 2 + width * (s / span))
+
+  let litLobe: { lx: number; ly: number; lw: number; lh: number } | undefined
+  for (let i = 0; i < lobes; i += 1) {
+    const t = slots[i] / span
+    const lx = lxs[i]
+    // Le gabarit qui fait la silhouette AVANT toute couleur : un nuage se
+    // gonfle au centre et s'amenuise vers ses bords. Sans ce gabarit, seul
+    // le tirage aléatoire dessine le contour et rend parfois une rangée de
+    // bosses de taille comparable — exactement la « frise » observée.
+    // Plafonné à 1 au centre : un premier réglage plus haut (1.3) laissait
+    // le lobe central avaler tout le nuage en un seul dôme disproportionné,
+    // le défaut inverse de la frise — un agrégat a besoin de plusieurs
+    // bulbes du même ordre de grandeur, pas d'un géant et des miettes.
+    // Plancher relevé (0.55, pas 0.4) : un lobe d'extrémité trop rétréci
+    // reste fin même une fois élargi pour chevaucher son voisin (voir plus
+    // bas) — sa hauteur, elle, n'était pas corrigée, donc son dôme restait
+    // un aplat bas à côté de dômes bien plus hauts, toujours perçu comme
+    // séparé plutôt que comme un lobe du même agrégat.
+    const taper = 0.62 + Math.sin(t * Math.PI) ** 0.7 * 0.38
+    const scale = taper * (0.75 + rng() * 0.45)
+    let lw = (width / lobes) * 1.6 * scale
+    let lh = height * scale
+    // Chevauchement garanti avec le(s) voisin(s), quel que soit le tirage
+    // de `scale` : un lobe d'extrémité qui tire un petit `scale` ET ne
+    // recouvre pas son voisin se détache du reste et retombe dans le
+    // défaut visé par cette fonction — une tache isolée, à plus petite
+    // échelle. Vérifié en zoomant sur les nuages rendus (voir le rapport du
+    // `verificateur`) : le corps de chaque nuage était corrigé, ses
+    // extrémités les plus fines restaient fragiles.
+    //
+    // `lh` grandit dans la MÊME proportion que `lw`, pas seulement la
+    // largeur : élargir un lobe sans le rehausser produit un aplat large et
+    // bas, qui reste séparé du sommet bombé du voisin — c'est la forme, pas
+    // seulement la couleur, qui doit se souder à l'agrégat.
+    //
+    // Le pire des deux écarts, pas le meilleur : dimensionner sur le PLUS
+    // PETIT des deux voisins (une erreur du premier essai) ne garantit rien
+    // côté opposé — un lobe peut chevaucher sa gauche et rester détaché à
+    // droite. Dimensionner sur le plus GRAND couvre les deux côtés à la
+    // fois, l'autre étant alors chevauché plus largement que nécessaire.
+    const gapLeft = i > 0 ? lx - lxs[i - 1] : undefined
+    const gapRight = i < lobes - 1 ? lxs[i + 1] - lx : undefined
+    const neighborGap =
+      gapLeft === undefined ? gapRight : gapRight === undefined ? gapLeft : Math.max(gapLeft, gapRight)
+    if (neighborGap !== undefined) {
+      const neededLw = neighborGap * 1.7
+      if (neededLw > lw) {
+        // Croissance plafonnée : sans plafond, un lobe tiré minuscule à côté
+        // d'un voisin très éloigné peut être multiplié par un facteur énorme
+        // et avaler tout le nuage — le défaut du dôme disproportionné,
+        // sous une autre forme. Mieux vaut un chevauchement encore un peu
+        // court qu'un lobe qui écrase les autres.
+        const growth = Math.min(neededLw / lw, 1.8)
+        lw *= growth
+        lh *= growth
+      }
+    }
+    // La base reste PRESQUE plate — un nuage a un dessous plat, pas
+    // ondulé — mais un tout petit débattement (12 % de la hauteur du lobe)
+    // évite que tous les lobes s'alignent sur une règle, seconde source de
+    // l'effet « décoratif ».
+    const ly = cy + (rng() - 0.5) * height * 0.12
     const base: Point[] = []
     for (let a = 0; a <= 12; a += 1) {
       const ang = Math.PI + (a / 12) * Math.PI
-      base.push([lx + Math.cos(ang) * lw * 0.5, cy + Math.sin(ang) * lh])
+      base.push([lx + Math.cos(ang) * lw * 0.5, ly + Math.sin(ang) * lh])
     }
-    base.push([lx + lw * 0.5, cy], [lx - lw * 0.5, cy])
+    base.push([lx + lw * 0.5, ly], [lx - lw * 0.5, ly])
     wash(ctx, base, rng, {
       color: light,
       layers: 14,
@@ -118,7 +192,16 @@ export function cloud(
       spread: 0.11,
       jitter: 0.13,
     })
-    if (!litLobe || (lit ? lx < litLobe.lx : lx > litLobe.lx)) litLobe = { lx, lw, lh }
+    // Le lobe qui reçoit le sommet éclairé : le plus HAUT (`lh` max), pas le
+    // plus à gauche. Choisir par position pure s'est révélé être le vrai
+    // bug derrière la « tache dorée détachée » qui a survécu à plusieurs
+    // essais de chevauchement des lobes : le lobe le plus proche du bord
+    // lit (gauche) est, par construction du gabarit `taper`, aussi le plus
+    // PETIT — le blanc réservé, plus dense qu'un simple lavis de corps
+    // (`highlight()` empile 16 couches à alpha 0.09, contre 14 couches à
+    // `alpha/14` pour un lobe), rendait ce minuscule lobe bien plus visible
+    // et saturé que le reste de l'agrégat, détaché de la masse principale.
+    if (!litLobe || lh > litLobe.lh) litLobe = { lx, ly, lw, lh }
 
     // L'ombre de CE lobe : un écho compressé du MÊME contour `base`, pas
     // une nouvelle ellipse posée à côté. Une forme indépendante, même
@@ -129,7 +212,7 @@ export function cloud(
     // l'ombre reste géométriquement à l'intérieur de la silhouette du lobe.
     const shadeBase: Point[] = base.map(([px, py]) => [
       lx + (px - lx) * 0.8,
-      cy + (py - cy) * 0.55 + lh * 0.22,
+      ly + (py - ly) * 0.55 + lh * 0.22,
     ])
     wash(ctx, shadeBase, rng, {
       color: shade,
@@ -143,20 +226,49 @@ export function cloud(
   // Le sommet éclairé : un blanc réservé net sur le lobe côté lumière. Sans
   // ce clair franc, le nuage n'a qu'un dégradé mou entre deux tons voisins
   // de la même famille que le ciel — il s'y noie au lieu de s'en détacher.
-  if (litLobe) {
+  //
+  // Réservé aux nuages assez denses (`alpha >= 0.15`) : `wash()` divise
+  // l'`alpha` du corps par son nombre de couches (`alpha/14` pour un lobe),
+  // alors que `highlight()` NE divise PAS la sienne par ses 16 couches —
+  // les deux `alpha` ne vivent pas sur la même échelle, et aucun facteur de
+  // proportionnalité simple ne les fait correspondre pour tous les cas
+  // (essayé : `alpha*0.7` restait quasi identique à l'ancienne constante
+  // sur un nuage pâle, donc sans effet ; voir le rapport du `verificateur`
+  // sur `scenes.ts:137` et `:258`). Plus simple et plus robuste : un nuage
+  // pâle (fond, brume) n'a pas besoin d'un sommet qui « attrape la
+  // lumière » — cet accent n'a de sens que sur les nuages francs du
+  // premier plan.
+  if (litLobe && alpha >= 0.15) {
+    // Rayon plafonné à celui d'un lobe « moyen » (`width/lobes`), pas
+    // celui du lobe élu — sinon, quand le chevauchement forcé plus haut a
+    // agrandi ce lobe, l'éclat grandit avec lui et son contraste avec les
+    // lobes voisins non éclairés devient plus dur, retombant vers l'effet
+    // « pastille détachée » que ce correctif visait à éliminer.
+    const hw = Math.min(litLobe.lw, width / lobes)
+    const hh = Math.min(litLobe.lh, height)
     highlight(
       ctx,
       polygon(
-        litLobe.lx + (lit ? -litLobe.lw * 0.1 : litLobe.lw * 0.1),
-        cy - litLobe.lh * 0.6,
-        litLobe.lw * 0.24,
-        litLobe.lh * 0.32,
+        litLobe.lx + (lit ? -hw * 0.1 : hw * 0.1),
+        litLobe.ly - hh * 0.6,
+        hw * 0.24,
+        hh * 0.32,
         9,
         rng() * 6,
         rng,
       ),
       rng,
-      { color: highlightColor, alpha: 0.14 },
+      // Alpha bien plus basse que l'ancienne constante (0.11) : en
+      // `multiply`, 16 couches à 0.11 cumulent une couverture proche de
+      // 85 % — quasi opaque, donc quasi la couleur brute de `highlightColor`
+      // plutôt qu'un voile translucide. Le `verificateur` a mesuré le
+      // résultat réel (PAPIER × PIERRE_PALE ≈ 223,206,178 — un kaki net,
+      // pas un blanc réservé) et confirmé que ça se lisait comme une
+      // pastille détachée, pas comme un sommet qui attrape la lumière.
+      // À 0.035, la couverture cumulée tombe autour de 30 % : assez pour
+      // rester un clair perceptible, assez peu pour que le ton du nuage en
+      // dessous reste dominant.
+      { color: highlightColor, alpha: 0.035 },
     )
   }
 }

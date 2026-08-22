@@ -1,9 +1,18 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { arcade, column, dome, facade, fallenColumn, ruinFacade } from '../../components/watercolor/architecture'
+import {
+  arcade,
+  column,
+  dome,
+  facade,
+  fallenColumn,
+  pediment,
+  ruinFacade,
+} from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
-import { girlWriting } from '../../components/watercolor/figure'
+import { adultReading, childWatchingSea, girlWriting } from '../../components/watercolor/figure'
+import { litFromLeft } from '../../components/watercolor/light'
 import type { LightPlan } from '../../components/watercolor/light'
 
 /**
@@ -101,6 +110,84 @@ function voile(
     alpha: alpha * 0.9,
     layers: 2,
   })
+}
+
+/**
+ * Un rocher de premier plan : masse sombre et anguleuse qui mord le bord
+ * bas du tableau. Contrairement à un nuage (base plate, sommet bombé et
+ * mou), un rocher veut un contour plus dur — moins de `spread`/`jitter`,
+ * une silhouette à facettes plutôt qu'une bosse arrondie. Rendu `stone`
+ * bien plus opaque que n'importe quel lavis atmosphérique de la scène :
+ * c'est le seul objet solide et net au premier plan, il doit se voir comme
+ * tel plutôt que se fondre dans l'eau.
+ *
+ * Retourne le point (x, y) du sommet, pour y poser une figure assise.
+ */
+function rocher(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cyBase: number,
+  width: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string },
+): Point {
+  const { stone, shade } = options
+  const lit = litFromLeft(plan)
+  const x0 = cx - width / 2
+  const x1 = cx + width / 2
+
+  // Le contour : une poignée de sommets inégaux reliés de gauche à droite,
+  // jamais une bosse arrondie — c'est la ligne brisée, comme sur
+  // `ruinFacade`, qui distingue un rocher anguleux d'un nuage. Bombé au
+  // centre par le même gabarit `taper` que les nuages, mais avec un tirage
+  // par sommet net (pas de spread/jitter mou) pour garder des angles francs.
+  const peaks = 4 + Math.floor(rng() * 2)
+  const edge: Point[] = []
+  for (let i = 0; i <= peaks; i += 1) {
+    const t = i / peaks
+    const taper = 0.3 + Math.sin(t * Math.PI) * 0.7
+    edge.push([x0 + width * t, cyBase - height * taper * (0.55 + rng() * 0.45)])
+  }
+
+  // La masse. `warm`/`shade` reprennent ensuite les points de CE contour —
+  // jamais un rectangle indépendant : en `multiply`, rien n'occulte rien,
+  // un aplat qui déborde du contour reste visible flottant à côté du
+  // rocher plutôt que dessus (piège déjà documenté pour `ruinFacade`).
+  wash(ctx, [[x0, cyBase], ...edge, [x1, cyBase]], rng, {
+    color: stone,
+    layers: 28,
+    alpha: 0.65 / 28,
+    spread: 0.045,
+    jitter: 0.05,
+  })
+
+  const mid = Math.floor(edge.length / 2)
+  const warmSlice = lit ? edge.slice(0, mid + 1) : edge.slice(mid)
+  const warmBase: Point[] = lit
+    ? [[x0, cyBase], ...warmSlice, [warmSlice[warmSlice.length - 1][0], cyBase]]
+    : [[warmSlice[0][0], cyBase], ...warmSlice, [x1, cyBase]]
+  wash(ctx, warmBase, rng, { color: plan.warm, layers: 10, alpha: 0.12 / 10, spread: 0.035, jitter: 0.05 })
+
+  const shadeSlice = lit ? edge.slice(mid) : edge.slice(0, mid + 1)
+  const shadeBase: Point[] = lit
+    ? [[shadeSlice[0][0], cyBase], ...shadeSlice, [x1, cyBase]]
+    : [[x0, cyBase], ...shadeSlice, [shadeSlice[shadeSlice.length - 1][0], cyBase]]
+  wash(ctx, shadeBase, rng, { color: shade, layers: 16, alpha: 0.32 / 16, spread: 0.045, jitter: 0.06 })
+
+  // L'arête éclairée, nette — le seul bord franc de la masse.
+  const edgeXY = lit ? edge[0] : edge[edge.length - 1]
+  dryStroke(ctx, [[edgeXY[0], cyBase], [edgeXY[0], edgeXY[1]]], 1.2, rng, {
+    color: ENCRE_SOMBRE,
+    alpha: 0.4,
+    layers: 2,
+  })
+
+  // Le sommet, pour y poser une figure assise : le point le plus haut du
+  // contour, pas nécessairement `cx` — le tirage par sommet peut décaler le
+  // point culminant.
+  return edge.reduce((a, b) => (b[1] < a[1] ? b : a))
 }
 
 /**
@@ -228,6 +315,38 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
     alpha: 0.028,
     spread: 0.16,
   })
+
+  // Le rocher et l'enfant : premier plan qui ancre le regard, peint en
+  // dernier pour rester le point le plus net du tableau. La base mord
+  // légèrement le bord bas du canvas — un rocher de premier plan qui
+  // s'arrête net sur une ligne aurait l'air posé plutôt qu'ancré.
+  // Taille et contraste largement au-dessus du premier essai : à taille
+  // d'affichage réelle (~170px de large), un rocher à l'échelle d'une
+  // voile lointaine se perd complètement — le premier plan a besoin d'une
+  // masse et d'une valeur nettement plus fortes que tout le reste du
+  // tableau pour se lire comme proche plutôt que comme un débris flottant.
+  // `stone` en VIOLET_PROFOND, pas ENCRE_SOMBRE comme la première version :
+  // les deux valaient la même teinte quasi noire, donc toute la masse
+  // restait sombre au sommet. En `multiply`, une couleur posée sur un fond
+  // quasi noir reste quasi noire quelle que soit sa teinte — mesuré par le
+  // `verificateur` sur le vêtement de l'enfant (écart de ~18/255 à peine),
+  // qui fusionnait avec le rocher plutôt que de s'en détacher. `shade`
+  // garde ENCRE_SOMBRE pour l'ombre portée, mais la face éclairée reste
+  // assez claire pour qu'une figure posée dessus s'en distingue encore.
+  const rockTop = rocher(ctx, w * 0.76, h * 1.02, w * 0.5, h * 0.15, rng, LUMIERE, {
+    stone: VIOLET_PROFOND,
+    shade: ENCRE_SOMBRE,
+  })
+  // Assise relevée au-dessus du sommet plutôt qu'à cheval dessus : posée
+  // dans la masse du rocher, la silhouette (torse, genoux) se fondait dans
+  // sa teinte la plus sombre. Contre le ciel, elle reste nette quelle que
+  // soit la face du rocher sur laquelle tombe le sommet.
+  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.003, h * 0.05, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    clothes: OCRE,
+    accent: ENCRE_SOMBRE,
+  })
 }
 
 /**
@@ -249,8 +368,14 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.85, color: SABLE, alpha: 0.12 },
     { at: 1, color: SABLE, alpha: 0.04 },
   ])
+  // `light: VIOLET_BRUME`, pas `PIERRE_PALE` comme sur la lagune : ce ciel
+  // est chaud (OCRE/SABLE) alors que celui de la lagune est froid (VIOLET).
+  // PIERRE_PALE, un beige pâle, s'y fondait presque entièrement — le corps
+  // du nuage restait quasi invisible et son highlight, pourtant bien posé
+  // dessus, se lisait comme flottant sur du ciel nu. Un lavis froid tranche
+  // sur un ciel chaud là où un lavis chaud s'y noie.
   cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
-    light: PIERRE_PALE,
+    light: VIOLET_BRUME,
     shade: VIOLET,
     alpha: 0.16,
     highlight: PAPIER,
@@ -363,7 +488,52 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     floors: 3,
     bays: 3,
   })
-  arcade(ctx, w * 0.68, w * 0.97, h * 0.55, quai, 4, rng, LUMIERE, 0.15, 0.22)
+  // Resserrée sur la droite (`w*0.85` à `w*0.97`, 2 arches au lieu de 4) :
+  // à sa portée d'origine (`w*0.68` à `w*0.97`), une arche tombait presque
+  // exactement sur le fronton voisin ajouté plus bas — même profondeur,
+  // rien pour les hiérarchiser, la colonne se lisait traversée par l'arche
+  // plutôt que comme un fût distinct. Ce sous-chantier a la priorité sur la
+  // largeur de l'arcade.
+  arcade(ctx, w * 0.85, w * 0.97, h * 0.55, quai, 2, rng, LUMIERE, 0.15, 0.22)
+
+  // Un fronton porté par deux colonnes, planté au premier plan — colonnes
+  // et triangle, le repère le plus univoque de l'Antiquité gréco-romaine,
+  // plus encore qu'une colonnade isolée. Placé ici plutôt que dans le
+  // groupe de colonnes plus loin : cette zone est la seule assez dégagée
+  // pour deux fûts nettement espacés. Plus clair (PIERRE_CHAUDE) que la
+  // masse violette derrière lui, pour s'en détacher plutôt que s'y fondre.
+  //
+  // Plusieurs essais ratés avant ces proportions et cette position : des
+  // colonnes hauteur/rayon ~12:1 (empruntées telles quelles à la colonne
+  // solitaire voisine) donnaient un mât fin coiffé d'un chapeau pointu,
+  // jamais un temple — un vrai fût antique reste autour de 6-8:1. Deux
+  // fûts trop rapprochés fusionnaient en un seul bloc. Centré sur `w*0.88`,
+  // le groupe tombait sur la silhouette lointaine du fond (`facade()` de
+  // « Fond lointain », plus haut) puis, décalé, sur une arche de l'arcade
+  // voisine — en `multiply`, rien n'occulte rien, ces teintes ressortaient
+  // à travers la colonne et le fronton censés être devant. Et à la taille
+  // d'affichage réelle du tableau (~170px CSS de large), la première
+  // version restait trop petite pour se lire comme « colonnes + triangle »
+  // plutôt qu'une texture parmi d'autres sur la façade sombre. `yBase` du
+  // fronton remonte du rayon des chapiteaux, pas du fût nu, pour coiffer
+  // les colonnes chapiteau compris.
+  column(ctx, w * 0.65, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+    broken: false,
+  })
+  column(ctx, w * 0.81, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+    broken: false,
+  })
+  pediment(ctx, w * 0.73, quai - h * 0.27 - w * 0.048 * 0.55, w * 0.285, h * 0.022, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.1,
+  })
 
   // Premier plan à gauche : une façade claire, presque du papier nu, pour
   // que la masse sombre de droite ait quelque chose à quoi s'opposer —
@@ -464,19 +634,37 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
  * sujet, pas un élément de plus au milieu des autres.
  */
 export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
-  wash(ctx, polygon(w * 0.14, h * 0.5, w * 0.2, h * 0.36, 11, 0, rng), rng, {
-    color: VIOLET_BRUME,
-    layers: 22,
-    alpha: 0.02,
-    spread: 0.22,
-  })
-  wash(ctx, polygon(w * 0.38, h * 0.4, w * 0.18, h * 0.3, 10, 0, rng), rng, {
-    color: BLEU_CLAIR,
-    layers: 20,
-    alpha: 0.014,
-    spread: 0.24,
-  })
   stroke(ctx, houle(h * 0.8, 3, w * 0.96, rng), 2, rng, { color: VIOLET_PROFOND, alpha: 0.014, layers: 8 })
+
+  // Deux adultes qui lisent, à la place des deux lavis abstraits d'origine
+  // — même emplacement, même famille de teintes (violet/bleu, déjà la
+  // charte graphique de ce coin du bandeau), mais des silhouettes
+  // reconnaissables plutôt que des taches de couleur. Postées au même
+  // niveau de sol que la fillette (`h*0.74`, l'ourlet de sa robe) pour que
+  // les trois figures partagent une seule ligne de base.
+  //
+  // `VIOLET`/`BLEU`, pas `VIOLET_BRUME`/`BLEU_CLAIR` (les teintes des
+  // lavis d'origine) : ces variantes pâles étaient pensées pour une
+  // atmosphère de fond à faible contraste, pas pour porter un livre. En
+  // `multiply`, un livre `PAPIER` (quasi blanc) posé sur un vêtement déjà
+  // quasi blanc ne produit presque aucun contraste — signalé par le
+  // `verificateur` : la lecture ne se lisait plus, seul le contour du
+  // livre restait visible. `girlWriting`, juste à côté, pose le même
+  // `PAPIER` sur `VIOLET` (nettement plus saturé) sans ce problème.
+  adultReading(ctx, w * 0.14, h * 0.74, h * 0.24, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    clothes: VIOLET,
+    paper: PAPIER,
+    accent: ENCRE_SOMBRE,
+  })
+  adultReading(ctx, w * 0.32, h * 0.74, h * 0.22, rng, LUMIERE, {
+    skin: PIERRE_CHAUDE,
+    hair: VIOLET_PROFOND,
+    clothes: BLEU,
+    paper: PAPIER,
+    accent: ENCRE_SOMBRE,
+  })
 
   girlWriting(ctx, w * 0.74, h * 0.7, h * 0.27, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
