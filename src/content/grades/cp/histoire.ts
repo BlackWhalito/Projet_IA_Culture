@@ -240,9 +240,11 @@ export const CP_HISTOIRE: Notion[] = [
     gradeId: 'cp',
     domainId: 'histoire',
     difficulty: 2,
-    title: 'Les grandes inventions de la Préhistoire',
-    summary: "Le feu, la roue, l'écriture et l'agriculture ont transformé la vie des humains.",
-    funFact: "L'écriture est apparue il y a environ 5000 ans, bien après la maîtrise du feu.",
+    title: 'Les grandes inventions qui ont changé la vie humaine',
+    summary:
+      "Le feu, l'agriculture et la roue viennent de la Préhistoire ; l'écriture, elle, la termine — par définition, c'est elle qui fait entrer dans l'Histoire.",
+    funFact:
+      "Il n'y a pas eu d'« an zéro » de l'écriture : elle apparaît vers 3300 avant notre ère en Mésopotamie, plusieurs centaines de milliers d'années après la maîtrise du feu — et c'est cette apparition elle-même qui, par convention, marque la fin de la Préhistoire.",
     games: {
       match: {
         pairs: [
@@ -507,8 +509,9 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 3,
     title: "L'origine des jours de la semaine",
-    summary: 'Les noms des jours de la semaine viennent des astres et des dieux romains.',
-    funFact: 'Lundi vient de la Lune, et vendredi vient de Vénus : les jours de la semaine gardent la trace des astres observés par les Romains.',
+    summary: 'Cinq jours de la semaine viennent des astres et des dieux romains — mais pas les deux derniers.',
+    funFact:
+      "Lundi vient de la Lune, vendredi de Vénus. Mais samedi ne doit rien à Saturne : il vient de l'hébreu « Shabbat », et dimanche vient du latin chrétien « dies dominicus », le jour du Seigneur. L'anglais, lui, a gardé les noms romains : Saturday, Sunday.",
     games: {
       match: {
         pairs: [

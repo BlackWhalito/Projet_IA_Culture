@@ -233,7 +233,8 @@ export const CP_SCIENCES: Notion[] = [
     difficulty: 1,
     title: "D'où viennent nos aliments",
     summary: 'Le lait, le miel, les œufs et la laine viennent tous des animaux.',
-    funFact: "Une seule abeille produit, à elle seule, à peine une cuillère à café de miel dans toute sa vie.",
+    funFact:
+      "Une seule abeille ne produit, dans toute sa vie, qu'environ un douzième de cuillère à café de miel — il faut le travail de centaines d'entre elles pour remplir un seul petit pot.",
     games: {
       match: {
         pairs: [

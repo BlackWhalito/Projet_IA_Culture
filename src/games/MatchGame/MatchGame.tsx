@@ -42,7 +42,14 @@ export function MatchGame({ content, onComplete }: MatchGameProps) {
       setSelectedRight(null)
       if (nextMatched.size === content.pairs.length) {
         const timeMs = elapsedSince(startedAtRef.current)
-        window.setTimeout(() => onComplete({ correct: mistakesRef.current === 0, timeMs }), 400)
+        // Finir la manche est toujours un succès — il n'y a pas de seuil de raté
+        // possible sur cette mécanique, seulement des essais. Les erreurs
+        // pénalisent le score via `mistakes`, elles ne coûtent plus l'étoile
+        // entière dès la première hésitation.
+        window.setTimeout(
+          () => onComplete({ correct: true, timeMs, mistakes: mistakesRef.current }),
+          400,
+        )
       }
       return
     }

@@ -160,7 +160,8 @@ export const CP_FRANCAIS: Notion[] = [
     difficulty: 2,
     title: 'La ponctuation de base',
     summary: 'Le point, le point d\'interrogation et le point d\'exclamation terminent une phrase.',
-    funFact: "Le point d'interrogation vient d'une abréviation du mot latin « quaestio », qui veut dire « question ».",
+    funFact:
+      "Le point d'interrogation vient du « punctus interrogativus », un signe ondulé inventé au IXe siècle par les copistes carolingiens pour noter l'intonation montante d'une question à voix haute — pas d'une abréviation du mot latin « quaestio », une explication populaire qu'aucun paléographe ne retient plus.",
     games: {
       qcm: {
         question: 'Quel signe de ponctuation termine une phrase interrogative ?',

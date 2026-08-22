@@ -7,8 +7,10 @@ export const CP_GEOGRAPHIE: Notion[] = [
     domainId: 'geographie',
     difficulty: 2,
     title: 'Les 5 continents',
-    summary: 'La Terre est divisée en 5 grands continents.',
-    funFact: "L'Europe et l'Asie forment en réalité une seule et même masse de terre, souvent appelée l'Eurasie.",
+    summary:
+      "Le nombre de continents n'est pas un fait figé : c'est une convention qui varie selon les pays. La France en enseigne le plus souvent 5 (les Amériques comptant pour un seul).",
+    funFact:
+      "L'Europe et l'Asie forment en réalité une seule et même masse de terre, souvent appelée l'Eurasie — c'est d'ailleurs ce que la Russie et le Japon enseignent, un seul continent là où la France en compte deux. Les États-Unis, eux, séparent l'Amérique du Nord et du Sud : sept continents en tout.",
     games: {
       match: {
         pairs: [
@@ -20,7 +22,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         ],
       },
       qcm: {
-        question: 'Combien y a-t-il de continents ?',
+        question: 'Combien de continents la France enseigne-t-elle le plus souvent ?',
         choices: ['5', '3', '7'],
         correctIndex: 0,
       },
@@ -144,11 +146,12 @@ export const CP_GEOGRAPHIE: Notion[] = [
     difficulty: 2,
     title: 'Les pays voisins de la France',
     summary: 'La France partage ses frontières avec plusieurs pays européens, comme l\'Espagne, l\'Allemagne ou l\'Italie.',
-    funFact: 'La France a des frontières terrestres avec 8 pays, dont deux tout petits : Monaco et Andorre.',
+    funFact:
+      "La France a 11 pays frontaliers, pas seulement 8 : en comptant l'outre-mer, il faut ajouter le Brésil et le Suriname (via la Guyane) et... les Pays-Bas, via la petite moitié française de l'île de Saint-Martin. Le Brésil est même la plus longue frontière terrestre de la France, loin devant l'Espagne.",
     games: {
       qcm: {
-        question: 'Lequel de ces pays partage une frontière avec la France ?',
-        choices: ['Espagne', 'Portugal', 'Pays-Bas'],
+        question: 'Lequel de ces pays partage une frontière avec la France métropolitaine ?',
+        choices: ['Espagne', 'Portugal', 'Autriche'],
         correctIndex: 0,
       },
       capsur: {
