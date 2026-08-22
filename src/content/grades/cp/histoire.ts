@@ -318,12 +318,18 @@ export const CP_HISTOIRE: Notion[] = [
       fildesjours: {
         personnage: { nom: 'Christophe Colomb', annee: '1492', role: 'Amiral de la mer Océane' },
         regle:
-          "Deux ressources s'épuisent au fil de la traversée : les **vivres et l'eau douce**, et le **moral de l'équipage**. Rien ne les oppose forcément — mais les négliger toutes les deux à la fois est le vrai danger. Si l'une tombe à zéro, la traversée s'arrête là.",
+          "Deux ressources évoluent tout au long de la traversée : les **vivres et l'eau douce**, et le **moral de l'équipage**. Elles ne s'opposent pas nécessairement — mais les négliger toutes les deux à la fois pèsera lourd sur la façon dont cette traversée se termine.",
+        // Ni `vivres` ni `moral` ne sont marquées `critique` : avec les effets
+        // réels des 7 étapes ci-dessous, leur plancher atteignable est
+        // respectivement 30 et 35 (vérifié par exploration exhaustive des 3^7
+        // combinaisons de choix) — jamais 0. Les marquer `critique` promettrait
+        // un échec structurellement impossible. Pour rouvrir cette voie, il
+        // faudrait rééquilibrer les `effets` ci-dessous, pas seulement le champ.
         echec:
-          "Le journal de bord s'arrête net, quelque part entre les Canaries et l'inconnu. Sans vivres ou sans équipage encore prêt à tenir, aucune caravelle n'atteint jamais l'autre rive — quelle que soit la distance qui restait à parcourir.",
+          "Le journal de bord s'arrête net, quelque part entre les Canaries et l'inconnu. Sans vivres ou sans équipage encore prêt à tenir, aucune caravelle n'atteint jamais l'autre rive.",
         jauges: [
-          { id: 'vivres', label: 'Vivres et eau douce', depart: 75, critique: true },
-          { id: 'moral', label: "Moral de l'équipage", depart: 75, critique: true },
+          { id: 'vivres', label: 'Vivres et eau douce', depart: 75 },
+          { id: 'moral', label: "Moral de l'équipage", depart: 75 },
           { id: 'milles', label: 'Distance parcourue', depart: 0 },
         ],
         etapes: [

@@ -79,7 +79,7 @@ Permuter avec le Niveau 4, qui le porte aujourd'hui. Réécrire son texte pour u
 
 **T3 · Réécrire les trois notions pour un adulte · M — agent `redacteur-contenu`**
 Cantonné à `src/content/`. Invoquer la skill `nouvelle-notion`, dont le critère de tri est désormais explicite.
-- **Masculin/féminin** : retirer les articles des flottants, porter à 9-10 mots pièges, objectif 8.
+- **Masculin/féminin** : retirer les articles des flottants, porter à 9 mots pièges, objectif 9. *(Livré : 9 flottants, objectif 9 — le plan prescrivait un pool légèrement plus large que l'objectif, ce qui n'a pas été jugé nécessaire.)*
 - **États de l'eau** : payload `match` neuf (changement → nom savant), et garder l'excellent *funFact* existant sur la vapeur invisible.
 - **Points cardinaux** : payload `capsur` neuf, 4 cibles. Réécrire le *summary* et le *funFact* autour du piège du lever de Soleil.
 **Exactitude non négociable** : chaque fait vérifié par recherche, jamais de mémoire. Plusieurs pièges collectés sont signalés « non revérifiés » par l'exploration.
