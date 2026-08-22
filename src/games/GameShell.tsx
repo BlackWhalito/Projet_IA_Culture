@@ -3,7 +3,7 @@ import type { GameTypeId, Notion } from '../types/content'
 import { selectGameForNotion } from '../engine/selectGameForNotion'
 import { DOMAINS } from '../content/domains'
 import { GameRouter } from './GameRouter'
-import type { GameCompleteResult, NotionResult } from './gameTypes'
+import type { GameCompleteResult, NotionResult } from '../types/game'
 import styles from './GameShell.module.css'
 
 interface GameShellProps {

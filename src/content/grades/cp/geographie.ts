@@ -24,7 +24,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['5', '3', '7'],
         correctIndex: 0,
       },
-      mapclick: {
+      capsur: {
         carteId: 'europe',
         cibles: ['europe', 'afrique', 'asie', 'amerique', 'oceanie'],
         secondesParCible: 6,
@@ -45,7 +45,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['Paris', 'Lyon', 'Marseille'],
         correctIndex: 0,
       },
-      mapclick: {
+      capsur: {
         carteId: 'france',
         cibles: ['paris'],
         secondesParCible: 6,
@@ -151,7 +151,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['Espagne', 'Portugal', 'Pays-Bas'],
         correctIndex: 0,
       },
-      mapclick: {
+      capsur: {
         carteId: 'france',
         cibles: ['espagne', 'belgique', 'allemagne', 'suisse', 'italie'],
         secondesParCible: 6,
@@ -204,7 +204,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         choices: ['La Loire', 'La Seine', 'Le Rhône'],
         correctIndex: 0,
       },
-      mapclick: {
+      capsur: {
         carteId: 'france',
         cibles: ['loire'],
         secondesParCible: 6,

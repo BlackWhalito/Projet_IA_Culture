@@ -20,13 +20,14 @@ Il n'existe **pas** d'agent chef, et il ne doit pas en exister un. Un orchestrat
 | Besoin | À qui | Pourquoi lui |
 |---|---|---|
 | Vérifier qu'un travail est réellement fini | `verificateur` | Ne peut modifier aucun fichier : il diagnostique, tu corriges |
+| Casser un changement structurel qu'on croit fini | `avocat-du-diable` | Cherche le défaut que personne n'a pensé à tester — **après** le `verificateur`, jamais à sa place |
 | Inventer ou critiquer une mécanique de jeu | `game-designer` | Lecture seule + web, explore largement sans polluer |
 | Écrire ou réviser du contenu en volume | `redacteur-contenu` | Cantonné à `src/content/`, ne touche jamais au code |
 | Chercher des failles de sécurité | `auditeur-securite` | Lecture seule : il qualifie le risque, tu décides du correctif |
 | Trouver où est défini X, qui utilise Y | `Explore` | Rapide, lecture seule, conçu pour la recherche |
 | Chantier large sans spécialiste dédié | `general-purpose` | Le repli quand aucun agent ne colle |
 
-Un agent fraîchement écrit n'est pas invocable par son nom avant un redémarrage de session — voir la skill `pieges-du-projet`. En attendant, lancer `general-purpose` en recopiant le contenu du fichier d'agent dans le brief.
+Un agent fraîchement écrit **est** désormais invocable par son nom sans redémarrer la session (constaté le 21/08/2026). Tente-le d'abord ; si le nom n'est pas trouvé, replie-toi sur `general-purpose` en recopiant le contenu du fichier d'agent dans le brief — voir la skill `pieges-du-projet`.
 
 ## Quand ne PAS déléguer
 

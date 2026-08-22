@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Ce que c'est
 
-App web française qui fait réapprendre la culture générale en jouant. Contenu classé par niveau scolaire ; seul le **CP** existe. Public double : enfants **et** adultes qui redécouvrent — donc jamais de contenu trivial. Frontend seul, progression en `localStorage`.
+App web française qui fait réapprendre la culture générale en jouant. Contenu classé par niveau scolaire ; seul le **CP** existe. Frontend seul, progression en `localStorage`.
+
+**On conçoit pour un adulte.** Le joueur visé refait le programme scolaire du CP à la 3e, des années après l'avoir oublié. Un enfant est le bienvenu et rien ne doit lui être hostile — mais ni le gameplay ni le contenu ne se règlent sur lui. Conséquence directe et permanente : **un niveau scolaire n'est pas un niveau de difficulté.** Le CP, ce n'est pas « facile », c'est *le programme du CP pris par le bout qui intéresse quelqu'un qui croit déjà le savoir*. « La vue → les yeux » n'apprend rien à personne ; « nous avons bien plus que cinq sens, et la carte des saveurs de la langue est un mythe scolaire » est la même notion, écrite pour son vrai public.
 
 ## Commandes
 
@@ -29,9 +31,9 @@ npx vitest run chemin/du/fichier.test.ts
 
 ## La règle d'architecture qui ne se viole pas
 
-`src/content/` = données statiques écrites à la main, jamais mutées à l'exécution.
-`src/state/` = état runtime persisté en `localStorage`.
-Séparées au niveau des types (`types/content.ts` vs `types/progress.ts`), elles ne se mélangent jamais.
+**Contenu et état ne se mélangent jamais.** `src/content/` = données statiques écrites à la main, jamais mutées à l'exécution. `src/state/` = état runtime persisté en `localStorage`. Séparés au niveau des types (`types/content.ts` vs `types/progress.ts`).
+
+**Les dépendances descendent.** `types` n'importe rien ; `content` et `engine` ne connaissent que `types` ; `state` ne connaît que `engine` et `types`. Un import qui remonte vers `games` ou `screens` est un défaut : c'est ainsi que le contrat de sortie des jeux s'était retrouvé recopié en double dans `engine/scoring.ts`, faute de vivre au bon étage. Échelle complète dans le [README](README.md).
 
 ## Décisions non devinables à la lecture du code
 
@@ -52,6 +54,7 @@ Direction artistique **aquarelle** au CP (skill `aquarelle`) ; arcade rétro pr�
 ## Où trouver le reste
 
 - [docs/feuille-de-route.md](docs/feuille-de-route.md) — toutes les tâches restantes, découpées et expliquées
+- [docs/niveau-1.md](docs/niveau-1.md) — la refonte du Niveau 1 en cours : notions, jeux, tableau
 - [docs/plan-jeux.md](docs/plan-jeux.md) — diagnostic et spécifications des mécaniques
 - Skills : `apex`, `orchestration`, `aquarelle`, `pieges-du-projet`, `nouvelle-mecanique`, `nouvelle-notion`, `audit-des-skills`
-- Agents : `verificateur`, `auditeur-securite`, `game-designer`, `redacteur-contenu`
+- Agents : `verificateur`, `avocat-du-diable`, `auditeur-securite`, `game-designer`, `redacteur-contenu`

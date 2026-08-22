@@ -1,3 +1,26 @@
+/**
+ * Le contrat de sortie d'une mécanique, et les formes de contenu qui l'alimentent.
+ *
+ * Ce contrat vit ici, et pas dans `src/games/`, parce qu'il est lu par des
+ * couches qui ne doivent rien savoir de l'interface : le moteur de score et le
+ * magasin de progression. Quand il vivait à côté des composants,
+ * `src/engine/scoring.ts` avait dû redéclarer sa propre copie de la même forme
+ * pour éviter de dépendre du dossier des jeux — deux vérités pour un seul
+ * contrat, exactement ce que ce déplacement supprime.
+ */
+export interface GameCompleteResult {
+  correct: boolean
+  timeMs: number
+  /** Erreurs commises avant d'aboutir, pour les mécaniques qui laissent réessayer. */
+  mistakes?: number
+  /** Meilleure série de bonnes réponses consécutives dans la manche. */
+  streak?: number
+}
+
+export interface NotionResult extends GameCompleteResult {
+  notionId: string
+}
+
 export interface QcmContent {
   question: string
   choices: string[]
@@ -25,14 +48,14 @@ export interface RiviereContent {
   objectif: number
 }
 
-export interface MapClickContent {
+export interface CapSurContent {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */
   cibles: string[]
   secondesParCible: number
 }
 
-export interface IncarnationContent {
+export interface FilDesJoursContent {
   personnage: { nom: string; annee: string; role: string }
   jauges: { id: string; label: string; depart: number }[]
   etapes: {

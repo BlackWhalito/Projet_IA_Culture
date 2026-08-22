@@ -20,7 +20,7 @@ Tout ce qui reste à faire, découpé en tâches assez petites pour être demand
 | **Jalon 1 entier** — Le Fil des jours (moteur + Colomb + Louis XIV), les cartes de France et d'Europe, Cap sur, la géo migrée | ✅ (nuit du 19 août, voir [rapport-nuit.md](rapport-nuit.md)) |
 | Bonus 2.4/2.5 — Mot à trous et le code mort de Tri supprimés | ✅ (même nuit) |
 
-Il reste **4 anciennes mécaniques à traiter** (2.1 à 2.3, restant de Jalon 2), l'habillage à finir, les niveaux à rééquilibrer, et une passe de solidité. Voir [rapport-nuit.md](rapport-nuit.md) pour les décisions prises cette nuit et ce qui reste à valider.
+Il reste **3 tâches sur les anciennes mécaniques** (2.1 à 2.3, restant de Jalon 2 — Association d'un côté, la Frise scindée en roue et frise de l'autre), l'habillage à finir, les niveaux à rééquilibrer, et une passe de solidité. Voir [rapport-nuit.md](rapport-nuit.md) pour les décisions prises cette nuit et ce qui reste à valider.
 
 ---
 

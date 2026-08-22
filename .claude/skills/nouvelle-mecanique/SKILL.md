@@ -20,7 +20,7 @@ export interface MaMecaniqueContent {
 
 Puis déclare l'identifiant dans `GameTypeId` (`src/types/content.ts`) et ajoute le champ optionnel correspondant à `NotionGames`.
 
-## 2. Le composant — `src/games/MaMecanique/`
+## 2. Le composant — `src/games/MaMecaniqueGame/`
 
 Un dossier, un `.tsx`, un `.module.css` à côté. Le contrat est identique pour toutes les mécaniques :
 
@@ -28,7 +28,9 @@ Un dossier, un `.tsx`, un `.module.css` à côté. Le contrat est identique pour
 { content: MaMecaniqueContent; onComplete: (result: GameCompleteResult) => void }
 ```
 
-`GameCompleteResult` vaut `{ correct: boolean; timeMs: number }` (`src/games/gameTypes.ts`).
+`GameCompleteResult` vaut `{ correct, timeMs, mistakes?, streak? }` et vit dans `src/types/game.ts`, pas à côté des composants : le moteur de score et le magasin de progression le lisent, et ils ne doivent rien savoir de l'interface.
+
+**Le nom du dossier et l'identifiant se correspondent**, c'est une règle : `capsur` → `CapSurGame/`, `fildesjours` → `FilDesJoursGame/`. Un identifiant technique en face d'un nom produit (l'ancien `mapclick` pour `CapSurGame`) rend la mécanique introuvable au `grep`, et c'est le premier geste de qui découvre le code.
 
 Contraintes non négociables :
 - Chronométrage via `elapsedSince` (`src/engine/timing.ts`), mélange via `shuffle` (`src/engine/shuffle.ts`). Jamais `Date.now()` ni `Math.random()` dans le composant — voir la skill `pieges-du-projet`.

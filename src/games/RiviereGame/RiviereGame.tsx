@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { RiviereContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
+import type { RiviereContent, GameCompleteResult } from '../../types/game'
 import { shuffle } from '../../engine/shuffle'
 import { elapsedSince } from '../../engine/timing'
 import styles from './RiviereGame.module.css'

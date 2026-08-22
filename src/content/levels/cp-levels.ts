@@ -8,7 +8,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 1',
     notionIds: [
       { notionId: 'cp-histoire-prehistoire', gameType: 'qcm' },
-      { notionId: 'cp-geographie-france-paris', gameType: 'mapclick' },
+      { notionId: 'cp-geographie-france-paris', gameType: 'capsur' },
       { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
       { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
       { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
@@ -47,7 +47,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 4',
     notionIds: [
       { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
-      { notionId: 'cp-histoire-louis-xiv', gameType: 'incarnation' },
+      { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
       { notionId: 'cp-geographie-ile', gameType: 'qcm' },
       { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
       { notionId: 'cp-francais-majuscule-point', gameType: 'qcm' },
@@ -75,8 +75,8 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-geographie-points-cardinaux', gameType: 'qcm' },
       { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
       { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
-      { notionId: 'cp-histoire-christophe-colomb', gameType: 'incarnation' },
-      { notionId: 'cp-geographie-pays-voisins', gameType: 'mapclick' },
+      { notionId: 'cp-histoire-christophe-colomb', gameType: 'fildesjours' },
+      { notionId: 'cp-geographie-pays-voisins', gameType: 'capsur' },
     ],
   },
   {
@@ -100,7 +100,7 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-francais-corbeau-renard', gameType: 'qcm' },
       { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
-      { notionId: 'cp-geographie-loire', gameType: 'mapclick' },
+      { notionId: 'cp-geographie-loire', gameType: 'capsur' },
       { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
       { notionId: 'cp-francais-expressions-imagees', gameType: 'qcm' },
     ],

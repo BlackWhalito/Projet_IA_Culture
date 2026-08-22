@@ -47,7 +47,14 @@ Les formes de payload par mécanique sont dans `src/types/game.ts`.
 
 ## Adapter au niveau
 
-Le ton monte en crescendo avec le niveau scolaire. Au CP : très visuel, contemplatif, mais avec de vraies phrases pour qu'un adulte ne s'ennuie pas — jamais du texte enfantin au point d'être creux. Plus le niveau monte, plus le contenu devient exigeant et adulte.
+**Un niveau scolaire n'est pas un niveau de difficulté.** Tu écris pour un adulte qui refait le programme du CP à la 3e, des années après l'avoir oublié. Le niveau désigne **la matière traitée**, jamais le public.
+
+Donc au CP : le sujet est celui du CP, le traitement est celui d'un adulte. Prends la notion par le bout qui surprend quelqu'un qui croit déjà la connaître.
+
+- ✗ « La vue, c'est les yeux. »
+- ✓ « Nous avons bien plus que cinq sens — l'équilibre, la position du corps, la température. Et la carte des saveurs de la langue, apprise par des générations, vient d'une mauvaise traduction d'une thèse allemande de 1901. »
+
+C'est la même notion. La première n'apprend rien à personne ; la seconde se raconte le soir même. Un enfant peut lire les deux — mais seule la seconde mérite d'exister.
 
 ## Checklist avant de conclure
 

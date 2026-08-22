@@ -40,11 +40,11 @@ Ne déclare jamais une tâche finie sur ta seule parole.
 
 ## La revue adverse — intensité forte
 
-Pour un changement structurel, ou une zone déjà cassée une fois, lance **en plus** un agent dont la mission est explicitement de casser ton travail, pas de le valider. Brief à lui donner :
+Pour un changement structurel, ou une zone déjà cassée une fois, lance **en plus** l'agent `avocat-du-diable`. Sa mission est explicitement de casser ton travail, pas de le valider : son brief porte déjà les priorités de recherche et le format de rapport, tu n'as qu'à lui dire quel changement attaquer.
 
-> Ton rôle est de trouver ce qui ne va pas dans ce changement. Pars du principe qu'il contient au moins un défaut sérieux, et trouve-le. Cherche en priorité : les cas limites non traités, les hypothèses non vérifiées, ce qui casse au deuxième passage, ce qui casse sur mobile, ce qui casse quand les données sont vides ou anormalement grandes, ce qui casse si l'utilisateur tape deux fois vite. Ne félicite rien, ne résume pas ce qui marche. Si tu ne trouves vraiment rien, dis quelle partie t'inspire le moins confiance et pourquoi.
+Il vient **après** le `verificateur`, pas à sa place : l'un vérifie que le travail annoncé est fait, l'autre cherche ce que personne n'a pensé à tester.
 
-Un rapport vide venant d'un agent adverse est un signal faible, pas une preuve.
+Un rapport vide venant de lui est un signal faible, pas une preuve.
 
 ## Rendre compte honnêtement
 

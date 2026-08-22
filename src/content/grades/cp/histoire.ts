@@ -47,7 +47,7 @@ export const CP_HISTOIRE: Notion[] = [
         choices: ['Versailles', 'Le Louvre', 'Chambord'],
         correctIndex: 0,
       },
-      incarnation: {
+      fildesjours: {
         personnage: { nom: 'Louis XIV', annee: '1685', role: 'Roi de France, à Versailles' },
         jauges: [
           { id: 'autorite', label: 'Autorité', depart: 60 },
@@ -307,7 +307,7 @@ export const CP_HISTOIRE: Notion[] = [
         choices: ["L'Amérique", "L'Afrique", "L'Australie"],
         correctIndex: 0,
       },
-      incarnation: {
+      fildesjours: {
         personnage: { nom: 'Christophe Colomb', annee: '1492', role: 'Amiral de la mer Océane' },
         jauges: [
           { id: 'vivres', label: 'Vivres et eau douce', depart: 75 },

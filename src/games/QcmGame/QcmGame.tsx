@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import type { QcmContent } from '../../types/game'
-import type { GameCompleteResult } from '../gameTypes'
+import type { QcmContent, GameCompleteResult } from '../../types/game'
 import { elapsedSince } from '../../engine/timing'
 import styles from './QcmGame.module.css'
 

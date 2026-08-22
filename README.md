@@ -1,6 +1,6 @@
 # Jeu Culture
 
-Application web de jeux de culture générale, organisée par niveau scolaire (CP pour l'instant). Le but : réapprendre en s'amusant les notions importantes de chaque classe, pour les enfants comme pour les adultes.
+Application web de jeux de culture générale, organisée par niveau scolaire (CP pour l'instant). Le but : permettre à un **adulte** de refaire le programme scolaire du CP à la 3e en jouant, des années après l'avoir oublié. Un enfant peut jouer, mais le jeu n'est pas conçu pour lui — un niveau scolaire désigne la matière traitée, pas un niveau de difficulté.
 
 ## Stack
 
@@ -17,66 +17,68 @@ npm install
 npm run dev
 ```
 
-Autres commandes utiles :
+Autres commandes :
 
 ```bash
+npm run build       # tsc -b puis vite build — c'est ici que le type-check passe
+npm run lint        # oxlint
 npm run test        # tests unitaires (une fois)
 npm run test:watch  # tests unitaires en mode watch
-npm run lint         # oxlint
-npx tsc -b --noEmit  # vérification des types
 ```
 
 ## Architecture
 
 ```
 src/
-  types/            # Notion, GradeLevel, LevelDef, UserProgress, payloads de jeu
-  content/
+  types/            # Notion, GradeLevel, LevelDef, UserProgress,
+                    # contrat de sortie des jeux + payloads de contenu
+  content/          # données statiques écrites à la main, jamais mutées
     domains.ts        # les 4 domaines (histoire, géographie, sciences, français)
-    grades/            # registre des niveaux scolaires + notions par classe
-    levels/            # séquences de notions regroupées en niveaux de jeu
-  engine/            # sélection du jeu à jouer, scoring, mélange, chrono
-  games/             # les mécaniques de mini-jeux (QCM, Association, Frise, Tri, Mot à trous)
-  state/             # progressStore (zustand + persist)
-  screens/           # HomeScreen, LevelMapScreen, GameSessionScreen
+    grades/           # registre des niveaux scolaires + notions par classe
+    levels/           # séquences de notions regroupées en niveaux de jeu
+    maps/             # zones cliquables des cartes SVG
+  engine/           # sélection du jeu, scoring, jauges du Fil des jours, mélange, chrono
+  games/            # les 6 mécaniques + la coquille commune (GameShell, GameRouter)
+  state/            # progressStore (zustand + persist)
+  screens/          # HomeScreen, LevelMapScreen, GameSessionScreen
+  components/       # cartes SVG, moteur de peinture aquarelle
 ```
 
-## Ajouter une notion de contenu
+**Les dépendances descendent, jamais l'inverse.** L'échelle réelle, du bas vers le haut :
 
-Chaque notion vit dans `src/content/grades/<niveau>/<domaine>.ts` et respecte le type `Notion` (voir `src/types/content.ts`). Exemple minimal :
-
-```ts
-{
-  id: 'cp-sciences-exemple',       // slug stable, unique dans tout le contenu
-  gradeId: 'cp',
-  domainId: 'sciences',             // 'histoire' | 'geographie' | 'sciences' | 'francais'
-  difficulty: 1,                    // 1 (facile) à 3 (plus difficile)
-  title: 'Titre affiché',
-  summary: 'Résumé affiché avant de jouer.',
-  funFact: 'Anecdote affichée après la réponse (facultatif mais recommandé).',
-  games: {
-    qcm: { question: '...', choices: ['...', '...'], correctIndex: 0 },
-    // une notion peut proposer plusieurs mécaniques (qcm, match, timeline, sort, fillblank)
-  },
-}
+```
+types            n'importe rien
+content, engine  → types
+state            → engine, types
+components       → content, types
+games            → components, content, engine, types
+screens          → components, content, engine, games, state, types
 ```
 
-Règles à garder en tête :
+Un import qui remonte est un défaut, pas un raccourci. C'est ce qui garantit qu'un changement d'écran ne peut pas casser la sauvegarde.
 
-- Éviter le trop évident : le public cible inclut des adultes qui veulent redécouvrir des notions oubliées, pas réapprendre que 1+1=2.
-- Prévoir si possible un `qcm` de secours en plus de la mécanique principale, pour la fiabilité (voir `engine/selectGameForNotion.ts`, qui retombe sur `qcm` en dernier recours).
-- Chaque forme de contenu (`match`, `timeline`, `sort`, `fillblank`) a ses propres champs, décrits dans `src/types/game.ts`.
+Les six mécaniques, et l'identifiant de `gameType` qui les désigne :
 
-Une fois la notion ajoutée dans son fichier de domaine, l'inclure dans un `LevelDef` (`src/content/levels/<niveau>-levels.ts`) pour qu'elle apparaisse dans un niveau de jeu, avec la mécanique choisie :
+| `gameType` | Dossier | Ce qu'on y fait |
+|---|---|---|
+| `qcm` | `QcmGame/` | Choisir la bonne réponse — mécanique de révision, en repli |
+| `match` | `MatchGame/` | Associer deux colonnes |
+| `timeline` | `TimelineGame/` | Remettre des événements dans l'ordre |
+| `riviere` | `RiviereGame/` | Trier des mots qui descendent le courant, ça accélère |
+| `capsur` | `CapSurGame/` | Trouver un lieu sur une carte avant que le brouillard se referme |
+| `fildesjours` | `FilDesJoursGame/` | Incarner un personnage historique, les jauges répondent |
 
-```ts
-{ notionId: 'cp-sciences-exemple', gameType: 'qcm' }
-```
+L'identifiant et le nom du dossier se correspondent : c'est une règle, pas un hasard.
 
-## Ajouter un niveau scolaire
+## Où trouver le reste
 
-1. Passer `enabled: true` pour ce niveau dans `src/content/grades/index.ts`.
-2. Créer `src/content/grades/<niveau>/{histoire,geographie,sciences,francais}.ts` et les ajouter à `src/content/notions.ts`.
-3. Créer `src/content/levels/<niveau>-levels.ts` et l'ajouter à `src/content/levels/index.ts`.
+Ce fichier ne décrit que la forme du projet. Tout ce qui touche à la manière de travailler vit ailleurs, et s'y trouve à jour :
 
-Aucun code d'écran, de moteur de jeu ou de progression n'a besoin d'être modifié : tout est générique par rapport au niveau scolaire.
+- **[CLAUDE.md](CLAUDE.md)** — les règles d'architecture et les décisions non devinables à la lecture du code
+- **Skill `nouvelle-notion`** — écrire ou réviser une notion de `src/content/` : format exact, règles éditoriales, checklist
+- **Skill `nouvelle-mecanique`** — ajouter un mini-jeu de bout en bout, les cinq endroits à toucher
+- **Skill `aquarelle`** — la direction artistique du CP
+- **[docs/feuille-de-route.md](docs/feuille-de-route.md)** — ce qui reste à faire
+- **[docs/plan-jeux.md](docs/plan-jeux.md)** — pourquoi les mécaniques sont ce qu'elles sont
+
+Ajouter un niveau scolaire est purement additif : passer `enabled: true` dans `src/content/grades/index.ts`, créer les fichiers de contenu et de niveaux, les agréger. Aucun code d'écran, de moteur ni de progression n'est à modifier.
