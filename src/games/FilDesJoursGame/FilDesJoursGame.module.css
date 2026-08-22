@@ -55,6 +55,23 @@
   transition: width 0.4s ease;
 }
 
+.deltaPositif,
+.deltaNegatif {
+  flex: 0 0 auto;
+  min-width: 2.5em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.deltaPositif {
+  color: var(--color-success);
+}
+
+.deltaNegatif {
+  color: var(--color-error);
+}
+
 .scene {
   display: flex;
   flex-direction: column;

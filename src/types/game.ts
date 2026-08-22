@@ -57,7 +57,22 @@ export interface CapSurContent {
 
 export interface FilDesJoursContent {
   personnage: { nom: string; annee: string; role: string }
-  jauges: { id: string; label: string; depart: number }[]
+  /**
+   * Explique au joueur, avant de commencer, les forces en jeu — typiquement que
+   * les jauges s'opposent et ne montent jamais ensemble. Sans cette règle, le
+   * joueur cherche « la bonne réponse » d'un QCM, ne la trouve pas, et se sent
+   * perdu : les options ne sont pas classées bonnes ou mauvaises, elles arbitrent.
+   */
+  regle: string
+  jauges: {
+    id: string
+    label: string
+    depart: number
+    /** Si vrai, cette jauge tombée à 0 termine la partie en échec immédiat. */
+    critique?: boolean
+  }[]
+  /** Scène affichée quand une jauge `critique` tombe à 0 — la partie s'arrête là. */
+  echec: string
   etapes: {
     titre: string
     scene: string

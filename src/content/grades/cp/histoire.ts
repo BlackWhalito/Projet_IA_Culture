@@ -39,8 +39,10 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 2,
     title: 'Louis XIV, le Roi Soleil',
-    summary: 'Louis XIV a été roi de France et a fait construire le château de Versailles.',
-    funFact: "Louis XIV est le roi qui a régné le plus longtemps dans l'histoire de France : 72 ans !",
+    summary:
+      "Louis XIV n'a pas fait construire Versailles : il a démesurément agrandi le pavillon de chasse de son père Louis XIII, jusqu'à en faire le plus grand palais d'Europe.",
+    funFact:
+      "Louis XIV est resté roi 72 ans, le règne le plus long de l'histoire de France — mais il n'a vraiment gouverné qu'à partir de ses 22 ans, à la mort de Mazarin, qui dirigeait jusque-là avec sa mère. Et la phrase qu'on lui prête, « L'État, c'est moi », n'a jamais été prononcée : aucune source de son époque ne l'atteste.",
     games: {
       qcm: {
         question: 'Quel célèbre château Louis XIV a-t-il fait construire ?',
@@ -49,9 +51,13 @@ export const CP_HISTOIRE: Notion[] = [
       },
       fildesjours: {
         personnage: { nom: 'Louis XIV', annee: '1685', role: 'Roi de France, à Versailles' },
+        regle:
+          "Chaque décision de ce lever muscle l'une de tes deux forces et affaiblit presque toujours l'autre : ton **autorité**, l'image d'un roi qui commande, et l'**attention de la Cour**, combien de courtisans te sont redevables ce matin. Il n'y a pas de bon choix dans l'absolu — seulement un équilibre à tenir. Si l'une des deux s'effondre, la matinée s'arrête là.",
+        echec:
+          "La rumeur s'est répandue plus vite qu'un ordre royal : ce matin-là, quelque chose s'est rompu entre le roi et sa Cour. À Versailles, un souverain ne se maintient que si l'équilibre tient — et ce jour-là, il n'a pas tenu. Le Grand Lever s'achève sans éclat, et la journée qui suit n'appartient plus tout à fait au roi.",
         jauges: [
-          { id: 'autorite', label: 'Autorité', depart: 60 },
-          { id: 'attentionCour', label: 'Attention de la Cour', depart: 40 },
+          { id: 'autorite', label: 'Autorité', depart: 60, critique: true },
+          { id: 'attentionCour', label: 'Attention de la Cour', depart: 40, critique: true },
         ],
         etapes: [
           {
@@ -309,9 +315,13 @@ export const CP_HISTOIRE: Notion[] = [
       },
       fildesjours: {
         personnage: { nom: 'Christophe Colomb', annee: '1492', role: 'Amiral de la mer Océane' },
+        regle:
+          "Deux ressources s'épuisent au fil de la traversée : les **vivres et l'eau douce**, et le **moral de l'équipage**. Rien ne les oppose forcément — mais les négliger toutes les deux à la fois est le vrai danger. Si l'une tombe à zéro, la traversée s'arrête là.",
+        echec:
+          "Le journal de bord s'arrête net, quelque part entre les Canaries et l'inconnu. Sans vivres ou sans équipage encore prêt à tenir, aucune caravelle n'atteint jamais l'autre rive — quelle que soit la distance qui restait à parcourir.",
         jauges: [
-          { id: 'vivres', label: 'Vivres et eau douce', depart: 75 },
-          { id: 'moral', label: "Moral de l'équipage", depart: 75 },
+          { id: 'vivres', label: 'Vivres et eau douce', depart: 75, critique: true },
+          { id: 'moral', label: "Moral de l'équipage", depart: 75, critique: true },
           { id: 'milles', label: 'Distance parcourue', depart: 0 },
         ],
         etapes: [
