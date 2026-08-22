@@ -1,141 +1,114 @@
-# Le Niveau 1 (CP) — plan de refonte
+# Le Niveau 1 (CP) — refonte pour un public adulte
 
 ## Contexte
 
-Le Niveau 1 est le premier écran de jeu que voit qui que ce soit. Il donne le ton de toute l'application, et il ne tient pas cette promesse.
+Le jeu s'adresse désormais à un **adulte** qui refait le programme scolaire du CP à la 3e (décision actée, commit « Change de public cible »). Le Niveau 1 est le premier écran qu'il voit. Il ne tient pas la promesse, et l'exploration a montré pourquoi.
 
-Le diagnostic de départ (« ce ne sont que des QCM ») ne résiste pas à la vérification : le Niveau 1 utilise déjà cinq mécaniques différentes — c'est même le seul des huit dans ce cas. Deux défauts bien plus graves se cachaient derrière.
+**Le jeu ne teste rien, et l'anecdote enseigne tout.** C'est à l'envers : on devrait buter, puis recevoir l'explication en récompense. Aujourd'hui les anecdotes sont parfois bonnes, mais ce que les jeux font manipuler est systématiquement trivial.
 
-**Défaut 1 — les mécaniques sont réglées à leur minimum vital.**
-
-| Créneau | Notion | Mécanique | Réglage réel |
-|---|---|---|---|
-| 1 | La Préhistoire | QCM | 1 question, bonne réponse toujours en 1er bouton, **aucun autre payload possible** |
-| 2 | La France et sa capitale | Cap sur | **une seule cible** (Paris) → manche de 6 secondes |
-| 3 | Les 5 sens | Association | 5 paires, sans chrono |
-| 4 | Voyelles et consonnes | La Rivière | 5 lettres, objectif 5 |
-| 5 | La frise du temps | Frise | **3 cartes** : passé / présent / futur |
-
-**Défaut 2, découvert en cours de route et bien plus lourd — le contenu est vide pour son public.**
-
-Le jeu s'adresse à un **adulte** qui refait le programme scolaire du CP à la 3e (voir `CLAUDE.md`). Or le Niveau 1 lui propose « la vue → les yeux », « A est une voyelle », « la capitale de la France est Paris ». Il n'apprend rien, ne ressent rien, et referme. Trois des cinq anecdotes — qui sont censées être sa récompense — sont creuses : *« Paris est traversée par un fleuve : la Seine »*, *« Le français compte 6 voyelles »*, *« Les historiens utilisent des frises chronologiques »*.
-
-**Le sujet, lui, reste excellent.** Un niveau scolaire désigne la matière, pas le public. Les mêmes notions, prises par le bout qui surprend quelqu'un qui croit déjà savoir :
-
-| Notion | Aujourd'hui | Pour son vrai public |
+| Jeu actuel | Ce qu'on trie / associe | Pour un adulte |
 |---|---|---|
-| Les 5 sens | La vue → les yeux | Nous en avons bien plus que cinq — l'équilibre, la position du corps, la température. Et la « carte des saveurs » de la langue vient d'une mauvaise traduction d'une thèse allemande de 1901. |
-| Voyelles et consonnes | A est une voyelle | Le français **écrit** 6 voyelles mais en **prononce** environ 16. Le « y » s'appelle *i grec* parce qu'il a été importé pour transcrire le grec. |
-| La France et sa capitale | Paris | Paris n'a pas toujours été capitale : Versailles l'a été de 1682 à 1789, et le gouvernement s'est replié à Bordeaux, à Tours, puis à Vichy. |
-| La frise du temps | Passé / présent / futur | Le découpage en grandes périodes est une **convention du XIXᵉ siècle**, pas un fait : on a choisi 476 et 1492 après coup, et les historiens s'en disputent encore les bornes. |
+| Rivière — voyelle/consonne | A, B, O, M, U | aucune hésitation |
+| Rivière — masculin/féminin | « **Un** chat », « **Une** chaise » | l'article donne la réponse |
+| Rivière — vivant/non-vivant | arbre, caillou, chat, table | aucune hésitation |
+| Association — les 5 sens | la vue → les yeux | aucune hésitation |
+| Cap sur — Paris | **une seule cible** | manche de 6 secondes |
 
-Résultat visé : un Niveau 1 qu'un adulte finit en se disant qu'il a appris quatre choses qu'il ignorait, et dont il a envie de raconter au moins une le soir même.
+**Le diagnostic de départ (« ce ne sont que des QCM ») était faux** — le Niveau 1 est le seul des huit à utiliser cinq mécaniques distinctes. Les mécaniques ne sont pas le problème. **Le contenu qu'on leur donne l'est.**
+
+Deux découvertes de l'exploration du programme officiel s'ajoutent :
+
+- **`histoire.ts` n'est pas du CP.** 8 notions sur 10 relèvent du **CM1-CM2** (Préhistoire, Lascaux, Moyen Âge, Louis XIV, Colomb, Révolution). Au cycle 2 il n'y a **pas d'histoire chronologique** : on travaille « se repérer dans le temps » — jour, semaine, mois, saisons, les générations.
+- **Six erreurs factuelles** sont en production (détail en fin de plan).
+
+Résultat visé : un Niveau 1 dont un adulte cultivé sort en s'étant trompé au moins deux fois, en ayant appris pourquoi, et avec au moins une chose à raconter le soir même.
 
 ## Décisions prises
 
-1. **On conçoit pour l'adulte.** L'enfant est bienvenu, il ne dicte rien. *(Déjà appliqué : commit « Change de public cible ».)*
-2. **Facile à jouer, surprenant à apprendre.** Le CP est la marche d'entrée : gestes simples, pression légère. Toute l'exigence passe dans le contenu.
-3. **Les tableaux aquarelle sont liés au contenu** du niveau, pas décoratifs.
-4. **Un seul tableau pour l'instant**, en modèle, pour juger la direction avant d'en peindre huit.
-5. **La conception de la mécanique neuve passe par `game-designer`** — les fiches des mécaniques « en réserve » ont été perdues (voir Risques).
-6. **Les 40 QCM sont hors périmètre** (reportés). La refonte retire de toute façon le QCM du Niveau 1.
+1. **On conçoit pour l'adulte** ; l'enfant est bienvenu, il ne dicte rien.
+2. **La difficulté vient du contenu, pas du chrono.** On se trompe parce qu'on croyait savoir, pas parce qu'on a manqué de temps.
+3. **Le cadre est le vrai programme du CP.** Le niveau désigne la matière, jamais le public.
+4. **Le temps fort est « Le Fil des jours » (Louis XIV), déplacé au Niveau 1 et retravaillé** — le propriétaire ne comprend pas ce jeu aujourd'hui.
+5. **On peut désormais perdre** une matinée de Louis XIV : une jauge à zéro déclenche un échec.
+6. **Les tableaux aquarelle sont liés au contenu**, un seul peint pour l'instant, en modèle.
 
 ## Le Niveau 1 cible
 
-Cinq créneaux : quatre jeux courts et un temps fort, un domaine chacun.
+**Quatre créneaux : trois jeux courts et un temps fort**, un domaine chacun, quatre mécaniques différentes. C'est la règle de la feuille de route (tâche 4.2), et elle tombe juste ici.
 
-| # | Notion | Mécanique | Ce qui change |
-|---|---|---|---|
-| 1 | Voyelles et consonnes | **La Rivière** | 5 → 9 lettres, objectif 8. Ouverture par le geste et la tension. |
-| 2 | La France et sa capitale | **Cap sur** | 1 → 4 cibles. Chaque erreur enseigne un second fait. |
-| 3 | Les 5 sens | **Association** | Contenu réécrit, calcul de score corrigé (T6). |
-| 4 | La frise du temps | **Frise** | Réécrite **sur place** en vraie chronologie, avec retour immédiat après chaque pose. |
-| 5 | La Préhistoire | **« Garder le feu »** *(neuf)* | Le temps fort. |
+| # | Notion | Domaine | Mécanique | Le piège pour un adulte |
+|---|---|---|---|---|
+| 1 | **Masculin et féminin** | français | **La Rivière** | Les mots présentés **sans article** : *oasis, pétale, apogée, échappatoire, tentacule, haltère, astérisque, autoroute*. Le club des « -ée masculins » (apogée, périgée, trophée) fait tomber tout le monde. |
+| 2 | **Les 3 états de l'eau** | sciences | **Association** | Associer chaque changement à **son nom savant** : fusion, solidification, vaporisation, **liquéfaction**, sublimation. Personne ne sait que « condensation » est ambigu ni que la sublimation existe. |
+| 3 | **Les points cardinaux** | géographie | **Cap sur** | Le Soleil ne se lève exactement à l'est que **deux jours par an**. La boussole indique le nord **magnétique**, pas géographique. « S'orienter » vient d'« orient » : sur les cartes médiévales, **l'est était en haut**. |
+| 4 | **Louis XIV** | histoire | **Le Fil des jours** *(retravaillé)* | Versailles était le **pavillon de chasse de Louis XIII**. « L'État, c'est moi » est **apocryphe**. Roi à 4 ans, mais règne personnel seulement à **22 ans**. |
 
-**Les cinq contenus sont réécrits pour un adulte.** C'est le cœur du chantier, pas un ajustement.
+Ces trois premières notions sont **des piliers du programme du CP** (le genre du nom, les états de la matière, l'orientation). Elles existent déjà dans l'app : **on ne crée aucune notion, on réécrit leur contenu.**
 
-Deux choix à expliciter :
+**Sur Louis XIV et le programme.** Le CM1 est son vrai niveau, et le CP n'enseigne pas d'histoire chronologique. Mais le programme du cycle 2 prévoit explicitement « quelques événements et personnages historiques **socialement partagés**, repérés sur une frise, sans étude chronologique ». Louis XIV entre par cette porte — comme repère, pas comme chapitre. C'est défendable, et c'est à toi de valider cette lecture.
 
-- **La Préhistoire passe du créneau 1 au créneau 5.** C'est aujourd'hui le seul créneau sans mécanique alternative possible, et c'est le tout premier écran de jeu de l'app. En faire le final le transforme d'un point faible en point d'orgue.
-- **La frise est réécrite sur place, pas remplacée.** Une version antérieure de ce plan créait une notion neuve et sortait l'ancienne, ce qui la laissait orpheline et injouable — les 40 notions occupent exactement 40 créneaux, en bijection. Réécrire au même emplacement ne fait de trou nulle part et ne touche aucun autre niveau.
+**Les trois notions qui sortent du Niveau 1** (voyelles/consonnes, les 5 sens, la frise du temps) ne disparaissent pas : elles retournent au catalogue et seront replacées quand on traitera les niveaux suivants. Attention, **les 40 notions occupent aujourd'hui exactement 40 créneaux en bijection** — une notion retirée d'un niveau devient injouable tant qu'elle n'est pas replacée.
 
-Le QCM disparaît du niveau, conforme à la tâche 4.1 qui veut en faire une mécanique de révision, jamais de découverte.
+## La refonte du « Fil des jours »
 
-## Le tableau du Niveau 1
+Le fond est bon : incarner Louis XIV pour comprendre que Versailles est une machine à tenir la noblesse. **C'est la mise en jeu qui manque.** Trois défauts, dans l'ordre où ils se corrigent.
 
-**« La veille du feu »** — une bouche de grotte dans la nuit, un feu, une silhouette accroupie.
+**1. La règle du jeu n'est écrite nulle part.** J'ai relevé tous les effets chiffrés du scénario : *chaque* option fait monter une jauge et descendre l'autre (`+8 autorité / −5 Cour`, `+10 / −5`, `+12 / −4`…). **C'est un jeu d'équilibre entre deux forces opposées, et le joueur ne l'apprend jamais.** Il cherche « la bonne réponse », ne la trouve pas, et se sent perdu. → Un écran d'ouverture de trois lignes : qui tu es, quelles sont les deux forces, et qu'elles ne montent jamais ensemble.
 
-Trois raisons, dont une purement technique et décisive :
+**2. On ne voit pas les jauges bouger.** Les barres changent en silence entre deux écrans. → Afficher le delta au moment du choix (`+8 Autorité`, `−5 Cour`), animé sur la barre.
 
-1. Il est lié au temps fort du niveau.
-2. **Il est lisible à très petite taille.** La vignette fera ~240 × 110 px, moins sur mobile. Le piège n° 1 documenté du moteur de peinture est de juger une image à sa résolution interne et de la découvrir illisible à sa taille réelle. Une masse sombre percée d'un point chaud est exactement ce qui survit à cette réduction.
-3. Il est franchement différent des tableaux existants, tous en ville d'eau méditerranéenne.
+**3. Rien n'est en jeu.** Une jauge à zéro ne déclenche rien, et `onComplete` renvoie `correct: true` en dur (`FilDesJoursGame.tsx:50`). → Seuil d'alerte sous 25, scène d'échec immédiate à zéro, et `correct` lié à l'issue réelle.
 
-Coût réel : le moteur ne sait peindre aujourd'hui ni terrain, ni feu, ni végétation. Deux primitives neuves sont nécessaires, qui amorcent le module `terrain.ts` manquant et resserviront pour les sept autres tableaux.
+Fichiers : `src/games/FilDesJoursGame/FilDesJoursGame.tsx` (113 lignes), `src/engine/fildesjours.ts` (40 lignes, testé), `src/types/game.ts` pour le champ de règle.
 
 ## Les tâches
 
-Ordonnées par risque décroissant : le plus incertain d'abord, pour le découvrir en une heure et non après trois jours bâtis dessus.
+Ordonnées par risque décroissant.
 
-### Phase A — Concevoir avant de coder
+### Phase A — Rendre le temps fort jouable
 
-**T1 · Faire régénérer la fiche de « Garder le feu » · S**
-Lancer `game-designer` sur la notion `cp-histoire-prehistoire`. Rendu attendu : pitch, ce que ça enseigne, déroulé seconde par seconde, ressorts activés, forme du contenu, traitement de l'échec, coût.
-Contraintes à transmettre : conçu **pour un adulte** ; geste simple et pression légère (marche d'entrée) mais contenu qui apprend quelque chose ; mobile d'abord, cibles ≥ 44px ; pas de glisser-déposer ; l'échec doit enseigner.
-*Vérifié quand* : la fiche est codable sans reposer de question, et survit au test « aurait-on envie d'y rejouer en connaissant la réponse ? ».
+**T1 · Retravailler « Le Fil des jours » · M**
+Les trois correctifs ci-dessus. Ajouter à `FilDesJoursContent` un champ `regle` (le texte d'ouverture) et des seuils. Étendre `src/engine/fildesjours.ts` (déjà testé) plutôt que de mettre la logique dans le composant.
+*Vérifié quand* : un test de composant joue une partie gagnée **et** une partie perdue par jauge à zéro ; et surtout, **tu comprends le jeu sans explication** — c'est le vrai critère.
 
-**T2 · Arbitrer la fiche · S**
-Décision produit, elle revient au propriétaire. Si la mécanique ne convainc pas, on s'arrête ici et on se rabat sur « approfondir seulement », sans avoir écrit une ligne de code.
-
-### Phase B — Le contenu *(le vrai cœur du chantier)*
-
-**T3 · Réécrire les cinq notions pour un adulte · M — agent `redacteur-contenu`**
-Cantonné à `src/content/`. Invoquer la skill `nouvelle-notion`, dont le critère de tri est désormais explicite. Pour chacune : `summary`, `funFact` et les payloads de jeu.
-- **Voyelles et consonnes** : porter les flottants de 5 à 9, objectif 8.
-- **La France et sa capitale** : porter les cibles de `['paris']` à 4 cibles réelles (`src/content/maps/france.ts` propose 10 villes, 4 fleuves, 5 pays voisins).
-- **Les 5 sens** : réécrire, payload `match` conservé.
-- **La frise du temps** : réécrire en vraie chronologie, 5 cartes.
-- **La Préhistoire** : réécrire, et **corriger la contradiction** relevée par le `verificateur` — `histoire.ts` affirme « la Préhistoire est la période avant l'invention de l'écriture » puis range « l'écriture » parmi les inventions **de la Préhistoire**.
-Exactitude non négociable : chaque date et chaque attribution vérifiée par recherche web, pas de mémoire.
-*Vérifié quand* : `contentIntegrity.test.ts` passe, et chaque notion passe le test « un adulte cultivé lit et ressent quelque chose ».
-
-### Phase C — Le temps fort
-
-**T4 · Construire « Garder le feu » · M**
-Les cinq points de la skill `nouvelle-mecanique` : types (`GarderLeFeuContent`, `GameTypeId`, `NotionGames`) → composant `src/games/GarderLeFeuGame/` → `case` dans `GameRouter` → `GAME_PRIORITY` (après `fildesjours`, avant `match` ; `qcm` reste dernier).
-**Le nom du dossier doit correspondre à l'identifiant** (règle née d'un vrai incident, cf. l'ancien `mapclick`/`CapSurGame`). Chrono via `elapsedSince`, aléatoire via `shuffle` — jamais `Date.now()` ni `Math.random()` dans un composant (oxlint `react(purity)`). Logique calculable en isolation extraite dans `src/engine/garderlefeu.ts`, comme pour `fildesjours`.
-*Vérifié quand* : `npm run build`, et un test de composant qui joue une manche gagnée **et** une manche perdue.
-
-**T5 · Écrire le contenu de « Garder le feu » et l'épingler · S**
-Payload sur `cp-histoire-prehistoire`, puis épinglage dans `cp-level-1`.
+**T2 · Déplacer Louis XIV au Niveau 1 · S**
+Permuter avec le Niveau 4, qui le porte aujourd'hui. Réécrire son texte pour un adulte, avec les pièges (Versailles pavillon de chasse, la phrase apocryphe, le règne personnel à 22 ans).
 *Vérifié quand* : `contentIntegrity.test.ts` passe — il attrape un `gameType` épinglé absent de la notion, qui ferait retomber le jeu silencieusement sur une autre mécanique.
 
-### Phase D — Réparer deux mécaniques
+### Phase B — Le contenu des trois jeux courts *(le cœur du chantier)*
 
-**T6 · Frise : retour immédiat après chaque pose · S**
-Tâche 2.3 de la feuille de route, prérequis du créneau 4. `TimelineGame` rend aujourd'hui un verdict binaire tout à la fin, sans retour intermédiaire, sans retour arrière, sans montrer le bon ordre — le pire traitement de l'échec du projet.
-*Vérifié quand* : un test de composant montre le retour après chaque pose, en juste et en faux.
+**T3 · Réécrire les trois notions pour un adulte · M — agent `redacteur-contenu`**
+Cantonné à `src/content/`. Invoquer la skill `nouvelle-notion`, dont le critère de tri est désormais explicite.
+- **Masculin/féminin** : retirer les articles des flottants, porter à 9-10 mots pièges, objectif 8.
+- **États de l'eau** : payload `match` neuf (changement → nom savant), et garder l'excellent *funFact* existant sur la vapeur invisible.
+- **Points cardinaux** : payload `capsur` neuf, 4 cibles. Réécrire le *summary* et le *funFact* autour du piège du lever de Soleil.
+**Exactitude non négociable** : chaque fait vérifié par recherche, jamais de mémoire. Plusieurs pièges collectés sont signalés « non revérifiés » par l'exploration.
+*Vérifié quand* : chaque notion passe le test « un adulte cultivé lit et ressent quelque chose », et `contentIntegrity.test.ts` passe.
 
-**T7 · Association : corriger le score · S**
-`MatchGame` renvoie `correct: false` dès la première erreur et **ne transmet pas `mistakes`** — contrairement à la Rivière et à Cap sur. L'information est perdue pour le score, et une hésitation coûte l'étoile.
-*Vérifié quand* : un test vérifie que `mistakes` remonte et que le résultat n'est pas binaire à la première erreur.
+**T4 · Recomposer le Niveau 1 et replacer les sortants · S**
+`src/content/levels/cp-levels.ts` : le Niveau 1 passe à 4 créneaux. Replacer voyelles/consonnes, les 5 sens et la frise du temps dans un autre niveau, ou acter qu'ils attendent.
+*Vérifié quand* : aucune notion orpheline, `contentIntegrity.test.ts` vert.
 
-### Phase E — L'habillage *(indépendant : aucun fichier commun avec B, C et D, peut avancer en parallèle)*
+### Phase C — Réparer les mécaniques du niveau
 
-**T8 · Deux primitives de peinture · M**
-Créer `src/components/watercolor/terrain.ts` : `rockMass(...)` (silhouette en **plateaux**, jamais en pente — une diagonale reprise par le flou fractal se lit comme un cristal) et `fire(...)` (flammes + halo chaud). Un `LightPlan` unique passé à tous les éléments ; `dryStroke` au ratio minimum 10:1 ; les petits noirs sur une poignée de pixels ; garder du papier presque nu quelque part, sinon pas de vrai sombre.
-*Vérifié quand* : couvertes par `engine.test.ts` (déterminisme, absence de NaN) — le canvas 2D n'existe pas sous jsdom, on teste la géométrie, pas le rendu.
+**T5 · Association : corriger le score · S**
+`MatchGame` renvoie `correct: false` dès la première erreur et **ne transmet pas `mistakes`** — contrairement à la Rivière et à Cap sur. L'information est perdue pour le score, et une hésitation coûte l'étoile. Or le créneau 2 repose sur cette mécanique, avec du contenu volontairement piégeux : il faut pouvoir se tromper.
+*Vérifié quand* : un test vérifie que `mistakes` remonte et que le résultat n'est pas binaire.
 
-**T9 · Peindre « La veille du feu » · M**
-Une `PaintScene` dans un registre neuf `src/screens/LevelMapScreen/levelArt.ts`, sur le modèle de `GRADE_ART` : un `Record<string, PaintScene>` indexé par `level.id`. **Ne pas mettre le décoratif dans `src/content/`** ni étendre `LevelDef` — ça entraînerait `contentIntegrity.test.ts`. La scène doit être une **constante de module** : `WatercolorScene` a `paint` dans ses dépendances d'effet, une lambda en ligne repeindrait à chaque rendu.
-*Vérifié quand* : **le propriétaire l'a vue à sa taille d'affichage réelle**, pas sur une capture zoomée — piège documenté qui a déjà coûté une itération. Méthode de capture dans la skill `pieges-du-projet`.
+**T6 · Corriger les six erreurs factuelles en production · S — indépendant**
+Ponctuation (l'étymologie « quaestio » est **rejetée par les paléographes**) ; jours de la semaine (samedi vient de l'hébreu *Shabbat*, dimanche de *dies dominicus* — **pas des dieux romains**) ; grandes inventions (l'écriture y est rangée dans la Préhistoire, ce qui **contredit** la notion Préhistoire) ; pays voisins (le QCM donne « Pays-Bas » comme fausse réponse, **or ils sont frontaliers** via Saint-Martin) ; 5 continents (présenté comme un fait, c'est une **convention**) ; le miel par abeille (chiffre surestimé d'environ ×12).
+*Peut être fait tout de suite, sans attendre le reste.*
 
-**T10 · Intégrer la vignette à la carte des niveaux · S**
-`LevelMapScreen.tsx` + son `.module.css`. Insérer `<WatercolorScene>` dans `.node` avant le titre (le nœud est déjà un `flex-direction: column`). Ajouter `overflow: hidden` et un `border-radius` sur `.node`. Niveau verrouillé : tableau voilé (`opacity` ~0.35) sous le cadenas — c'est une promesse, pas une information à protéger. Ne monter le composant que pour les niveaux qui ont un tableau. Tableau décoratif : pas d'`alt`, il reste `aria-hidden`.
-*Vérifié quand* : `LevelMapScreen.test.tsx` (aucun test n'existe) couvre déverrouillé et verrouillé. `WatercolorScene` garde déjà contre un contexte 2D absent (`if (!ctx) return`) — **vérifié**, jsdom ne cassera pas.
+### Phase D — L'habillage aquarelle *(indépendant, parallélisable)*
 
-**T11 · Donner un vrai titre au Niveau 1 · XS**
-`LevelDef.title` vaut « Niveau 1 ». Optionnel, à faire seulement si T9 convainc.
+**T7 · Peindre le tableau du Niveau 1 · M**
+Sujet à arrêter une fois les notions figées — le tableau doit évoquer le niveau. Le moteur ne sait peindre aujourd'hui ni terrain, ni feu, ni végétation : prévoir une à deux primitives neuves dans un `src/components/watercolor/terrain.ts`.
+**Contrainte décisive** : la vignette fera ~240 × 110 px. Le piège n° 1 documenté du moteur est de juger une image à sa résolution interne et de la découvrir illisible à sa taille réelle. Concevoir en **silhouettes larges et contrastées**, pas en scène détaillée réduite.
+*Vérifié quand* : **tu l'as vue à sa taille réelle.** Sans navigateur dans la session, cette tâche est bloquée — un tableau ne se juge pas sans être vu.
+
+**T8 · Intégrer la vignette à la carte des niveaux · S**
+Registre `src/screens/LevelMapScreen/levelArt.ts` : un `Record<string, PaintScene>` indexé par `level.id`, sur le modèle de `GRADE_ART`. **Ne pas mettre le décoratif dans `src/content/`** ni étendre `LevelDef`. La scène doit être une **constante de module** (`WatercolorScene` a `paint` dans ses dépendances d'effet). Niveau verrouillé : tableau voilé sous le cadenas.
+*Vérifié quand* : `LevelMapScreen.test.tsx` (aucun test n'existe) couvre déverrouillé et verrouillé. `WatercolorScene` garde déjà contre un contexte 2D absent — **vérifié**, jsdom ne cassera pas.
 
 ## Vérification de bout en bout
 
@@ -145,27 +118,26 @@ npm run lint       # oxlint
 npm run test       # vitest
 ```
 
-Puis le parcours réel : accueil → carte CP → **Niveau 1 joué en entier** jusqu'au résumé, avec pour chaque mécanique **une bonne réponse et une mauvaise**. Recharger la page, confirmer que la progression tient.
+Puis le parcours réel : accueil → carte CP → **Niveau 1 joué en entier**, avec pour chaque mécanique **une bonne réponse et une mauvaise**. Recharger la page, confirmer que la progression tient.
 
-Enfin, avant de déclarer quoi que ce soit fini : l'agent `verificateur`, puis l'`avocat-du-diable` (chantier structurel : mécanique neuve, types neufs, contenu réécrit).
+Enfin : l'agent `verificateur`, puis l'`avocat-du-diable` (chantier structurel).
 
-**Si le navigateur n'est pas disponible** (session cloud), ne rien inventer : le repli est un test de composant qui rejoue le vrai parcours, et le rendu visuel se classe « non vérifié ». Pour T9 cette limite est bloquante — un tableau ne se juge pas sans être vu.
+**Sans navigateur** (session cloud), ne rien inventer : le repli est un test de composant qui rejoue le vrai parcours, et le rendu visuel se classe « non vérifié ».
 
-## Risques et points de vigilance
+## Risques
 
-**Les fiches des mécaniques en réserve sont perdues.** `plan-jeux.md` et `feuille-de-route.md` annoncent six mécaniques « écrites et documentées » ; il ne subsiste qu'une phrase les nommant, et les deux documents ne listent pas les mêmes six (l'un cite *La Roue de la vie*, l'autre *La Boussole*, décrite nulle part). D'où T1. À corriger dans les deux documents une fois les fiches régénérées.
+**⚠️ La recherche sur le programme officiel est de seconde main.** Le proxy réseau bloque `education.gouv.fr`, `eduscol` et `legifrance` : l'exploration a reconstitué le programme à partir des **résumés de moteur de recherche**, sans jamais ouvrir le Bulletin officiel. C'est solide sur l'architecture générale, fragile sur les formulations. **Avant de figer le contenu, faire rouvrir le BO du 31 octobre 2024 depuis un réseau qui y accède.**
 
-**Le repli silencieux de `selectGameForNotion`.** Un `gameType` épinglé absent des `games` de la notion ne lève aucune erreur : c'est simplement le mauvais jeu qui s'affiche. Lancer `contentIntegrity.test.ts` après chaque modification de `cp-levels.ts`.
+**Plusieurs pièges collectés sont marqués « non revérifiés »** par l'exploration — notamment les listes de genres et de pluriels irréguliers, et les anecdotes sur Louis XIV. Le `redacteur-contenu` doit les vérifier, pas les recopier.
 
-**Bijection 40 notions / 40 créneaux.** Toute notion retirée d'un niveau devient injouable. C'est la raison pour laquelle la frise est réécrite sur place plutôt que remplacée.
+**Le repli silencieux de `selectGameForNotion`** : un `gameType` épinglé absent des `games` de la notion ne lève aucune erreur, c'est simplement le mauvais jeu qui s'affiche. Lancer `contentIntegrity.test.ts` après chaque modification de `cp-levels.ts`.
 
-**Le grain du canvas est le poste de coût dominant**, facturé une fois par tableau. Sans conséquence pour un seul ; à traiter (cache par `level.id`, ou grain optionnel) le jour où on passera aux huit.
+**Bijection 40 notions / 40 créneaux** : toute notion retirée d'un niveau devient injouable tant qu'elle n'est pas replacée.
 
-**La règle des trois couleurs par écran** vaudra pour la carte entière quand huit tableaux y cohabiteront. Le violet ne compte pas (c'est le liant). Arbitrage à prévoir alors, pas maintenant.
+## Hors périmètre, assumé — mais à trancher un jour
 
-## Hors périmètre, assumé
+**`histoire.ts` est un CM1 déguisé.** Huit de ses dix notions relèvent du cycle 3. Si la promesse est « rejouer le programme du CP », ce domaine ne la tient pas. Deux issues : déplacer ces notions vers CM1-CM2 quand ces niveaux existeront, ou assumer que le domaine s'appelle « culture historique » et non « histoire du CP ». **C'est une décision produit, pas technique.**
 
-- Les 40 QCM (bonne réponse toujours en premier bouton, `QcmGame` ne mélange pas) — reporté explicitement.
-- La refonte d'« Association » en tracé au doigt (2.1) et la Roue de la vie (2.2).
-- Les niveaux 2 à 8, leur contenu et leurs tableaux — mais **leur contenu est désormais lui aussi hors cible** (écrit pour des enfants) : la relecture des 40 notions (4.3) devient plus lourde qu'annoncée.
-- Les quatre défauts de contenu relevés hors Niveau 1 (laine parmi les aliments, « La Marianne », résumé des contes).
+**Des piliers du programme du CP sont absents de l'app** : la correspondance graphème-phonème (*la* priorité déclarée du CP), la syllabe, le déterminant (terme que l'adulte n'a jamais appris — il a appris « article »), la relation sujet-verbe, le plan et la vue de dessus, le calendrier et les mois, l'air comme matière, les régimes alimentaires. Matière pour les niveaux 2 à 8.
+
+Également hors périmètre : les 40 QCM (bonne réponse toujours en premier bouton, `QcmGame` ne mélange pas) ; la refonte d'« Association » en tracé au doigt ; la Roue de la vie ; les tableaux des niveaux 2 à 8.
