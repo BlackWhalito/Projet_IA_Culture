@@ -19,6 +19,48 @@ import type { LightPlan } from './light'
  */
 
 /**
+ * Une lune : un disque et son halo, tous deux en dégradé radial natif —
+ * jamais la technique `wash()` (polygone déformé par un bruit fractal),
+ * pensée pour un bord de pigment organique. Un disque de lune veut un bord
+ * lisse et un halo qui s'éteint en douceur tout autour : le même bruit
+ * fractal qui fait un beau rocher irrégulier fait ici un cercle bancal et
+ * un halo en tache, jamais la forme nette qu'une lune demande.
+ */
+export function moon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: string): void {
+  const rgb = hexToRgb(color)
+
+  const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 3)
+  halo.addColorStop(0, `rgba(${rgb}, 0.22)`)
+  halo.addColorStop(0.4, `rgba(${rgb}, 0.09)`)
+  halo.addColorStop(1, `rgba(${rgb}, 0)`)
+  ctx.save()
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(cx, cy, r * 3, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+
+  // Le disque : un dégradé radial resserré plutôt qu'un aplat, pour une
+  // toute petite rondeur de volume — jamais un cercle parfaitement plat,
+  // qui se lirait comme une pastille collée plutôt qu'une sphère.
+  const disque = ctx.createRadialGradient(cx - r * 0.15, cy - r * 0.15, 0, cx, cy, r)
+  disque.addColorStop(0, `rgba(${rgb}, 0.6)`)
+  disque.addColorStop(0.7, `rgba(${rgb}, 0.48)`)
+  disque.addColorStop(1, `rgba(${rgb}, 0.36)`)
+  ctx.save()
+  ctx.fillStyle = disque
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
+function hexToRgb(color: string): string {
+  const n = parseInt(color.slice(1), 16)
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`
+}
+
+/**
  * Un lavis dégradé : la même masse peinte en tranches horizontales dont la
  * couleur et l'opacité glissent progressivement.
  *

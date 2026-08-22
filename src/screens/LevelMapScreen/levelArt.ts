@@ -1,6 +1,7 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, highlight, polygon, wash } from '../../components/watercolor/engine'
-import { cloud, gradedWash } from '../../components/watercolor/atmosphere'
+import type { Point } from '../../components/watercolor/engine'
+import { cloud, gradedWash, moon } from '../../components/watercolor/atmosphere'
 import { childWatchingSea } from '../../components/watercolor/figure'
 import { rocher } from '../../components/watercolor/terrain'
 import type { LightPlan } from '../../components/watercolor/light'
@@ -43,16 +44,19 @@ const LUEUR: LightPlan = {
 /**
  * Le foyer : un lit de braises, trois flammes en deux tons (braise sombre
  * puis ocre par-dessus) et un cœur presque blanc — le seul endroit clair de
- * tout le tableau. Ni encoche ni halo à contenir dans une géométrie de
- * grotte : les essais précédents de ce fichier avaient une bouche de
- * grotte sculptée dans le rocher, dont l'entretien (borner le halo du feu
- * exactement sur l'ouverture, sans jamais déborder sur des tirages
- * aléatoires différents) a coûté plusieurs itérations pour un résultat que
- * le propriétaire a jugé peu harmonieux — un rocher qui referme la scène
- * en silhouette, sans essayer de creuser une vraie caverne, s'est révélé
- * à la fois plus simple et plus joli.
+ * tout le tableau. `flameCap` borne la hauteur des flammes (voir l'appelant,
+ * `veilleDuFeuScene`) : ce feu brûle à l'entrée d'une grotte peinte par
+ * `boucheDeGrotte()`, ses flammes ne doivent jamais dépasser la profondeur
+ * de l'arche au-dessus de lui.
  */
-function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon: number, rng: () => number): void {
+function foyer(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cyBase: number,
+  rayon: number,
+  flameCap: number,
+  rng: () => number,
+): void {
   // La lueur ambiante au sol, tout autour du foyer : sans elle, le feu
   // n'est qu'une petite forme isolée sur un fond nu, sans rien qui dise
   // « il éclaire ce qui l'entoure ».
@@ -73,10 +77,14 @@ function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon:
     jitter: 0.14,
   })
 
+  // Les hauteurs de flamme sont plafonnées par `flameCap`, pas par une
+  // proportion fixe de `rayon` : quand le feu brûle à l'entrée d'une
+  // grotte, ses flammes ne doivent jamais dépasser la profondeur de
+  // l'arche au-dessus de lui, sous peine de paraître traverser la roche.
   for (const [dx, flameH, flameW] of [
-    [-rayon * 0.26, rayon * 1.4, rayon * 0.36],
-    [rayon * 0.02, rayon * 1.8, rayon * 0.42],
-    [rayon * 0.32, rayon * 1.2, rayon * 0.3],
+    [-rayon * 0.26, flameCap * 0.78, rayon * 0.36],
+    [rayon * 0.02, flameCap, rayon * 0.42],
+    [rayon * 0.32, flameCap * 0.67, rayon * 0.3],
   ] as const) {
     const baseX = cx + dx
     dryStroke(
@@ -118,11 +126,69 @@ function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon:
 }
 
 /**
+ * La bouche de la grotte : une arche sombre peinte SUR la face du rocher,
+ * jamais une encoche creusée dans son propre contour comme les tentatives
+ * précédentes de ce fichier. Cette différence est ce qui a réglé leurs
+ * bugs : une encoche dans le contour dépend de la silhouette aléatoire de
+ * `rocher()` (ses pics tombent parfois plus bas que prévu, débordement déjà
+ * vu deux fois) ; une arche peinte par-dessus, une fois la face du rocher
+ * posée, n'a besoin que de rester nettement à l'intérieur de sa masse —
+ * bien plus facile à garantir qu'un alignement pixel près sur un tirage
+ * aléatoire.
+ *
+ * Deux passes donnent la profondeur demandée (« qu'on voie bien le fond ») :
+ * un fond presque noir sur toute l'arche, puis un second passage plus petit
+ * et plus sombre encore tout au fond (en haut de l'arche) — l'ouverture
+ * reste la plus claire, la profondeur la plus sombre, comme un regard qui
+ * porte de moins en moins loin dans le noir.
+ */
+function boucheDeGrotte(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cyBase: number,
+  width: number,
+  height: number,
+  rng: () => number,
+): void {
+  const halfW = width / 2
+  const naissance = cyBase - height * 0.22
+  const gorge = cyBase - height
+
+  const arche: Point[] = [
+    [cx - halfW, cyBase],
+    [cx - halfW, naissance],
+    [cx - halfW * 0.5, gorge + height * 0.08],
+    [cx, gorge],
+    [cx + halfW * 0.5, gorge + height * 0.08],
+    [cx + halfW, naissance],
+    [cx + halfW, cyBase],
+  ]
+
+  wash(ctx, arche, rng, {
+    color: ENCRE_SOMBRE,
+    layers: 30,
+    alpha: 0.78 / 30,
+    spread: 0.06,
+    jitter: 0.05,
+  })
+  // Le fond de la grotte : une masse plus petite, tout en haut de l'arche,
+  // encore plus sombre — c'est ce dégradé de profondeur, clair à l'entrée
+  // et noir au fond, qui donne à l'ouverture un vrai intérieur plutôt
+  // qu'un aplat uniforme.
+  wash(
+    ctx,
+    polygon(cx, gorge + height * 0.18, halfW * 0.55, height * 0.22, 8, 0, rng),
+    rng,
+    { color: ENCRE_SOMBRE, layers: 20, alpha: 0.5 / 20, spread: 0.1, jitter: 0.08 },
+  )
+}
+
+/**
  * « La veille du feu » — le temps fort du Niveau 1 (la Préhistoire, tenir
- * un feu) : un rocher en silhouette contre un ciel nocturne, un feu à son
- * pied, une silhouette qui le veille. Choisi pour rester lisible à très
- * petite taille : une masse sombre percée d'un point chaud survit à la
- * réduction là où un détail fin ne survivrait pas.
+ * un feu) : un rocher en silhouette contre un ciel nocturne, une grotte à
+ * son pied où brûle un feu, une silhouette qui le veille. Choisi pour
+ * rester lisible à très petite taille : une masse sombre percée d'un point
+ * chaud survit à la réduction là où un détail fin ne survivrait pas.
  */
 function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, rng: () => number): void {
   const horizon = h * 0.56
@@ -138,30 +204,13 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
     { at: 1, color: SABLE, alpha: 0.12 },
   ])
 
-  // La lune : un halo doux et irrégulier (le voile de brume autour), puis
-  // un disque beaucoup plus net et rond par-dessus — même principe que le
-  // cœur du feu plus bas, un clair franc plutôt qu'un dégradé mou. Les deux
-  // dans la même teinte quasi blanche (une seule source de lumière dans le
-  // ciel, pas deux tons qui se contredisent) : le halo en `VIOLET_BRUME`
-  // d'un premier essai restait un voile grisâtre sans lien visible avec le
-  // disque blanc posé dessus, deux objets plutôt qu'une lune et sa brume.
-  wash(ctx, polygon(w * 0.2, h * 0.19, w * 0.12, w * 0.12, 10, 0, rng), rng, {
-    color: PRESQUE_BLANC,
-    layers: 16,
-    alpha: 0.13 / 16,
-    spread: 0.22,
-    jitter: 0.16,
-  })
-  // Le disque : spread/jitter nettement réduits par rapport au halo — une
-  // lune reste un cercle propre, pas une tache floue comme le halo qui
-  // l'entoure.
-  wash(ctx, polygon(w * 0.2, h * 0.19, w * 0.038, w * 0.038, 12, 0, rng), rng, {
-    color: PRESQUE_BLANC,
-    layers: 14,
-    alpha: 0.32 / 14,
-    spread: 0.04,
-    jitter: 0.04,
-  })
+  // La lune : `moon()` (`components/watercolor/atmosphere.ts`), un dégradé
+  // radial natif plutôt que la technique `wash()` du reste du moteur — un
+  // disque et son halo veulent un bord lisse, jamais le bruit fractal pensé
+  // pour un contour de pigment organique (rocher, nuage, feu). Deux essais
+  // en `wash()` avaient donné soit un halo et un disque de deux teintes qui
+  // ne se répondaient pas, soit un disque toujours un peu bancal.
+  moon(ctx, w * 0.2, h * 0.19, w * 0.05, PRESQUE_BLANC)
 
   // Un nuage nocturne fin, teinté violet plutôt que blanc — la même
   // fonction que les tableaux de l'accueil, mais accordée à la nuit :
@@ -208,32 +257,42 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
     { at: 1, color: ENCRE_SOMBRE, alpha: 0.72 },
   ])
 
-  const foyerX = w * 0.32
-  const foyerRayon = h * 0.16
-  foyer(ctx, foyerX, cyBase, foyerRayon, rng)
-
-  const figureX = foyerX + foyerRayon * 1.9
-
-  // Le rocher : à l'échelle d'un vrai rocher contre lequel on s'adosse,
-  // pas d'une falaise qui occupe la moitié du tableau — un premier essai,
-  // bien plus grand, ne se laissait lire ni comme un rocher ni comme une
-  // montagne, sans rôle clair dans la scène. Posé juste derrière et contre
-  // la silhouette (son bord gauche touche presque `figureX`) : c'est ce
-  // contact, pas sa seule présence dans le cadre, qui dit « elle est
-  // assise contre lui », le rocher qui abrite le feu du vent plutôt qu'un
-  // paysage sans rapport avec la scène.
-  const rockWidth = w * 0.3
-  rocher(ctx, figureX + rockWidth * 0.42, cyBase, rockWidth, h * 0.34, rng, LUEUR, {
+  // Le rocher : assez large pour porter une vraie grotte sur sa face, sans
+  // pour autant occuper le tableau entier — le compromis trouvé après deux
+  // essais ratés (une falaise qui occupait la moitié du cadre sans rôle
+  // clair ; un rocher réduit à l'échelle d'un dossier, trop petit pour
+  // qu'une grotte s'y lise).
+  const rockCx = w * 0.5
+  const rockWidth = w * 0.46
+  const rockHeight = h * 0.48
+  rocher(ctx, rockCx, cyBase, rockWidth, rockHeight, rng, LUEUR, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
     accent: ENCRE_SOMBRE,
   })
 
-  // La silhouette, assise entre le feu et le rocher, tout contre les deux
-  // — assez près pour appartenir clairement à cette scène plutôt qu'à un
-  // décor qui l'entoure sans lien. `childWatchingSea` réutilisée telle
-  // quelle : sa posture (genoux repliés, vue de dos) dit déjà « quelqu'un
-  // qui regarde », peu importe ce qui est regardé.
+  // La bouche de la grotte : centrée sur le rocher, et nettement plus
+  // petite que lui dans les deux dimensions (voir `boucheDeGrotte()`) —
+  // c'est cette marge qui garantit qu'elle reste À L'INTÉRIEUR de la
+  // silhouette du rocher quel que soit son tirage aléatoire, jamais collée
+  // à son sommet ou à ses bords comme les tentatives précédentes.
+  const archWidth = rockWidth * 0.34
+  const archHeight = rockHeight * 0.34
+  boucheDeGrotte(ctx, rockCx, cyBase, archWidth, archHeight, rng)
+
+  // Le feu, à l'entrée même de la grotte : c'est lui, avec la silhouette,
+  // qui fait reconnaître la scène comme un feu tenu dans un abri plutôt
+  // qu'un rocher quelconque et un feu de camp sans lien entre eux.
+  // Plafond de flamme : nettement sous `archHeight`, jamais égal à elle —
+  // la flamme la plus haute doit rester visiblement à l'intérieur de
+  // l'arche, pas juste effleurer son fond.
+  const foyerRayon = h * 0.13
+  foyer(ctx, rockCx, cyBase, foyerRayon, archHeight * 0.72, rng)
+
+  // La silhouette, assise juste à côté du feu, à l'entrée de la grotte —
+  // assez près pour appartenir clairement à cette scène. `childWatchingSea`
+  // réutilisée telle quelle : sa posture (genoux repliés, vue de dos) dit
+  // déjà « quelqu'un qui regarde », peu importe ce qui est regardé.
   //
   // Éclairée par le feu (peau et vêtement chauds), pas une silhouette tout
   // en noir : à cette échelle, une figure entièrement sombre sur un rocher
@@ -241,7 +300,7 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
   // rocher, lui, reste dans sa propre famille violette (`VIOLET_PROFOND`/
   // `ENCRE_SOMBRE`) : c'est l'écart de teinte ET de valeur entre les deux
   // qui les sépare, pas un simple contour.
-  childWatchingSea(ctx, figureX, cyBase, h * 0.22, rng, LUEUR, {
+  childWatchingSea(ctx, rockCx + foyerRayon * 2, cyBase, h * 0.22, rng, LUEUR, {
     skin: PIERRE_CHAUDE,
     hair: ENCRE_SOMBRE,
     clothes: OCRE,
