@@ -7,11 +7,10 @@ export const CP_LEVELS: LevelDef[] = [
     order: 1,
     title: 'Niveau 1',
     notionIds: [
-      { notionId: 'cp-histoire-prehistoire', gameType: 'qcm' },
-      { notionId: 'cp-geographie-france-paris', gameType: 'capsur' },
-      { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
-      { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
-      { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
+      { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
+      { notionId: 'cp-sciences-etats-eau', gameType: 'match' },
+      { notionId: 'cp-geographie-points-cardinaux', gameType: 'capsur' },
+      { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
     ],
   },
   {
@@ -21,8 +20,8 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 2',
     notionIds: [
       { notionId: 'cp-geographie-oceans-mers', gameType: 'qcm' },
-      { notionId: 'cp-sciences-etats-eau', gameType: 'riviere' },
-      { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
+      { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
+      { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
       { notionId: 'cp-histoire-chateaux-chevaliers', gameType: 'qcm' },
       { notionId: 'cp-geographie-paysages', gameType: 'riviere' },
     ],
@@ -47,7 +46,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 4',
     notionIds: [
       { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
-      { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
+      { notionId: 'cp-geographie-france-paris', gameType: 'capsur' },
       { notionId: 'cp-geographie-ile', gameType: 'qcm' },
       { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
       { notionId: 'cp-francais-majuscule-point', gameType: 'qcm' },
@@ -72,7 +71,7 @@ export const CP_LEVELS: LevelDef[] = [
     order: 6,
     title: 'Niveau 6',
     notionIds: [
-      { notionId: 'cp-geographie-points-cardinaux', gameType: 'qcm' },
+      { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
       { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
       { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
       { notionId: 'cp-histoire-christophe-colomb', gameType: 'fildesjours' },
