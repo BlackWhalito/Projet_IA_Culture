@@ -56,8 +56,9 @@ export const CP_SCIENCES: Notion[] = [
     domainId: 'sciences',
     difficulty: 1,
     title: "Les 3 états de l'eau",
-    summary: "L'eau peut être solide, liquide ou gazeuse.",
-    funFact: "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée (de minuscules gouttes d'eau).",
+    summary: "L'eau peut être solide, liquide ou gazeuse — et chaque passage d'un état à l'autre porte un nom savant précis, pas seulement « ça fond » ou « ça s'évapore ».",
+    funFact:
+      "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée, c'est-à-dire de l'eau redevenue liquide — la liquéfaction. Ce mot est justement celui qu'on confond avec « condensation », que les scientifiques réservent au passage direct du gaz au solide, l'inverse exact de la sublimation : c'est elle qui sèche le linge étendu dehors par grand froid, la glace des fibres se changeant directement en vapeur sans jamais redevenir liquide.",
     games: {
       riviere: {
         paniers: [
@@ -75,6 +76,15 @@ export const CP_SCIENCES: Notion[] = [
         vitesseInitialeSec: 4,
         accelerationParPalier: 0.15,
         objectif: 5,
+      },
+      match: {
+        pairs: [
+          { left: 'Glace → eau liquide', right: 'Fusion' },
+          { left: 'Eau liquide → glace', right: 'Solidification' },
+          { left: 'Eau liquide → vapeur', right: 'Vaporisation' },
+          { left: 'Vapeur → eau liquide', right: 'Liquéfaction' },
+          { left: 'Glace → vapeur (directement)', right: 'Sublimation' },
+        ],
       },
       qcm: {
         question: "Comment s'appelle l'eau à l'état solide ?",

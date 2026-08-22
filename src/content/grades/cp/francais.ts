@@ -86,8 +86,9 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 1,
     title: 'Masculin et féminin',
-    summary: 'En français, chaque nom est soit masculin (un/le), soit féminin (une/la).',
-    funFact: "Certains mots changent complètement de sens selon leur genre : « un livre » (à lire) et « une livre » (un poids ou une monnaie) !",
+    summary: "Le genre d'un nom ne se devine pas à l'oreille : plusieurs mots très courants trompent régulièrement les adultes les plus sûrs d'eux.",
+    funFact:
+      "Trois mots narguent la règle qu'on croit connaître : « amour », « délice » et « orgue » sont masculins au singulier, mais basculent au féminin dès qu'on les emploie au pluriel dans leur sens le plus noble — on dit « un grand amour », mais « de folles amours », et « les grandes orgues » de Notre-Dame.",
     games: {
       riviere: {
         paniers: [
@@ -95,20 +96,23 @@ export const CP_FRANCAIS: Notion[] = [
           { id: 'feminin', label: 'Féminin' },
         ],
         flottants: [
-          { label: 'Un chat', panierId: 'masculin' },
-          { label: 'Une chaise', panierId: 'feminin' },
-          { label: 'Un livre', panierId: 'masculin' },
-          { label: 'Une pomme', panierId: 'feminin' },
-          { label: 'Un stylo', panierId: 'masculin' },
-          { label: 'Une fleur', panierId: 'feminin' },
+          { label: 'Oasis', panierId: 'feminin' },
+          { label: 'Pétale', panierId: 'masculin' },
+          { label: 'Apogée', panierId: 'masculin' },
+          { label: 'Échappatoire', panierId: 'feminin' },
+          { label: 'Tentacule', panierId: 'masculin' },
+          { label: 'Astérisque', panierId: 'masculin' },
+          { label: 'Ecchymose', panierId: 'feminin' },
+          { label: 'Omoplate', panierId: 'feminin' },
+          { label: 'Anagramme', panierId: 'feminin' },
         ],
         vitesseInitialeSec: 4,
         accelerationParPalier: 0.15,
-        objectif: 6,
+        objectif: 9,
       },
       qcm: {
         question: 'Lequel de ces mots est féminin ?',
-        choices: ['Une pomme', 'Un chat', 'Un stylo'],
+        choices: ['Omoplate', 'Tentacule', 'Astérisque'],
         correctIndex: 0,
       },
     },

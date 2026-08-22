@@ -60,12 +60,25 @@ export const CP_GEOGRAPHIE: Notion[] = [
     domainId: 'geographie',
     difficulty: 2,
     title: 'Les points cardinaux',
-    summary: 'Nord, Sud, Est, Ouest permettent de se repérer sur une carte.',
-    funFact: 'Le Soleil se lève à l\'Est et se couche à l\'Ouest.',
+    summary:
+      "Nord, Sud, Est, Ouest permettent de se repérer — mais le Soleil ne se lève exactement à l'Est que deux jours par an, et une boussole ne pointe pas vers le pôle qu'on croit.",
+    funFact:
+      "« Le Soleil se lève à l'Est » n'est vrai que deux jours par an, aux équinoxes de printemps et d'automne. Le reste de l'année, dans l'hémisphère nord, il se lève au nord-est en été et au sud-est en hiver — et c'est l'inverse dans l'hémisphère sud.",
     games: {
+      capsur: {
+        carteId: 'france',
+        cibles: ['lille', 'marseille', 'rennes', 'strasbourg'],
+        clues: {
+          lille: 'La ville la plus au nord',
+          marseille: 'La ville la plus au sud',
+          rennes: 'La ville la plus à l\'ouest',
+          strasbourg: 'La ville la plus à l\'est',
+        },
+        secondesParCible: 6,
+      },
       qcm: {
-        question: 'De quel côté le Soleil se lève-t-il ?',
-        choices: ["L'Est", "L'Ouest", 'Le Sud'],
+        question: "Vers quel pôle pointe l'aiguille d'une boussole ?",
+        choices: ['Le pôle Nord magnétique', 'Le pôle Nord géographique', "L'étoile Polaire"],
         correctIndex: 0,
       },
     },
