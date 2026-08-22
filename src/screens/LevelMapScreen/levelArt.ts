@@ -1,5 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import { glint, gradedWash, houle, moon, reflection, ripples } from '../../components/watercolor/atmosphere'
 import { childWatchingSea } from '../../components/watercolor/figure'
@@ -32,6 +32,7 @@ const VIOLET_NUIT = '#3d2f52'
 const ENCRE_SOMBRE = '#241d2b'
 const OCRE = '#c1663f'
 const SABLE = '#d9a35f'
+const BRAISE = '#8a3220'
 const PIERRE_CHAUDE = '#d8bd96'
 const PRESQUE_BLANC = '#f3e6cf'
 
@@ -56,16 +57,23 @@ const LUEUR: LightPlan = {
  * plan et casserait l'échelle de toute la scène.
  */
 function grotteLointaine(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rng: () => number): Point {
-  const rockWidth = 34
-  const rockHeight = 15
+  // Agrandie par rapport au premier essai (34×15 → 50×23) : le propriétaire
+  // l'a jugée trop petite pour qu'une entrée s'y lise. Reste nettement plus
+  // petite que le rocher du premier plan (voir son appelant) — c'est cet
+  // écart, pas la taille absolue, qui doit dire « loin ».
+  const rockWidth = 50
+  const rockHeight = 23
   const top = rocher(ctx, cx, cyBase, rockWidth, rockHeight, rng, LUEUR, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
     accent: ENCRE_SOMBRE,
   })
 
-  const archWidth = rockWidth * 0.3
-  const archHeight = rockHeight * 0.85
+  // L'entrée elle-même, agrandie dans les mêmes proportions (0.3 → 0.4 de
+  // la largeur du rocher) pour rester une vraie ouverture visible, pas
+  // seulement un point sombre.
+  const archWidth = rockWidth * 0.4
+  const archHeight = rockHeight * 0.88
   const halfW = archWidth / 2
   const naissance = cyBase - archHeight * 0.2
   const gorge = cyBase - archHeight
@@ -109,13 +117,83 @@ function grotteLointaine(ctx: CanvasRenderingContext2D, cx: number, cyBase: numb
 }
 
 /**
+ * Le feu du premier plan, à côté de la silhouette : celui qui porte
+ * vraiment la Préhistoire dans le tableau (la grotte au loin ne fait que
+ * la situer). Un lit de braises, trois flammes en deux tons — braise
+ * sombre en corps, ocre par-dessus pour la langue intérieure — et un
+ * cœur presque blanc, le seul vrai clair de toute la scène.
+ */
+function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon: number, rng: () => number): void {
+  // La lueur ambiante au sol, tout autour du foyer : sans elle, le feu
+  // n'est qu'une petite forme isolée, sans rien qui dise « il éclaire ce
+  // qui l'entoure ».
+  wash(ctx, polygon(cx, cyBase - rayon * 0.3, rayon * 1.7, rayon * 1.15, 10, 0, rng), rng, {
+    color: OCRE,
+    layers: 18,
+    alpha: 0.24 / 18,
+    spread: 0.2,
+    jitter: 0.16,
+  })
+
+  // Le lit de braises, tassé au sol — pas un cercle, une masse basse.
+  wash(ctx, polygon(cx, cyBase - rayon * 0.1, rayon * 0.9, rayon * 0.42, 9, 0, rng), rng, {
+    color: BRAISE,
+    layers: 16,
+    alpha: 0.5 / 16,
+    spread: 0.16,
+    jitter: 0.14,
+  })
+
+  for (const [dx, flameH, flameW] of [
+    [-rayon * 0.28, rayon * 1.5, rayon * 0.4],
+    [rayon * 0.02, rayon * 1.95, rayon * 0.46],
+    [rayon * 0.34, rayon * 1.3, rayon * 0.34],
+  ] as const) {
+    const baseX = cx + dx
+    dryStroke(
+      ctx,
+      [
+        [baseX - flameW / 2, cyBase],
+        [baseX + (rng() - 0.5) * flameW * 0.6, cyBase - flameH * 0.55],
+        [baseX, cyBase - flameH],
+        [baseX + flameW / 2, cyBase],
+      ],
+      flameW,
+      rng,
+      { color: BRAISE, alpha: 0.64, layers: 3, jitter: 0.09 },
+    )
+    // La langue intérieure, plus haute en ton et plus courte : c'est ce
+    // second passage, pas la teinte de fond, qui fait « flamme » plutôt
+    // qu'une simple tache triangulaire sombre.
+    dryStroke(
+      ctx,
+      [
+        [baseX - flameW * 0.22, cyBase],
+        [baseX, cyBase - flameH * 0.68],
+        [baseX + flameW * 0.22, cyBase],
+      ],
+      flameW * 0.5,
+      rng,
+      { color: OCRE, alpha: 0.58, layers: 2, jitter: 0.08 },
+    )
+  }
+
+  // Le cœur du feu : un blanc réservé net, à la base des flammes — le seul
+  // vrai clair de la scène, celui qui rend tout le reste sombre par
+  // contraste.
+  highlight(ctx, polygon(cx, cyBase - rayon * 0.14, rayon * 0.24, rayon * 0.28, 7, 0, rng), rng, {
+    color: PRESQUE_BLANC,
+    alpha: 0.055,
+  })
+}
+
+/**
  * « La veille du feu » — le temps fort du Niveau 1 (la Préhistoire, tenir
- * un feu). Retravaillée en nocturne au bord de l'eau, sur le modèle des
- * deux tableaux de l'accueil (`HomeScreen/scenes.ts`) : une silhouette au
- * premier plan qui regarde vers un point de lumière lointain, de l'autre
- * côté d'une étendue d'eau calme. La grotte et sa lueur portent la Préhis-
- * toire ; l'eau et la nuit portent l'atmosphère contemplative du reste du
- * jeu.
+ * un feu). Nocturne au bord de l'eau, sur le modèle des deux tableaux de
+ * l'accueil (`HomeScreen/scenes.ts`) : une silhouette au premier plan, un
+ * feu à ses côtés, qui regarde vers une grotte lointaine de l'autre côté
+ * d'une étendue d'eau calme. Le feu porte la Préhistoire au premier plan,
+ * bien présent ; la grotte au loin la situe sans jamais rivaliser avec lui.
  */
 function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, rng: () => number): void {
   const horizon = h * 0.4
@@ -131,10 +209,12 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
     { at: 1, color: VIOLET_BRUME, alpha: 0.05 },
   ])
 
-  // La lune, haute et froide, à l'opposé de la grotte — sa lumière reste
-  // secondaire, seule la lueur chaude au loin doit accrocher l'œil en
-  // premier.
-  moon(ctx, w * 0.78, h * 0.14, w * 0.026, PRESQUE_BLANC)
+  // La lune : bien plus grande et plus haute que le premier essai (rayon
+  // ×3), qui la rendait presque invisible à la taille d'affichage réelle
+  // de la vignette. Placée à l'écart du rocher du premier plan ET de la
+  // grotte lointaine (ni l'un ni l'autre ne doit la recouvrir), pour
+  // qu'elle s'impose vraiment dans le ciel plutôt que de s'y perdre.
+  moon(ctx, w * 0.58, h * 0.15, w * 0.08, PRESQUE_BLANC)
 
   // Quelques étoiles, à peine posées.
   for (const [fx, fy, a] of [
@@ -182,23 +262,38 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
   })
   stroke(ctx, houle(h * 0.58, 2.5, w * 0.8, rng), 1.6, rng, { color: VIOLET_BRUME, alpha: 0.05, layers: 8 })
 
-  // Le rocher du premier plan et la silhouette : le même principe que le
-  // rocher de la lagune de l'accueil (`rocher()`, déjà jugé beau en
-  // production), une masse nettement plus grande et plus sombre que la
-  // grotte lointaine — c'est cet écart d'échelle et de contraste, pas
-  // seulement leur position, qui sépare le tout près du tout loin.
-  const rockTop = rocher(ctx, w * 0.78, h * 1.02, w * 0.42, h * 0.28, rng, LUEUR, {
+  // Le rocher du premier plan : même principe que le rocher de la lagune
+  // de l'accueil (`rocher()`, déjà jugé beau en production), une masse
+  // nettement plus grande et plus sombre que la grotte lointaine — c'est
+  // cet écart d'échelle et de contraste, pas seulement leur position, qui
+  // sépare le tout près du tout loin.
+  const rockCx = w * 0.86
+  const rockWidth = w * 0.32
+  rocher(ctx, rockCx, h * 1.02, rockWidth, h * 0.3, rng, LUEUR, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
     accent: ENCRE_SOMBRE,
   })
 
-  // La silhouette, assise sur le rocher, tournée vers l'horizon et la
-  // lueur lointaine — `childWatchingSea` telle quelle : sa posture (genoux
-  // repliés, vue de dos) porte à elle seule « quelqu'un qui regarde au
-  // loin », le motif au cœur de la demande. Peau et vêtement chauds pour
-  // se détacher nettement du rocher, comme sur la lagune.
-  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.01, h * 0.2, rng, LUEUR, {
+  // Le feu, au sol devant le rocher plutôt que dans le lointain : c'est
+  // lui qui porte vraiment la Préhistoire au premier plan, bien présent —
+  // la lueur de la grotte au loin restait trop discrète pour incarner
+  // « tenir un feu » à elle seule.
+  const foyerX = rockCx - rockWidth * 0.62
+  const cyBase = h * 1.02
+  foyer(ctx, foyerX, cyBase, h * 0.16, rng)
+
+  // La silhouette, assise au sol tout contre le feu, le rocher juste
+  // derrière elle — au sol plutôt que perchée en haut du rocher : sa tête
+  // et celle du feu doivent rester à la même hauteur pour se lire comme
+  // « assise à côté », pas comme deux éléments à des étages différents.
+  // `childWatchingSea` telle quelle : sa posture (genoux repliés, vue de
+  // dos) porte à elle seule « quelqu'un qui regarde au loin ». Peau et
+  // vêtement chauds pour se détacher nettement du rocher, comme sur la
+  // lagune. Échelle relevée (0.2h → 0.24h) : à la taille d'affichage
+  // réelle de la vignette, elle se perdait complètement contre la masse
+  // du rocher.
+  childWatchingSea(ctx, foyerX + h * 0.19, cyBase, h * 0.24, rng, LUEUR, {
     skin: PIERRE_CHAUDE,
     hair: ENCRE_SOMBRE,
     clothes: OCRE,
