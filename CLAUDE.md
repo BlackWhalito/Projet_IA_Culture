@@ -54,6 +54,7 @@ Direction artistique **aquarelle** au CP (skill `aquarelle`) ; arcade rétro pr�
 ## Où trouver le reste
 
 - [docs/feuille-de-route.md](docs/feuille-de-route.md) — toutes les tâches restantes, découpées et expliquées
+- [docs/niveau-1.md](docs/niveau-1.md) — la refonte du Niveau 1 en cours : notions, jeux, tableau
 - [docs/plan-jeux.md](docs/plan-jeux.md) — diagnostic et spécifications des mécaniques
 - Skills : `apex`, `orchestration`, `aquarelle`, `pieges-du-projet`, `nouvelle-mecanique`, `nouvelle-notion`, `audit-des-skills`
 - Agents : `verificateur`, `avocat-du-diable`, `auditeur-securite`, `game-designer`, `redacteur-contenu`
