@@ -359,6 +359,45 @@ export function ripples(
 }
 
 /**
+ * Un éclat de lumière réservée sur l'eau : un trait fin et allongé, jamais
+ * une nappe. `highlight()`/`wash()` déforme toujours une forme aussi plate
+ * (un ratio largeur/hauteur élevé) vers un disque, quels que soient les
+ * réglages de `spread`/`jitter` — le contour fermé finit par s'arrondir.
+ * `dryStroke`, fait pour les traits, garde le fil de lumière.
+ */
+export function glint(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  length: number,
+  thickness: number,
+  rng: () => number,
+  alpha: number,
+  color: string,
+): void {
+  dryStroke(
+    ctx,
+    [
+      [cx - length / 2, cy],
+      [cx, cy + (rng() - 0.5) * thickness],
+      [cx + length / 2, cy],
+    ],
+    thickness,
+    rng,
+    { color, alpha, layers: 2, jitter: 0.05 },
+  )
+}
+
+/** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
+export function houle(y: number, amplitude: number, w: number, rng: () => number): Point[] {
+  const points: Point[] = []
+  for (let i = 0; i <= 12; i += 1) {
+    points.push([(i / 12) * w, y + Math.sin(i * 1.3 + amplitude) * amplitude + (rng() - 0.5) * amplitude * 0.6])
+  }
+  return points
+}
+
+/**
  * Les reflets verticaux sous un objet posé sur l'eau.
  *
  * Un reflet n'est pas une copie délavée : c'est la couleur de l'objet

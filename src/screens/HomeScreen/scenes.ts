@@ -1,6 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
-import type { Point } from '../../components/watercolor/engine'
 import {
   arcade,
   column,
@@ -10,7 +9,7 @@ import {
   pediment,
   ruinFacade,
 } from '../../components/watercolor/architecture'
-import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
+import { cloud, glint, gradedWash, houle, reflection, ripples } from '../../components/watercolor/atmosphere'
 import { adultReading, childWatchingSea, girlWriting } from '../../components/watercolor/figure'
 import type { LightPlan } from '../../components/watercolor/light'
 import { rocher } from '../../components/watercolor/terrain'
@@ -47,38 +46,6 @@ const LUMIERE: LightPlan = {
   warm: SABLE,
   cool: VIOLET_PROFOND,
   accent: ENCRE_SOMBRE,
-}
-
-/**
- * Un éclat de lumière réservée sur l'eau : un trait fin et allongé, jamais
- * une nappe. `highlight()`/`wash()` déforme toujours une forme aussi plate
- * (un ratio largeur/hauteur élevé) vers un disque, quels que soient les
- * réglages de `spread`/`jitter` — le contour fermé finit par s'arrondir.
- * `dryStroke`, fait pour les traits, garde le fil de lumière.
- */
-function glint(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  length: number,
-  thickness: number,
-  rng: () => number,
-  alpha: number,
-): void {
-  dryStroke(ctx, [
-    [cx - length / 2, cy],
-    [cx, cy + (rng() - 0.5) * thickness],
-    [cx + length / 2, cy],
-  ], thickness, rng, { color: PAPIER, alpha, layers: 2, jitter: 0.05 })
-}
-
-/** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
-function houle(y: number, amplitude: number, w: number, rng: () => number): Point[] {
-  const points: Point[] = []
-  for (let i = 0; i <= 12; i += 1) {
-    points.push([(i / 12) * w, y + Math.sin(i * 1.3 + amplitude) * amplitude + (rng() - 0.5) * amplitude * 0.6])
-  }
-  return points
 }
 
 /**
@@ -227,8 +194,8 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
 
   // Éclats de lumière réservée sur les crêtes.
   stroke(ctx, houle(h * 0.55, 4, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.045, layers: 10 })
-  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
+  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5, PAPIER)
+  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45, PAPIER)
 
   // Une profondeur qui referme le bas du tableau.
   wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.9, h * 0.14, 11, 0, rng), rng, {
@@ -501,8 +468,8 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   stroke(ctx, houle(h * 0.72, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
   // Deux éclats de lumière francs sur l'eau — le papier qui perce net,
   // pas seulement un voile pâle.
-  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45)
+  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5, PAPIER)
+  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45, PAPIER)
 
   // La barque : petite, décalée, avec sa voile et son sillage.
   const bx = w * 0.32
@@ -534,8 +501,8 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   // `glint()`. Une couleur saturée (essayé ici avec `BLEU_CLAIR`) se lisait
   // comme une tache posée sur l'eau, pas comme un reflet ; une forme ronde
   // (essayé ensuite avec `highlight()`) se lisait comme un galet flottant.
-  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4)
-  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35)
+  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4, PAPIER)
+  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35, PAPIER)
 
   // Un dernier voile vert-de-gris sur l'eau basse, pour le côté submergé.
   wash(ctx, polygon(w * 0.5, h * 0.9, w * 0.7, h * 0.1, 10, 0, rng), rng, {
