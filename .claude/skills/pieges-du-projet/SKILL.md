@@ -62,7 +62,7 @@ Il était vrai que le registre était chargé une fois pour toutes au démarrage
 
 Non vérifié à cette date : le cas d'une **skill** fraîchement écrite. Jusqu'à preuve du contraire, en appliquer le contenu à la main plutôt que de compter sur son invocation.
 
-## Piloter le navigateur : les cinq pièges
+## Piloter le navigateur : les six pièges
 
 **Les `ref_N` deviennent obsolètes dès que le DOM change.** Après un clic qui fait avancer le jeu, les références lues précédemment pointent dans le vide (`ref is stale`). Refais un `read_page` après chaque changement d'écran plutôt que de réutiliser une liste de refs.
 
@@ -74,7 +74,9 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Un clic réel via `computer` peut silencieusement ne rien déclencher**, sans erreur, sans lien mort, avec une cible confirmée correcte par `elementFromPoint`. Constaté sur des cartes de `MatchGame` : le même bouton, au même endroit, marchait une fois sur deux. Avant de conclure à un bug applicatif, revérifie l'état après coup (`get_page_text` ou une lecture de classe séparée) — si rien n'a bougé, retente une fois. Si ça persiste, un `element.click()` en JS confirme si le gestionnaire lui-même fonctionne.
 
-**Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
+**Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`. Constaté à nouveau le 22 août 2026 avec un script Playwright autonome (voir plus bas) sur `RiviereGame` : un clic sur le mot puis sur le panier, sans attendre entre les deux que l'état ait réellement changé, rate silencieusement une capture sur plusieurs — même symptôme, outil différent. Le contournement qui marche : après le second clic, `page.waitForFunction` sur le changement du compteur affiché, avant de lire le mot suivant.
+
+**Un élément qui anime en continu (la Rivière) fait planter l'attente de stabilité par défaut d'un clic automatisé, avec un symptôme trompeur.** `RiviereGame` fait tomber le mot en jeu via une animation CSS continue tant qu'il n'est pas attrapé. Un `.click()` Playwright standard attend que sa cible cesse de bouger avant de cliquer (« actionability : stable ») — un mot qui ne s'arrête jamais viole cette attente, le clic se bloque en interne, et pendant ce temps le vrai minuteur de chute (indépendant du clic) peut expirer plusieurs fois de suite en arrière-plan. Symptôme observé : un unique clic sur le mot semblait faire sauter toute la manche directement à la mécanique suivante — en réalité, trois mots avaient expiré tout seuls (`RATES_MAX`) pendant que Playwright attendait patiemment un mot immobile. **Contournement** : cliquer avec `{ force: true }` (`element.click({force:true})` ou l'équivalent Playwright), qui saute cette attente de stabilité et clique là où l'élément se trouve réellement à l'instant présent — exactement ce qu'on veut sur une cible mouvante. Le même raisonnement vaut pour toute mécanique à chrono (`CapSurGame`, son brouillard qui se referme).
 
 ## Voir réellement ce qu'on dessine
 
