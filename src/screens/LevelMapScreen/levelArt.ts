@@ -50,23 +50,41 @@ const LUEUR: LightPlan = {
  * Premier essai : un halo large et pâle (SABLE/OCRE à faible opacité) qui se
  * lisait comme une tente beige posée devant le rocher plutôt qu'une lueur de
  * feu — un lavis clair et étendu reste toujours un aplat, jamais une
- * source de lumière. Corrigé en resserrant le halo (rayon divisé par deux)
- * et en réservant le clair vif au tout petit cœur, via `highlight()` plutôt
- * qu'un `wash()` de plus.
+ * source de lumière. Corrigé en resserrant le halo et en réservant le clair
+ * vif au tout petit cœur, via `highlight()` plutôt qu'un `wash()` de plus.
+ *
+ * Second essai, avec la graine réellement utilisée en production
+ * (`WatercolorScene` sème sur l'index du niveau, donc 0 pour le Niveau 1) :
+ * la hauteur du halo avait été reprise d'un multiple de `rayon` totalement
+ * déconnecté de la géométrie réelle de l'encoche (`apex` dans `grotte()`),
+ * si bien qu'elle dépassait le sommet du rocher sur les tirages où ses
+ * plateaux tombaient bas — la « tente » du premier essai, sous une autre
+ * forme. `apex` est maintenant l'unique source de vérité pour la hauteur
+ * du halo, la même valeur que celle qui borne l'encoche dans `grotte()`.
  */
-function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon: number, rng: () => number): void {
-  // La lueur ambiante qui remplit tout l'intérieur de la bouche de grotte,
+function foyer(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cyBase: number,
+  boucheRayon: number,
+  apex: number,
+  rng: () => number,
+): void {
+  const rayon = boucheRayon * 0.75
+
+  // La lueur ambiante qui remplit l'intérieur de la bouche de grotte,
   // AVANT le lit de braises et les flammes : sans elle, tout ce que ces
   // formes étroites ne couvrent pas reste du papier nu, qui perce alors en
-  // blanc cru dans l'ouverture — plus clair que le ciel lui-même, un
-  // défaut repéré à l'écran plutôt qu'au calcul. Le rocher, peint après,
-  // rassombrit tout ce qui déborde de l'ouverture réelle : cette lueur peut
-  // largement dépasser la bouche sans risque.
-  wash(ctx, polygon(cx, cyBase - rayon * 0.95, rayon * 1.05, rayon * 1.6, 10, 0, rng), rng, {
+  // blanc cru dans l'ouverture — plus clair que le ciel lui-même. Bornée à
+  // `apex` (avec une petite marge), jamais au-delà : le rocher ne peut
+  // rassombrir que ce qui tombe dans sa PROPRE silhouette, pas au-dessus.
+  const ambientTop = apex - boucheRayon * 0.05
+  const ambientRy = (cyBase - ambientTop) / 2
+  wash(ctx, polygon(cx, cyBase - ambientRy, boucheRayon * 0.95, ambientRy, 10, 0, rng), rng, {
     color: OCRE,
     layers: 20,
     alpha: 0.4 / 20,
-    spread: 0.18,
+    spread: 0.16,
     jitter: 0.14,
   })
 
@@ -144,6 +162,11 @@ function foyer(ctx: CanvasRenderingContext2D, cx: number, cyBase: number, rayon:
  * Une seconde passe en `ENCRE_SOMBRE` par-dessus toute la masse pousse la
  * valeur vers un vrai sombre nocturne, la nuance de `VIOLET_NUIT` ne
  * survivant plus qu'en teinte de l'ombre, pas comme couleur de corps.
+ *
+ * `naissance`/`gorge`/`apex` sont calculés une seule fois par
+ * `boucheGeometrie()` et transmis ici plutôt que recalculés localement :
+ * `foyer()` doit borner son halo sur exactement la même valeur d'`apex`,
+ * jamais une approximation qui pourrait diverger de quelques pixels.
  */
 function grotte(
   ctx: CanvasRenderingContext2D,
@@ -152,29 +175,30 @@ function grotte(
   cyBase: number,
   boucheX: number,
   boucheRayon: number,
+  naissance: number,
+  gorge: number,
+  apex: number,
   rng: () => number,
 ): void {
   const x0 = -w * 0.06
   const x1 = w * 1.06
-  // La voûte reste nettement sous les plateaux du sommet (voir plus bas,
-  // qui ne descendent jamais sous 0.34h) : une gorge qui remonterait
-  // jusqu'à la ligne de crête percerait le rocher de part en part au lieu
-  // d'y creuser une bouche.
-  const gorge = cyBase - boucheRayon * 1.05
-  const naissance = cyBase - boucheRayon * 0.3
 
   // Le sommet en plateaux : des paliers plats reliés par des chutes
-  // quasi verticales, jamais une pente progressive.
+  // quasi verticales, jamais une pente progressive. Le plancher de tirage
+  // (0.38h, pas 0.34h) garde une vraie marge de sécurité au-dessus d'`apex`
+  // (0.324h) : à 0.34h la marge n'était que de 0.016h, assez fine pour que
+  // le bruit fractal de `wash()` la mange par endroits — mesuré à l'écran
+  // avec la graine réelle de production (seed=0), pas seulement au calcul.
   const marches = 4
   const sommet: Point[] = []
-  let plateauY = cyBase - h * (0.36 + rng() * 0.1)
+  let plateauY = cyBase - h * (0.4 + rng() * 0.1)
   for (let i = 0; i <= marches; i += 1) {
     const t = i / marches
     const xStart = x0 + (x1 - x0) * t
     const xEnd = x0 + (x1 - x0) * Math.min(1, t + 1 / marches / 2)
     sommet.push([xStart, plateauY])
     sommet.push([xEnd, plateauY])
-    plateauY = cyBase - h * (0.34 + rng() * 0.12)
+    plateauY = cyBase - h * (0.38 + rng() * 0.12)
   }
 
   const contour: Point[] = [
@@ -184,7 +208,7 @@ function grotte(
     [boucheX + boucheRayon * 1.15, cyBase],
     [boucheX + boucheRayon * 0.95, naissance],
     [boucheX + boucheRayon * 0.5, gorge],
-    [boucheX, gorge - boucheRayon * 0.3],
+    [boucheX, apex],
     [boucheX - boucheRayon * 0.5, gorge],
     [boucheX - boucheRayon * 0.95, naissance],
     [boucheX - boucheRayon * 1.15, cyBase],
@@ -292,9 +316,16 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
 
   const boucheX = w * 0.4
   const boucheRayon = h * 0.24
+  const cyBase = h * 0.98
+  // Calculée une seule fois, transmise telle quelle à `foyer()` ET
+  // `grotte()` : les deux doivent s'accorder sur exactement la même valeur
+  // d'`apex`, jamais deux approximations qui pourraient diverger.
+  const naissance = cyBase - boucheRayon * 0.3
+  const gorge = cyBase - boucheRayon * 1.05
+  const apex = gorge - boucheRayon * 0.3
 
-  foyer(ctx, boucheX, h * 0.98, boucheRayon * 0.75, rng)
-  grotte(ctx, w, h, h * 0.98, boucheX, boucheRayon, rng)
+  foyer(ctx, boucheX, cyBase, boucheRayon, apex, rng)
+  grotte(ctx, w, h, cyBase, boucheX, boucheRayon, naissance, gorge, apex, rng)
 
   // La silhouette, accroupie tout contre le foyer côté droit — assez près
   // pour appartenir clairement à la scène du feu, pas posée à distance sur
@@ -305,10 +336,17 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
   // Échelle relevée (0.14h → 0.24h) : à la toute petite taille d'affichage
   // réelle de la vignette, une figure à 0.14h se perdait dans la masse du
   // rocher plutôt que de se lire comme quelqu'un d'assis.
-  childWatchingSea(ctx, boucheX + boucheRayon * 1.35, h * 0.98, h * 0.24, rng, LUEUR, {
+  //
+  // `clothes: VIOLET_NUIT`, pas `ENCRE_SOMBRE` comme le premier essai :
+  // `grotte()` peint le rocher précisément dans `ENCRE_SOMBRE` — vêtir la
+  // silhouette de la même teinte que ce qu'elle a juste devant elle en
+  // `multiply` ne crée aucun contraste, tout le corps (hanches, dos, bras)
+  // se fond dans le rocher et il ne reste plus qu'une tête qui flotte,
+  // repéré à l'écran avec la graine réelle de production.
+  childWatchingSea(ctx, boucheX + boucheRayon * 1.35, cyBase, h * 0.24, rng, LUEUR, {
     skin: VIOLET_PROFOND,
     hair: ENCRE_SOMBRE,
-    clothes: ENCRE_SOMBRE,
+    clothes: VIOLET_NUIT,
     accent: PIERRE_CHAUDE,
   })
 }
