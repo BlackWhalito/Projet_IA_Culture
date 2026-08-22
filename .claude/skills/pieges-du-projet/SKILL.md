@@ -76,19 +76,42 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
-## Voir réellement ce qu'on dessine, quand la capture d'écran refuse
+## Voir réellement ce qu'on dessine
 
-**Symptôme.** `computer{action:"screenshot"}` échoue en boucle avec « the Browser pane is not displayed, so the page is not compositing frames », quel que soit l'onglet, le `tabs_select` ou le redimensionnement. Conséquence grave sur un travail visuel : on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu.
+**Ne jamais conclure « pas de navigateur dans cette session » sans avoir cherché.** Constaté le 22 août 2026 : une session cloud sans les outils `computer`/`preview_start`/`javascript_tool` (donc sans le panneau navigateur intégré) peut malgré tout avoir un vrai Chromium préinstallé, pilotable via le CLI Playwright en `Bash` — personne ne l'avait vérifié avant de déclarer la vérification visuelle bloquée. Vérifie d'abord :
 
-**Contournement.** Ne pas passer par le compositeur : rendre le SVG dans un `<canvas>` depuis la page elle-même, puis lire l'image.
+```bash
+ls /opt/pw-browsers/chromium 2>/dev/null && /opt/node22/bin/playwright --version
+```
 
-1. Pour un SVG : récupérer le `innerHTML` du `<svg>` des filtres (`svg[width="0"]`) **et** celui de la forme à voir — sans les filtres, le rendu autonome sort des aplats plats. Pour un `<canvas>` déjà peint (moteur aquarelle génératif, voir `src/components/watercolor/`), pas besoin de ce détour : `drawImage` le canvas source directement.
-2. Remplacer chaque `var(--x)` par sa valeur résolue via `getComputedStyle(document.documentElement)` — une image autonome n'a pas accès aux variables CSS du document. Toujours peindre sur un fond `--papier` explicite avant de dessiner par-dessus : exporter en JPEG sur un canvas resté transparent noircit tout le vide, ce qui ressemble à s'y méprendre à un vrai bug de rendu.
-3. Composer dans un `<canvas>` (taille de sortie modeste, on regarde une composition, pas un pixel) via `drawImage`/`fillText`, en reprenant si besoin les vraies dimensions avec `getBoundingClientRect()` plutôt que des tailles inventées.
-4. **Ne pas faire transiter le base64 par le contexte de conversation** — un aller-retour tourne vite à 30-40 ko juste pour une vignette, et une session d'itération en enchaîne des dizaines. Démarrer un petit serveur HTTP local (`node`, une douzaine de lignes) qui écoute sur un port du scratchpad et écrit le `POST` reçu dans un fichier ; la page fait `fetch('http://localhost:PORT/', { method: 'POST', body: canvas.toDataURL(...) })`. Puis lire ce fichier avec l'outil `Read`, qui affiche réellement les images — c'est la seule étape qui consomme du contexte, une seule fois, à la toute fin.
-5. Le serveur de capture ne survit pas à un redémarrage de session (processus arrière-plan perdu) : le relancer avant la première capture d'une nouvelle session, avec le dev server, plutôt que de découvrir la connexion refusée au milieu d'un test.
+Si ça répond, tu as un vrai navigateur. Méthode, la plus simple d'abord :
 
-Sans ce contournement, on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu ce qu'il a vu.
+**1. Le CLI Playwright — méthode par défaut, à essayer en premier.**
+
+```bash
+npm run dev &                       # démarrer le serveur (une seule fois)
+/opt/node22/bin/playwright screenshot \
+  --browser chromium --viewport-size "390,844" \
+  --wait-for-timeout 1200 \
+  http://localhost:5173/chemin-a-voir \
+  /tmp/.../scratchpad/capture.png
+```
+
+Puis lire `capture.png` avec l'outil `Read`, qui affiche réellement l'image. `--viewport-size` doit reprendre la taille d'affichage réelle qu'on veut juger (mobile compris) — pas une résolution interne inventée, c'est le piège n° 12 ci-dessous. `--wait-for-timeout` laisse le temps au canvas aquarelle de peindre avant la capture. Le module npm `playwright`/`playwright-core` n'a pas besoin d'être une dépendance du projet : le CLI global suffit.
+
+Ce chemin remplace entièrement le contournement historique ci-dessous pour toute session qui a ce Chromium : plus besoin de rendre le SVG dans un canvas caché ni de servir le base64 par un serveur local, on capture la vraie page.
+
+**2. Si aucun Chromium n'est trouvable** (ni panneau navigateur, ni `/opt/pw-browsers`) — le contournement historique, pour un `<canvas>` ou un SVG rendus manuellement dans la page :
+
+- Pour un SVG : récupérer le `innerHTML` du `<svg>` des filtres (`svg[width="0"]`) **et** celui de la forme à voir — sans les filtres, le rendu autonome sort des aplats plats. Pour un `<canvas>` déjà peint (moteur aquarelle génératif, voir `src/components/watercolor/`), pas besoin de ce détour : `drawImage` le canvas source directement.
+- Remplacer chaque `var(--x)` par sa valeur résolue via `getComputedStyle(document.documentElement)` — une image autonome n'a pas accès aux variables CSS du document. Toujours peindre sur un fond `--papier` explicite avant de dessiner par-dessus : exporter en JPEG sur un canvas resté transparent noircit tout le vide, ce qui ressemble à s'y méprendre à un vrai bug de rendu.
+- Composer dans un `<canvas>` (taille de sortie modeste, on regarde une composition, pas un pixel) via `drawImage`/`fillText`, en reprenant si besoin les vraies dimensions avec `getBoundingClientRect()` plutôt que des tailles inventées.
+- **Ne pas faire transiter le base64 par le contexte de conversation** — un aller-retour tourne vite à 30-40 ko juste pour une vignette, et une session d'itération en enchaîne des dizaines. Démarrer un petit serveur HTTP local (`node`, une douzaine de lignes) qui écoute sur un port du scratchpad et écrit le `POST` reçu dans un fichier ; la page fait `fetch('http://localhost:PORT/', { method: 'POST', body: canvas.toDataURL(...) })`. Puis lire ce fichier avec l'outil `Read`.
+- Le serveur de capture ne survit pas à un redémarrage de session (processus arrière-plan perdu) : le relancer avant la première capture d'une nouvelle session, avec le dev server.
+
+**3. Ancien symptôme, spécifique au panneau navigateur intégré** (`computer{action:"screenshot"}` échoue en boucle avec « the Browser pane is not displayed »), quand ce panneau existe mais que sa capture plante : même contournement n° 2, ou basculer sur le CLI Playwright du n° 1 s'il est disponible — c'est presque toujours plus simple.
+
+Sans une vérification visuelle réelle, on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu ce qu'il a vu.
 
 ## `window.matchMedia` absent en test
 

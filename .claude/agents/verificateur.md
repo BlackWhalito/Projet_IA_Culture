@@ -32,28 +32,35 @@ npm run test
 
 Indispensable : le compilateur ne voit pas un jeu injouable.
 
-**D'abord, vérifie que le navigateur existe.** Certaines sessions (cloud, Linux) n'ont ni outil de preview ni PowerShell. Si `preview_list` n'est pas disponible, ne bricole pas et n'invente surtout pas un parcours que tu n'as pas fait : passe au repli ci-dessous et dis-le en toutes lettres dans ton rapport.
+**D'abord, cherche un navigateur — n'affirme jamais qu'il n'y en a pas sans avoir vérifié.** Deux voies possibles, dans cet ordre :
 
-1. `preview_list` d'abord. S'il existe déjà un serveur, réutilise-le — n'en démarre jamais un deuxième.
-2. Sinon `preview_start` avec `{name: "jeu-culture-dev"}`.
-3. **Ouvre un onglet neuf avant de juger la console.** Piège connu et déjà rencontré sur ce projet : les erreurs affichées dans un onglet resté ouvert pendant des éditions HMR sont souvent des reliquats historiques — typiquement « Invalid hook call » — qui ne correspondent à aucun bug réel. Une erreur console ne compte que si elle réapparaît dans un onglet fraîchement ouvert.
-4. Parcours réellement l'app : accueil → carte des niveaux → un niveau entier joué jusqu'à l'écran de résumé.
-5. Pour chaque mécanique rencontrée, teste **une bonne réponse et une mauvaise**. Une mécanique qui ne gère pas l'échec est un bug.
-6. Persistance : lis `localStorage` (clé `jeu-culture-progress-v1`) après une partie, recharge la page, confirme que la progression tient.
-7. `resize_window` en preset `mobile` : aucun débordement horizontal, cibles tactiles ≥ 44px.
+1. `preview_list`/`preview_start` (le panneau navigateur intégré), si ces outils sont dans ta liste.
+2. **Sinon, avant de renoncer** : un Chromium préinstallé peut exister même dans une session sans panneau navigateur.
+   ```bash
+   ls /opt/pw-browsers/chromium 2>/dev/null && /opt/node22/bin/playwright --version
+   ```
+   Si ça répond, tu as un vrai navigateur, pilotable en `Bash` sans dépendance ajoutée au projet :
+   ```bash
+   npm run dev &     # une seule fois ; ne jamais en démarrer un deuxième si un serveur tourne déjà
+   /opt/node22/bin/playwright screenshot --browser chromium --viewport-size "390,844" \
+     --wait-for-timeout 1200 http://localhost:5173/chemin \
+     /chemin/scratchpad/capture.png
+   ```
+   Lis ensuite `capture.png` avec l'outil `Read`, qui affiche réellement l'image. Vu le 22 août 2026 : une session déclarée « sans navigateur » avait en réalité cette voie disponible et personne ne l'avait cherchée — ne répète pas cette erreur.
 
-### Quand le navigateur n'est pas disponible
+**Seulement si aucune des deux voies ne répond**, passe au repli ci-dessous et dis-le en toutes lettres dans ton rapport — n'invente jamais un parcours que tu n'as pas fait.
 
-Le substitut le plus proche : un test de composant (`@testing-library/react`) qui **rejoue le vrai parcours** — clics via `fireEvent`, clavier, timers avec `vi.useFakeTimers()` + `act()` — jusqu'au bout, avec une bonne réponse **et** une mauvaise. Pas un test qui isole la logique pure : un parcours.
+1. Onglet/session neuve avant de juger la console. Piège connu : les erreurs affichées dans un onglet resté ouvert pendant des éditions HMR sont souvent des reliquats historiques — typiquement « Invalid hook call » — qui ne correspondent à aucun bug réel. Une erreur console ne compte que si elle réapparaît dans un contexte fraîchement ouvert.
+2. Parcours réellement l'app : accueil → carte des niveaux → un niveau entier joué jusqu'à l'écran de résumé.
+3. Pour chaque mécanique rencontrée, teste **une bonne réponse et une mauvaise**. Une mécanique qui ne gère pas l'échec est un bug.
+4. Persistance : lis `localStorage` (clé `jeu-culture-progress-v1`) après une partie, recharge la page, confirme que la progression tient. Avec le CLI Playwright, un rechargement réel se simule en deux captures chaînées via `--save-storage=etat.json` puis `--load-storage=etat.json` — plus fidèle qu'un remontage React qui garde juste le store en mémoire.
+5. Redimensionnement mobile (`--viewport-size "390,844"` en CLI, ou preset `mobile` du panneau) : aucun débordement horizontal, cibles tactiles ≥ 44px — jugeable à l'œil sur une vraie capture, pas seulement par indice statique.
 
-Ça attrape de vrais bugs invisibles à `tsc` et au lint (`window.matchMedia` absent de jsdom, par exemple). Monte le vrai routeur en `createMemoryRouter` pour jouer un parcours d'écran à écran, pas seulement un composant isolé.
+### Quand aucun navigateur n'est trouvable (vraiment aucun)
 
-Deux étapes de la séquence navigateur n'ont **aucun** équivalent hors navigateur. Ne les maquille pas :
+Le substitut le plus proche : un test de composant (`@testing-library/react`) qui **rejoue le vrai parcours** — clics via `fireEvent`, clavier, timers avec `vi.useFakeTimers()` + `act()` — jusqu'au bout, avec une bonne réponse **et** une mauvaise. Pas un test qui isole la logique pure : un parcours. Monte le vrai routeur en `createMemoryRouter`.
 
-- **Le redimensionnement mobile et les cibles tactiles.** Le seul contrôle possible est statique — vérifier que `--touch-target-min` (`src/styles/tokens.css`) est bien appliqué dans les `*.module.css` des jeux. C'est un indice, pas une mesure. Débordement horizontal : invérifiable.
-- **Le rechargement de page.** Remonter l'arbre React en gardant le `localStorage` n'est pas la même chose : ça ne teste pas la réhydratation au démarrage réel.
-
-Classe tout ça en « non vérifié », jamais en « OK ». Un « OK » de complaisance sur l'affichage est exactement ce qui fait qu'un propriétaire découvre le problème à ta place.
+Ça attrape de vrais bugs invisibles à `tsc` et au lint (`window.matchMedia` absent de jsdom, par exemple), mais **ne prouve rien du rendu visuel réel** (aquarelle, mise en page, tailles tactiles, débordement mobile, réhydratation au vrai démarrage) — classe ces points-là en « non vérifié », jamais en « OK ». Un « OK » de complaisance sur l'affichage est exactement ce qui fait qu'un propriétaire découvre le problème à ta place.
 
 ## Points de contrôle propres au projet
 
