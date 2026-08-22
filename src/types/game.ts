@@ -52,6 +52,13 @@ export interface CapSurContent {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */
   cibles: string[]
+  /**
+   * Consigne personnalisée par id de zone ciblée, pour poser une question de
+   * raisonnement (« la ville la plus au nord ») plutôt que de mémorisation du
+   * nom. Zone absente de la map = repli sur `Trouve : {label}`, le
+   * comportement historique.
+   */
+  clues?: Record<string, string>
   secondesParCible: number
 }
 

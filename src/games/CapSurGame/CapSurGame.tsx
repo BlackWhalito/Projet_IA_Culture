@@ -98,7 +98,9 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
         <span>
           {index + 1} / {cibles.length}
         </span>
-        {phase === 'jeu' && cible && <span className={styles.consigne}>Trouve : {cible.label}</span>}
+        {phase === 'jeu' && cible && (
+          <span className={styles.consigne}>{content.clues?.[cible.id] ?? `Trouve : ${cible.label}`}</span>
+        )}
       </div>
 
       <div className={styles.carteZone}>

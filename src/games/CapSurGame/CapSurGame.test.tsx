@@ -56,6 +56,24 @@ describe('CapSurGame', () => {
     expect(screen.getByText(`Juste ! C'est bien ${premiere}.`)).toBeInTheDocument()
   })
 
+  it('affiche la consigne personnalisée quand une clue est fournie pour la cible, au lieu du nom réel', () => {
+    const onComplete = vi.fn()
+    const contenuAvecClue: CapSurContent = {
+      carteId: 'france',
+      cibles: ['lille'],
+      clues: { lille: 'La ville la plus au nord' },
+      secondesParCible: 6,
+    }
+    render(<CapSurGame content={contenuAvecClue} onComplete={onComplete} />)
+
+    expect(screen.getByText('La ville la plus au nord')).toBeInTheDocument()
+    expect(screen.queryByText('Trouve : Lille')).not.toBeInTheDocument()
+
+    // La réponse, elle, révèle bien le vrai nom.
+    fireEvent.click(screen.getByRole('button', { name: 'Lille' }))
+    expect(screen.getByText("Juste ! C'est bien Lille.")).toBeInTheDocument()
+  })
+
   it('révèle la cible manquée quand le temps expire', () => {
     vi.useFakeTimers()
     const onComplete = vi.fn()
