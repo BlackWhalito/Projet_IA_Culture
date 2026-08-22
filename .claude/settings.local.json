@@ -11,7 +11,12 @@
       "Bash(npx vitest *)",
       "Bash(npm run *)",
       "Read(//c/Users/Pierr/.codex/**)",
-      "Read(//c/Users/Pierr/.gemini/**)"
+      "Read(//c/Users/Pierr/.gemini/**)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)"
     ]
   }
 }
