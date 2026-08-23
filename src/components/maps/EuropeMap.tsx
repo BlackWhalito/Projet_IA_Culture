@@ -12,6 +12,9 @@ interface EuropeMapProps {
   showAllLabels?: boolean
 }
 
+/** Voir la note de `FranceMap` : 28 unités donnaient une cible de 22 px à l'écran, moitié du minimum tactile. */
+const RAYON_TACTILE = 44
+
 function estInteractive(zone: MapZone, interactiveZoneIds: string[] | undefined): boolean {
   return !interactiveZoneIds || interactiveZoneIds.includes(zone.id)
 }
@@ -50,14 +53,14 @@ export function EuropeMap({
       {continents.map((zone) => (
         <g
           key={zone.id}
-          role="button"
-          tabIndex={0}
-          aria-label={zone.label}
+          role={estInteractive(zone, interactiveZoneIds) ? 'button' : undefined}
+          tabIndex={estInteractive(zone, interactiveZoneIds) ? 0 : undefined}
+          aria-label={estInteractive(zone, interactiveZoneIds) ? zone.label : undefined}
           className={clsx(styles.zone, { [styles.zoneActive]: activeZoneId === zone.id })}
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_TACTILE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={9} className={styles.pointContinent} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) + 24} className={styles.labelContinent}>
@@ -70,14 +73,14 @@ export function EuropeMap({
       {pays.map((zone) => (
         <g
           key={zone.id}
-          role="button"
-          tabIndex={0}
-          aria-label={zone.label}
+          role={estInteractive(zone, interactiveZoneIds) ? 'button' : undefined}
+          tabIndex={estInteractive(zone, interactiveZoneIds) ? 0 : undefined}
+          aria-label={estInteractive(zone, interactiveZoneIds) ? zone.label : undefined}
           className={clsx(styles.zone, { [styles.zoneActive]: activeZoneId === zone.id })}
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_TACTILE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointPays} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) - 12} className={styles.labelPays}>

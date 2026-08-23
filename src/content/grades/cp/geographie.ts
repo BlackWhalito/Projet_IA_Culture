@@ -125,8 +125,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
           { label: 'Une vache', panierId: 'campagne' },
           { label: 'Un feu tricolore', panierId: 'ville' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 32,
         objectif: 8,
       },
       qcm: {

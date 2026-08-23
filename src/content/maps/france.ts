@@ -9,25 +9,40 @@ import type { MapZone } from '../../types/maps'
 export const FRANCE_VIEWBOX = '0 0 600 640'
 
 /**
- * Premier essai jugé raté par le propriétaire (« on dirait un pâté ») : un
- * ovale presque uni, sans aucun des repères qui rendent le contour de la
- * France reconnaissable d'un coup d'œil. Cette version encode volontairement
- * trois repères, dans l'ordre où l'œil les cherche : la pointe de la
- * Bretagne (un vrai triangle qui pointe à l'ouest, pas une simple encoche —
- * `L40,250` la tire loin du reste du tracé), la presqu'île du Cotentin
- * juste au nord d'elle (même principe, `L155,115` — un premier essai en `Q`
- * lissait la pointe jusqu'à la rendre imperceptible, signalé par le
- * `verificateur`), et le creux du golfe du Lion sur la côte méditerranéenne
- * (la suite de `Q` entre Marseille et l'Espagne, qui rentre vers le nord
- * avant de ressortir). Toujours pas un tracé cartographique précis (voir
- * plus bas) — juste assez de silhouette pour se reconnaître.
+ * Contour et positions **projetés depuis de vraies coordonnées (longitude,
+ * latitude)**, pas dessinés à la main.
+ *
+ * Deux essais successifs de tracé à la main ont été jugés ratés par le
+ * propriétaire (« on dirait un pâté », puis « ça ne ressemble à rien ») :
+ * ajuster des points de contrôle de courbes de Bézier à l'aveugle ne produit
+ * jamais une silhouette reconnaissable, quel que soit le nombre d'itérations.
+ * La bonne méthode était de partir de la géographie réelle — une cinquantaine
+ * de points de côte et de frontière (Dunkerque, cap de la Hague, pointe du
+ * Raz, Gironde, Pyrénées, golfe du Lion, Alpes, Rhin), projetés en
+ * équirectangulaire avec la longitude comprimée par cos(46,7°) pour ne pas
+ * étirer le pays en largeur.
+ *
+ * Conséquence utile au-delà de l'esthétique : les villes sont désormais à
+ * leur place réelle les unes par rapport aux autres, donc les questions de
+ * points cardinaux (« la ville la plus à l'est ») sont géographiquement
+ * justes, ce qu'un tracé approximatif ne garantissait pas.
+ *
+ * Les segments restent droits : le filtre aquarelle (`aq-bord-*`) déforme
+ * déjà le trait, et lisser en courbes par-dessus arrondirait justement les
+ * caps qui font reconnaître la France.
+ *
+ * Le générateur ayant produit ces chiffres est reproductible — reprendre la
+ * liste de coordonnées et la même projection pour toute retouche, plutôt que
+ * de déplacer un point à la main.
  */
 export const FRANCE_CONTOUR_PATH =
-  'M200,80 Q260,50 330,45 Q400,40 460,60 Q505,78 525,110 Q558,145 565,215 ' +
-  'Q568,275 550,325 Q535,375 540,420 Q545,460 540,470 Q515,530 490,562 ' +
-  'Q460,585 430,555 Q400,528 380,530 Q345,532 330,555 Q315,578 300,568 ' +
-  'Q260,585 200,570 Q140,552 115,520 Q95,490 92,440 Q90,390 100,350 ' +
-  'L108,300 L40,250 L130,195 L155,115 L200,80 Z'
+  'M335,35 L302,45 L301,89 L246,122 L242,136 L201,142 L187,124 L158,121 ' +
+  'L174,155 L176,192 L123,195 L62,190 L42,209 L60,228 L44,232 L78,248 ' +
+  'L100,251 L148,282 L165,333 L191,356 L194,394 L190,454 L181,498 L174,532 ' +
+  'L165,541 L209,574 L265,584 L308,597 L367,601 L362,564 L389,538 L436,541 ' +
+  'L457,544 L480,556 L508,554 L535,518 L545,512 L520,474 L524,419 L518,377 ' +
+  'L488,353 L485,338 L515,300 L548,263 L549,215 L554,196 L562,166 L513,158 ' +
+  'L488,137 L475,132 L437,116 L409,84 L387,70 L363,61 L342,31 Z'
 
 /**
  * 5 des 8 pays frontaliers de la France (voir `cp-geographie-pays-voisins`) : Monaco,
@@ -36,27 +51,55 @@ export const FRANCE_CONTOUR_PATH =
  * les ajouter demanderait surtout de l'espace, pas une nouvelle capacité technique.
  */
 export const FRANCE_ZONES: MapZone[] = [
-  { id: 'paris', label: 'Paris', kind: 'ville', cx: 330, cy: 190 },
-  { id: 'lille', label: 'Lille', kind: 'ville', cx: 365, cy: 65 },
-  { id: 'strasbourg', label: 'Strasbourg', kind: 'ville', cx: 545, cy: 175 },
-  { id: 'rennes', label: 'Rennes', kind: 'ville', cx: 165, cy: 235 },
-  { id: 'nantes', label: 'Nantes', kind: 'ville', cx: 175, cy: 305 },
-  { id: 'lyon', label: 'Lyon', kind: 'ville', cx: 430, cy: 370 },
-  { id: 'bordeaux', label: 'Bordeaux', kind: 'ville', cx: 195, cy: 430 },
-  { id: 'toulouse', label: 'Toulouse', kind: 'ville', cx: 290, cy: 500 },
-  { id: 'marseille', label: 'Marseille', kind: 'ville', cx: 445, cy: 535 },
-  { id: 'nice', label: 'Nice', kind: 'ville', cx: 535, cy: 495 },
+  { id: 'paris', label: 'Paris', kind: 'ville', cx: 334, cy: 178 },
+  { id: 'lille', label: 'Lille', kind: 'ville', cx: 363, cy: 61 },
+  { id: 'strasbourg', label: 'Strasbourg', kind: 'ville', cx: 554, cy: 196 },
+  { id: 'rennes', label: 'Rennes', kind: 'ville', cx: 169, cy: 227 },
+  { id: 'nantes', label: 'Nantes', kind: 'ville', cx: 174, cy: 286 },
+  { id: 'lyon', label: 'Lyon', kind: 'ville', cx: 435, cy: 382 },
+  { id: 'bordeaux', label: 'Bordeaux', kind: 'ville', cx: 214, cy: 443 },
+  { id: 'toulouse', label: 'Toulouse', kind: 'ville', cx: 296, cy: 524 },
+  { id: 'marseille', label: 'Marseille', kind: 'ville', cx: 457, cy: 544 },
+  { id: 'nice', label: 'Nice', kind: 'ville', cx: 535, cy: 518 },
 
-  { id: 'seine', label: 'La Seine', kind: 'fleuve', d: 'M330,190 Q260,150 180,110', labelX: 245, labelY: 135 },
-  { id: 'loire', label: 'La Loire', kind: 'fleuve', d: 'M420,330 Q300,300 170,300', labelX: 300, labelY: 285 },
-  { id: 'rhone', label: 'Le Rhône', kind: 'fleuve', d: 'M430,370 Q440,460 450,535', labelX: 455, labelY: 450 },
-  { id: 'garonne', label: 'La Garonne', kind: 'fleuve', d: 'M290,500 Q220,470 150,420', labelX: 205, labelY: 495 },
+  {
+    id: 'seine',
+    label: 'La Seine',
+    kind: 'fleuve',
+    d: 'M430,248 L372,208 L334,178 L307,155 L283,139 L242,136',
+    labelX: 300,
+    labelY: 148,
+  },
+  {
+    id: 'loire',
+    label: 'La Loire',
+    kind: 'fleuve',
+    d: 'M409,442 L360,346 L332,280 L315,241 L266,274 L174,286 L148,282',
+    labelX: 255,
+    labelY: 300,
+  },
+  {
+    id: 'rhone',
+    label: 'Le Rhône',
+    kind: 'fleuve',
+    d: 'M479,353 L435,382 L437,437 L434,501 L436,541',
+    labelX: 466,
+    labelY: 452,
+  },
+  {
+    id: 'garonne',
+    label: 'La Garonne',
+    kind: 'fleuve',
+    d: 'M274,570 L296,524 L263,485 L214,443 L194,394',
+    labelX: 232,
+    labelY: 500,
+  },
 
-  { id: 'espagne', label: 'Espagne', kind: 'pays-voisin', cx: 250, cy: 618 },
-  { id: 'belgique', label: 'Belgique', kind: 'pays-voisin', cx: 365, cy: 18 },
-  { id: 'allemagne', label: 'Allemagne', kind: 'pays-voisin', cx: 595, cy: 160 },
-  { id: 'suisse', label: 'Suisse', kind: 'pays-voisin', cx: 595, cy: 340 },
-  { id: 'italie', label: 'Italie', kind: 'pays-voisin', cx: 595, cy: 480 },
+  { id: 'espagne', label: 'Espagne', kind: 'pays-voisin', cx: 221, cy: 626 },
+  { id: 'belgique', label: 'Belgique', kind: 'pays-voisin', cx: 417, cy: 40 },
+  { id: 'allemagne', label: 'Allemagne', kind: 'pays-voisin', cx: 583, cy: 149 },
+  { id: 'suisse', label: 'Suisse', kind: 'pays-voisin', cx: 577, cy: 310 },
+  { id: 'italie', label: 'Italie', kind: 'pays-voisin', cx: 579, cy: 452 },
 ]
 
 export const FRANCE_ZONES_BY_ID: Record<string, MapZone> = Object.fromEntries(

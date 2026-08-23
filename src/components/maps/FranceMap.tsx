@@ -15,6 +15,21 @@ interface FranceMapProps {
   showAllLabels?: boolean
 }
 
+/**
+ * Rayon de la zone tactile d'une ville ou d'un pays, en unités du viewBox
+ * (600 de large). La carte s'affiche à ~300 px sur un téléphone, soit une
+ * échelle d'environ 0,5 : à l'ancienne valeur de 28, la cible faisait 22 px
+ * à l'écran — la moitié du minimum de 44 px imposé par la charte du projet,
+ * et on ratait réellement les villes au doigt. 44 unités redonnent ~44 px.
+ *
+ * Les cibles peuvent se chevaucher légèrement à ce rayon (Rennes et Nantes
+ * ne sont distantes que de 70 unités), mais `interactiveZoneIds` fait que
+ * seules les zones réellement demandées dans la manche sont tapables : deux
+ * cibles simultanées assez proches pour se gêner n'existent pas dans le
+ * contenu actuel.
+ */
+const RAYON_TACTILE = 44
+
 function estInteractive(zone: MapZone, interactiveZoneIds: string[] | undefined): boolean {
   return !interactiveZoneIds || interactiveZoneIds.includes(zone.id)
 }
@@ -54,9 +69,9 @@ export function FranceMap({
       {fleuves.map((zone) => (
         <g
           key={zone.id}
-          role="button"
-          tabIndex={0}
-          aria-label={zone.label}
+          role={estInteractive(zone, interactiveZoneIds) ? 'button' : undefined}
+          tabIndex={estInteractive(zone, interactiveZoneIds) ? 0 : undefined}
+          aria-label={estInteractive(zone, interactiveZoneIds) ? zone.label : undefined}
           className={clsx(styles.zone, { [styles.zoneActive]: activeZoneId === zone.id })}
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
@@ -74,14 +89,14 @@ export function FranceMap({
       {paysVoisins.map((zone) => (
         <g
           key={zone.id}
-          role="button"
-          tabIndex={0}
-          aria-label={zone.label}
+          role={estInteractive(zone, interactiveZoneIds) ? 'button' : undefined}
+          tabIndex={estInteractive(zone, interactiveZoneIds) ? 0 : undefined}
+          aria-label={estInteractive(zone, interactiveZoneIds) ? zone.label : undefined}
           className={clsx(styles.zone, { [styles.zoneActive]: activeZoneId === zone.id })}
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_TACTILE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointPays} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) + 22} className={styles.labelPays}>
@@ -94,14 +109,14 @@ export function FranceMap({
       {villes.map((zone) => (
         <g
           key={zone.id}
-          role="button"
-          tabIndex={0}
-          aria-label={zone.label}
+          role={estInteractive(zone, interactiveZoneIds) ? 'button' : undefined}
+          tabIndex={estInteractive(zone, interactiveZoneIds) ? 0 : undefined}
+          aria-label={estInteractive(zone, interactiveZoneIds) ? zone.label : undefined}
           className={clsx(styles.zone, { [styles.zoneActive]: activeZoneId === zone.id })}
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_TACTILE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointVille} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) - 12} className={styles.labelVille}>

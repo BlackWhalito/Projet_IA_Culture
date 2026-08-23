@@ -13,21 +13,32 @@ const CONTENU: RiviereContent = {
     { label: 'Deux', panierId: 'b' },
     { label: 'Trois', panierId: 'a' },
   ],
-  vitesseInitialeSec: 4,
-  accelerationParPalier: 0.15,
+  dureeSec: 20,
   objectif: 3,
 }
 
 /** L'ordre de la file est mélangé à chaque partie : on lit le mot affiché plutôt que de le supposer. */
 function motActuel(): string {
   const panierLabels = new Set(CONTENU.paniers.map((p) => p.label))
-  const bouton = screen.getAllByRole('button').find((b) => !panierLabels.has(b.textContent ?? ''))
-  return bouton!.textContent!
+  const boutons = screen.getAllByRole('button').filter((b) => panierLabels.has(b.textContent ?? ''))
+  expect(boutons).toHaveLength(CONTENU.paniers.length)
+  // Le mot n'est plus un bouton (un seul tap suffit, sur le panier) : on le
+  // retrouve via le flottant affiché dans la piste.
+  const mot = CONTENU.flottants.map((f) => f.label).find((label) => screen.queryByText(label))
+  return mot!
 }
 
 function panierCorrectPour(mot: string): string {
   const flottant = CONTENU.flottants.find((f) => f.label === mot)!
   return CONTENU.paniers.find((p) => p.id === flottant.panierId)!.label
+}
+
+function repondre(juste: boolean): string {
+  const mot = motActuel()
+  const bon = panierCorrectPour(mot)
+  const cible = juste ? bon : CONTENU.paniers.map((p) => p.label).find((l) => l !== bon)!
+  fireEvent.click(screen.getByRole('button', { name: cible }))
+  return mot
 }
 
 describe('RiviereGame', () => {
@@ -39,80 +50,73 @@ describe('RiviereGame', () => {
     vi.useRealTimers()
   })
 
-  it('réussit la manche en classant les 3 mots, et transmet une erreur volontaire', () => {
+  it('se joue en un seul tap sur le panier, sans avoir à sélectionner le mot d’abord', () => {
     const onComplete = vi.fn()
     render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
 
-    // Premier mot : une erreur volontaire (mauvais panier), puis le bon.
     const premierMot = motActuel()
-    const bonPanier = panierCorrectPour(premierMot)
-    const mauvaisPanier = CONTENU.paniers.map((p) => p.label).find((l) => l !== bonPanier)!
+    fireEvent.click(screen.getByRole('button', { name: panierCorrectPour(premierMot) }))
+    expect(screen.getByText('1 / 3')).toBeInTheDocument()
+    // Le mot suivant est déjà là : aucune attente entre deux objets.
+    expect(motActuel()).not.toBe(premierMot)
+  })
 
-    fireEvent.click(screen.getByRole('button', { name: premierMot }))
-    fireEvent.click(screen.getByRole('button', { name: mauvaisPanier }))
-    // Le rejet ne fait pas avancer la file : le même mot est toujours affiché.
-    expect(motActuel()).toBe(premierMot)
+  it('réussit la manche en classant les 3 objets, et transmet une erreur volontaire', () => {
+    const onComplete = vi.fn()
+    render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
+
+    // Une erreur volontaire : elle ne compte pas dans l'objectif et casse la série.
+    repondre(false)
+    expect(screen.getByText('0 / 3')).toBeInTheDocument()
+
+    for (let i = 0; i < 3; i++) repondre(true)
+
+    expect(screen.getByText('3 / 3')).toBeInTheDocument()
     act(() => {
-      vi.advanceTimersByTime(500)
+      vi.advanceTimersByTime(400)
     })
+    expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number), mistakes: 1 })
+  })
 
-    fireEvent.click(screen.getByRole('button', { name: premierMot }))
-    fireEvent.click(screen.getByRole('button', { name: bonPanier }))
-    expect(screen.getByText('1 / 3 classés')).toBeInTheDocument()
+  it('échoue la manche quand le chrono de la manche arrive à zéro', () => {
+    const onComplete = vi.fn()
+    render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
 
-    // Les deux mots restants, sans erreur.
-    for (let i = 0; i < 2; i++) {
-      const mot = motActuel()
-      const panier = panierCorrectPour(mot)
-      fireEvent.click(screen.getByRole('button', { name: mot }))
-      fireEvent.click(screen.getByRole('button', { name: panier }))
-    }
-
-    expect(screen.getByText('3 / 3 classés')).toBeInTheDocument()
+    repondre(true)
+    act(() => {
+      vi.advanceTimersByTime(CONTENU.dureeSec * 1000)
+    })
     act(() => {
       vi.advanceTimersByTime(400)
     })
 
-    expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number), mistakes: 1 })
+    expect(onComplete).toHaveBeenCalledWith({ correct: false, timeMs: expect.any(Number), mistakes: 0 })
   })
 
-  it("affiche la règle avant de jouer quand elle est fournie, et ne compte aucun raté tant qu'on ne l'a pas quittée", () => {
+  it('affiche la série à partir de deux bonnes réponses d’affilée, et la casse à l’erreur', () => {
     const onComplete = vi.fn()
-    const contenuAvecRegle: RiviereContent = { ...CONTENU, regle: 'Range chaque mot dans le bon panier.' }
-    render(<RiviereGame content={contenuAvecRegle} onComplete={onComplete} />)
+    render(<RiviereGame content={{ ...CONTENU, objectif: 10 }} onComplete={onComplete} />)
+
+    repondre(true)
+    expect(screen.queryByText(/série/)).not.toBeInTheDocument()
+    repondre(true)
+    expect(screen.getByText('série ×2')).toBeInTheDocument()
+    repondre(false)
+    expect(screen.queryByText(/série/)).not.toBeInTheDocument()
+  })
+
+  it("n'écoule pas le chrono tant que l'écran de règle est affiché", () => {
+    const onComplete = vi.fn()
+    const avecRegle: RiviereContent = { ...CONTENU, regle: 'Range chaque mot dans le bon panier.' }
+    render(<RiviereGame content={avecRegle} onComplete={onComplete} />)
 
     expect(screen.getByText('Range chaque mot dans le bon panier.')).toBeInTheDocument()
-    // Aucun mot ne tombe tant que la règle est affichée : un temps largement
-    // supérieur à la durée de chute nominale ne doit provoquer aucun raté.
     act(() => {
-      vi.advanceTimersByTime(10000)
+      vi.advanceTimersByTime(CONTENU.dureeSec * 2000)
     })
     expect(onComplete).not.toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
-    expect(screen.queryByText('Range chaque mot dans le bon panier.')).not.toBeInTheDocument()
-
-    const mot = motActuel()
-    const panier = panierCorrectPour(mot)
-    fireEvent.click(screen.getByRole('button', { name: mot }))
-    fireEvent.click(screen.getByRole('button', { name: panier }))
-    expect(screen.getByText('1 / 3 classés')).toBeInTheDocument()
-  })
-
-  it('échoue la manche après trois mots ratés (laissés filer sans réponse)', () => {
-    const onComplete = vi.fn()
-    render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
-
-    for (let i = 0; i < 3; i++) {
-      act(() => {
-        vi.advanceTimersByTime(4000)
-      })
-    }
-
-    act(() => {
-      vi.advanceTimersByTime(400)
-    })
-
-    expect(onComplete).toHaveBeenCalledWith({ correct: false, timeMs: expect.any(Number), mistakes: 3 })
+    expect(screen.getByText(`${CONTENU.dureeSec}s`)).toBeInTheDocument()
   })
 })

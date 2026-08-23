@@ -15,14 +15,13 @@ interface QueueItem {
   flottantIndex: number
 }
 
-/** Tous les combien d'objets classés correctement la vitesse augmente. */
-const PALIER_ACCELERATION = 5
-/** Nombre de mots ratés (sortis de l'écran) qui met fin à la manche. */
-const RATES_MAX = 3
-/** Durée plancher d'une chute, pour que l'accélération ne rende jamais le mot injouable. */
-const VITESSE_MIN_SEC = 1.2
-const REJET_DUREE_MS = 500
+/** Cadence de rafraîchissement du chrono affiché. */
+const TICK_MS = 100
+/** Durée du flash vert/rouge après une réponse. */
+const FLASH_MS = 260
 const FIN_DELAI_MS = 400
+/** À partir de cette série, on affiche le multiplicateur — en dessous ça n'a rien d'un exploit. */
+const SERIE_MIN_AFFICHEE = 2
 
 /**
  * Effet de bord volontaire (mélange + compteur de spawnId) : n'appeler que depuis un
@@ -36,6 +35,21 @@ function nouvelleVague(taille: number, compteur: { current: number }): QueueItem
   })
 }
 
+/**
+ * Le tri chronométré : un mot (ou une scène) à la fois, à ranger dans le bon panier.
+ *
+ * Un seul chrono pour toute la manche, pas un minuteur par mot. La version
+ * précédente faisait descendre chaque mot pendant 5,5 s : on connaissait la
+ * réponse en une demi-seconde puis on regardait le mot dériver, et répondre
+ * vite n'apportait rien. Ici le mot suivant apparaît instantanément — le temps
+ * gagné en répondant vite est du temps gagné pour la suite, ce qui fait enfin
+ * de la vitesse une compétence.
+ *
+ * Un seul tap, aussi : on tape directement le panier. L'ancienne version
+ * demandait de sélectionner le mot PUIS le panier, et taper un panier sans
+ * avoir sélectionné le mot ne produisait strictement rien — aucun retour, ce
+ * qui se ressentait comme un jeu cassé plutôt que comme une règle.
+ */
 export function RiviereGame({ content, onComplete }: RiviereGameProps) {
   // La première vague utilise les indices 0..N-1 comme spawnId, sans toucher au compteur
   // (accéder à un ref pendant le rendu est proscrit) ; le compteur ne sert qu'aux vagues
@@ -47,36 +61,44 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
       flottantIndex,
     })),
   )
-  const [selectedSpawnId, setSelectedSpawnId] = useState<number | null>(null)
-  const [rejectPanierId, setRejectPanierId] = useState<string | null>(null)
-  const [correctCount, setCorrectCount] = useState(0)
-  const [rateCount, setRateCount] = useState(0)
-  const [wrongTapCount, setWrongTapCount] = useState(0)
-  // Sans `regle`, la partie démarre directement — comportement historique,
-  // préservé pour tout contenu qui n'a pas encore ce champ.
   const [enRegle, setEnRegle] = useState(Boolean(content.regle))
+  const [correctCount, setCorrectCount] = useState(0)
+  const [wrongCount, setWrongCount] = useState(0)
+  const [serie, setSerie] = useState(0)
+  const [flash, setFlash] = useState<'juste' | 'faux' | null>(null)
+  const [restantMs, setRestantMs] = useState(content.dureeSec * 1000)
   const [prefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
   const startedAtRef = useRef(0)
+  const deadlineRef = useRef(0)
   const finishedRef = useRef(false)
 
-  const finished = correctCount >= content.objectif || rateCount >= RATES_MAX
+  const tempsEcoule = restantMs <= 0
+  const objectifAtteint = correctCount >= content.objectif
+  const finished = objectifAtteint || tempsEcoule
   const current = finished ? null : (queue[0] ?? null)
-  // Dérivée de correctCount plutôt que gardée en state : c'est une fonction pure du
-  // nombre de paliers franchis, pas une valeur qui a besoin d'un effet pour se synchroniser.
-  const paliersFranchis = Math.floor(correctCount / PALIER_ACCELERATION)
-  const vitesseSec = Math.max(
-    VITESSE_MIN_SEC,
-    content.vitesseInitialeSec * (1 - content.accelerationParPalier) ** paliersFranchis,
-  )
 
+  // Le chrono démarre à la sortie de l'écran de règle, pas au montage : sinon
+  // le temps s'écoulerait pendant qu'on lit la consigne.
   useEffect(() => {
     if (enRegle) return
     startedAtRef.current = Date.now()
-  }, [enRegle])
+    deadlineRef.current = Date.now() + content.dureeSec * 1000
+  }, [enRegle, content.dureeSec])
 
-  // Un seul mot en jeu à la fois : le retirer de la file avance vers le suivant, en
+  // Décompte calé sur une échéance absolue plutôt que sur un cumul de ticks :
+  // un `setInterval` dérive (onglet en arrière-plan, frame sautée), une
+  // échéance non.
+  useEffect(() => {
+    if (enRegle || finished) return
+    const id = window.setInterval(() => {
+      setRestantMs(Math.max(0, deadlineRef.current - Date.now()))
+    }, TICK_MS)
+    return () => window.clearInterval(id)
+  }, [enRegle, finished])
+
+  // Un seul objet en jeu à la fois : le retirer de la file avance vers le suivant, en
   // rechargeant une nouvelle vague si elle est épuisée (au cas où objectif > nombre de
   // flottants disponibles). L'effet de bord (mélange + compteur) reste interne à cet
   // updater sans jamais appeler un autre setState : même invoqué deux fois par
@@ -88,59 +110,45 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     })
   }, [content.flottants.length])
 
-  function handleWordTap(spawnId: number) {
-    if (finished || rejectPanierId) return
-    setSelectedSpawnId(spawnId)
-  }
-
   function handlePanierTap(panierId: string) {
-    if (finished || !current || selectedSpawnId !== current.spawnId) return
+    if (finished || enRegle || !current) return
     const flottant = content.flottants[current.flottantIndex]
+    const juste = flottant.panierId === panierId
 
-    if (flottant.panierId === panierId) {
-      setSelectedSpawnId(null)
+    if (juste) {
       setCorrectCount((c) => c + 1)
-      avancerQueue()
-      return
+      setSerie((s) => s + 1)
+    } else {
+      setWrongCount((w) => w + 1)
+      setSerie(0)
     }
-
-    setWrongTapCount((w) => w + 1)
-    setRejectPanierId(panierId)
-    window.setTimeout(() => setRejectPanierId(null), REJET_DUREE_MS)
+    setFlash(juste ? 'juste' : 'faux')
+    window.setTimeout(() => setFlash(null), FLASH_MS)
+    // Bonne ou mauvaise, on enchaîne : rester bloqué sur un objet raté casse
+    // le rythme, et le coût de l'erreur est déjà le temps perdu plus la série
+    // remise à zéro.
+    avancerQueue()
   }
 
-  // Un mot non classé qui atteint le bas de l'écran compte comme raté. Ne
-  // démarre jamais pendant l'écran de règle : sans cette garde, le premier
-  // mot tombait et pouvait être compté raté pendant que le joueur lisait
-  // encore la règle, avant d'avoir rien pu faire.
-  useEffect(() => {
-    if (!current || finished || enRegle) return
-    const dureeMs = vitesseSec * 1000
-    const timer = window.setTimeout(() => {
-      setSelectedSpawnId(null)
-      setRateCount((r) => r + 1)
-      avancerQueue()
-    }, dureeMs)
-    return () => window.clearTimeout(timer)
-  }, [current, vitesseSec, finished, enRegle, avancerQueue])
-
-  // Fin de manche : objectif atteint (victoire) ou trois ratés (échec).
+  // Fin de manche : objectif atteint (victoire) ou temps écoulé (échec).
   useEffect(() => {
     if (finishedRef.current || !finished) return
     finishedRef.current = true
-    const succes = correctCount >= content.objectif
     const timeMs = elapsedSince(startedAtRef.current)
-    const mistakes = wrongTapCount + rateCount
-    window.setTimeout(() => {
-      onComplete({ correct: succes, timeMs, mistakes })
+    const id = window.setTimeout(() => {
+      onComplete({ correct: objectifAtteint, timeMs, mistakes: wrongCount })
     }, FIN_DELAI_MS)
-  }, [finished, correctCount, rateCount, wrongTapCount, content.objectif, onComplete])
+    return () => window.clearTimeout(id)
+  }, [finished, objectifAtteint, wrongCount, onComplete])
 
   if (enRegle && content.regle) {
     return (
       <div className={styles.game}>
         <div className={styles.regle}>
           <p className={styles.regleTexte}>{content.regle}</p>
+          <p className={styles.regleChrono}>
+            {content.objectif} bonnes réponses en {content.dureeSec} secondes.
+          </p>
           <button type="button" className={styles.primaryButton} onClick={() => setEnRegle(false)}>
             Commencer
           </button>
@@ -149,33 +157,41 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     )
   }
 
+  const secondes = Math.ceil(restantMs / 1000)
+  const partRestante = Math.max(0, Math.min(1, restantMs / (content.dureeSec * 1000)))
+  const presseFin = restantMs <= 5000
+
   return (
     <div className={styles.game}>
+      <div className={styles.chronoBarre} aria-hidden="true">
+        <div
+          className={clsx(styles.chronoRemplissage, { [styles.chronoUrgent]: presseFin })}
+          style={{ width: `${partRestante * 100}%` }}
+        />
+      </div>
+
       <div className={styles.entete}>
         <span>
-          {Math.min(correctCount, content.objectif)} / {content.objectif} classés
+          {Math.min(correctCount, content.objectif)} / {content.objectif}
         </span>
-        <span className={styles.rates} aria-hidden="true">
-          {Array.from({ length: RATES_MAX }, (_, i) => (
-            <span key={i} className={clsx(styles.rateDot, { [styles.rateDotPerdu]: i < rateCount })} />
-          ))}
+        {serie >= SERIE_MIN_AFFICHEE && <span className={styles.serie}>série ×{serie}</span>}
+        <span className={clsx(styles.chronoTexte, { [styles.chronoUrgent]: presseFin })}>
+          {secondes}s
         </span>
       </div>
 
       <div className={styles.piste}>
         {current && (
-          <button
+          <span
             key={current.spawnId}
-            type="button"
             className={clsx(styles.flottant, {
-              [styles.flottantStatique]: prefersReducedMotion,
-              [styles.selectionne]: selectedSpawnId === current.spawnId,
+              [styles.flottantAnime]: !prefersReducedMotion,
+              [styles.juste]: flash === 'juste',
+              [styles.faux]: flash === 'faux',
             })}
-            style={prefersReducedMotion ? undefined : { animationDuration: `${vitesseSec}s` }}
-            onClick={() => handleWordTap(current.spawnId)}
           >
             {content.flottants[current.flottantIndex].label}
-          </button>
+          </span>
         )}
       </div>
 
@@ -184,7 +200,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
           <button
             key={panier.id}
             type="button"
-            className={clsx(styles.panier, { [styles.rejet]: rejectPanierId === panier.id })}
+            className={styles.panier}
             onClick={() => handlePanierTap(panier.id)}
           >
             {panier.label}

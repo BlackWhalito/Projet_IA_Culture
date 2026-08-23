@@ -107,6 +107,7 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
         {content.carteId === 'europe' ? (
           <EuropeMap
             onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            interactiveZoneIds={content.cibles}
             showAllLabels={false}
             revealedZoneIds={revealedIds}
             activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}
@@ -114,6 +115,7 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
         ) : (
           <FranceMap
             onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            interactiveZoneIds={content.cibles}
             showAllLabels={false}
             revealedZoneIds={revealedIds}
             activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}

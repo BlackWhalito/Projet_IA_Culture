@@ -52,8 +52,7 @@ describe('selectGameForNotion', () => {
       riviere: {
         paniers: [{ id: 'a', label: 'A' }],
         flottants: [{ label: 'x', panierId: 'a' }],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 10,
         objectif: 1,
       },
     })

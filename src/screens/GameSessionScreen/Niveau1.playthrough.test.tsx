@@ -20,10 +20,6 @@ import type { RiviereContent, CapSurContent } from '../../types/game'
 
 const NIVEAU_1 = getLevelById('cp-level-1')!
 
-function currentButtons(): HTMLElement[] {
-  return screen.getAllByRole('button')
-}
-
 describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -68,32 +64,24 @@ describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
     expect(screen.getByText(riviere.regle!)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
 
+    // Le mot n'est plus un bouton : un seul tap suffit, directement sur le
+    // panier. On le retrouve donc par son texte affiché dans la piste.
     function motActuel(): string {
-      const bouton = currentButtons().find((b) => !panierLabels.has(b.textContent ?? ''))
-      return bouton!.textContent!
+      return riviere.flottants.map((f) => f.label).find((label) => screen.queryByText(label))!
     }
     function panierCorrectPour(mot: string): string {
       const flottant = riviere.flottants.find((f) => f.label === mot)!
       return riviere.paniers.find((p) => p.id === flottant.panierId)!.label
     }
 
-    // Une mauvaise réponse volontaire sur le premier mot, puis la bonne.
-    const premierMot = motActuel()
-    const bonPanier = panierCorrectPour(premierMot)
+    // Une mauvaise réponse volontaire, puis l'objectif atteint. Une erreur ne
+    // bloque plus sur le même mot : elle coûte du temps et casse la série.
+    const bonPanier = panierCorrectPour(motActuel())
     const mauvaisPanier = [...panierLabels].find((l) => l !== bonPanier)!
-    fireEvent.click(screen.getByRole('button', { name: premierMot }))
     fireEvent.click(screen.getByRole('button', { name: mauvaisPanier }))
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
-    fireEvent.click(screen.getByRole('button', { name: premierMot }))
-    fireEvent.click(screen.getByRole('button', { name: bonPanier }))
 
-    // Le reste des mots, tous corrects, jusqu'à l'objectif.
-    for (let i = 1; i < riviere.objectif; i++) {
-      const mot = motActuel()
-      fireEvent.click(screen.getByRole('button', { name: mot }))
-      fireEvent.click(screen.getByRole('button', { name: panierCorrectPour(mot) }))
+    for (let i = 0; i < riviere.objectif; i++) {
+      fireEvent.click(screen.getByRole('button', { name: panierCorrectPour(motActuel()) }))
     }
     act(() => {
       vi.advanceTimersByTime(400)
@@ -112,31 +100,20 @@ describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
 
     function sceneActuelle(): string {
-      const bouton = currentButtons().find((b) => !panierLabelsEtatsEau.has(b.textContent ?? ''))
-      return bouton!.textContent!
+      return riviereEtatsEau.flottants.map((f) => f.label).find((label) => screen.queryByText(label))!
     }
     function panierCorrectPourScene(scene: string): string {
       const flottant = riviereEtatsEau.flottants.find((f) => f.label === scene)!
       return riviereEtatsEau.paniers.find((p) => p.id === flottant.panierId)!.label
     }
 
-    // Une mauvaise réponse volontaire sur la première scène, puis la bonne.
-    const premiereScene = sceneActuelle()
-    const bonPanierScene = panierCorrectPourScene(premiereScene)
+    // Une mauvaise réponse volontaire, puis l'objectif atteint.
+    const bonPanierScene = panierCorrectPourScene(sceneActuelle())
     const mauvaisPanierScene = [...panierLabelsEtatsEau].find((l) => l !== bonPanierScene)!
-    fireEvent.click(screen.getByRole('button', { name: premiereScene }))
     fireEvent.click(screen.getByRole('button', { name: mauvaisPanierScene }))
-    act(() => {
-      vi.advanceTimersByTime(500)
-    })
-    fireEvent.click(screen.getByRole('button', { name: premiereScene }))
-    fireEvent.click(screen.getByRole('button', { name: bonPanierScene }))
 
-    // Le reste des scènes, toutes correctes, jusqu'à l'objectif.
-    for (let i = 1; i < riviereEtatsEau.objectif; i++) {
-      const scene = sceneActuelle()
-      fireEvent.click(screen.getByRole('button', { name: scene }))
-      fireEvent.click(screen.getByRole('button', { name: panierCorrectPourScene(scene) }))
+    for (let i = 0; i < riviereEtatsEau.objectif; i++) {
+      fireEvent.click(screen.getByRole('button', { name: panierCorrectPourScene(sceneActuelle()) }))
     }
     act(() => {
       vi.advanceTimersByTime(400)

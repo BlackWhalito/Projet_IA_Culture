@@ -22,8 +22,7 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'M', panierId: 'consonne' },
           { label: 'U', panierId: 'voyelle' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 20,
         objectif: 5,
       },
       qcm: {
@@ -53,8 +52,7 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'Maison', panierId: 'nom' },
           { label: 'Manger', panierId: 'verbe' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 16,
         objectif: 4,
       },
       qcm: {
@@ -92,7 +90,7 @@ export const CP_FRANCAIS: Notion[] = [
     games: {
       riviere: {
         regle:
-          'Range chaque mot dans le bon panier avant qu\'il ne touche le fond — sans article devant pour te souffler la réponse. Certains, comme « oasis » ou « apogée », trompent même les meilleurs.',
+          'Masculin ou féminin ? Les mots arrivent sans article devant pour te souffler la réponse. Certains, comme « oasis » ou « apogée », trompent même les meilleurs.',
         paniers: [
           { id: 'masculin', label: 'Masculin' },
           { id: 'feminin', label: 'Féminin' },
@@ -108,12 +106,11 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'Omoplate', panierId: 'feminin' },
           { label: 'Anagramme', panierId: 'feminin' },
         ],
-        // 5.5s (au lieu de 4) : ces mots demandent de vraiment hésiter, pas
-        // seulement de classer un objet reconnu d'un coup d'œil — repéré en
-        // jouant réellement le niveau, jugé trop rapide même pour un adulte
-        // qui prend le temps de réfléchir.
-        vitesseInitialeSec: 5.5,
-        accelerationParPalier: 0.15,
+        // ~5,5 s par bonne réponse exigée, contre 4 s pour les tris qu'on
+        // reconnaît d'un coup d'œil : ces mots-là demandent de vraiment
+        // hésiter. Le budget laisse la place à deux ou trois erreurs sans
+        // condamner la manche.
+        dureeSec: 50,
         objectif: 9,
       },
       qcm: {

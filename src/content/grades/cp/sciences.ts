@@ -100,8 +100,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'Le linge gelé sèche dehors', panierId: 'sublimation' },
           { label: 'Le givre sèche sans fondre', panierId: 'sublimation' },
         ],
-        vitesseInitialeSec: 5.5,
-        accelerationParPalier: 0.15,
+        dureeSec: 55,
         objectif: 10,
       },
       qcm: {
@@ -177,8 +176,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'On rentre à l\'école', panierId: 'automne' },
           { label: 'Les arbres sont nus', panierId: 'hiver' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 32,
         objectif: 8,
       },
       qcm: {
@@ -210,8 +208,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'Vache', panierId: 'vivipare' },
           { label: 'Serpent', panierId: 'ovipare' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 24,
         objectif: 6,
       },
       qcm: {
@@ -243,8 +240,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'Un champignon', panierId: 'vivant' },
           { label: 'Une voiture', panierId: 'non-vivant' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 24,
         objectif: 6,
       },
       qcm: {
