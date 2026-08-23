@@ -57,8 +57,16 @@ export const CP_SCIENCES: Notion[] = [
     difficulty: 1,
     title: "Les 3 états de l'eau",
     summary: "L'eau peut être solide, liquide ou gazeuse — et chaque passage d'un état à l'autre porte un nom savant précis, pas seulement « ça fond » ou « ça s'évapore ».",
+    // Précédente version : « condensation » y était définie comme le passage
+    // gaz → solide, l'opposé de ce que le mot désigne réellement en usage
+    // courant (gaz → liquide, synonyme de liquéfaction) — et se contredisait
+    // en plus elle-même en attribuant à cette « condensation » un exemple de
+    // sublimation (solide → gaz). Signalé par le `verificateur`, corrigé en
+    // supprimant l'affirmation fausse plutôt qu'en la retravaillant : la
+    // nuance qu'elle visait (langage courant vs terme savant) n'était pas
+    // indispensable au fait intéressant qui suit.
     funFact:
-      "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée, c'est-à-dire de l'eau redevenue liquide — la liquéfaction. Ce mot est justement celui qu'on confond avec « condensation », que les scientifiques réservent au passage direct du gaz au solide, l'inverse exact de la sublimation : c'est elle qui sèche le linge étendu dehors par grand froid, la glace des fibres se changeant directement en vapeur sans jamais redevenir liquide.",
+      "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée, c'est-à-dire de l'eau redevenue liquide — la liquéfaction, que le langage courant appelle souvent « condensation ». Un autre passage d'état surprend davantage : c'est la sublimation qui sèche le linge étendu dehors par grand froid, la glace des fibres se changeant directement en vapeur sans jamais redevenir liquide.",
     games: {
       riviere: {
         // Le `match` qui portait cette notion faisait deviner un mot savant à

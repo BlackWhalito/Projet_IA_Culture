@@ -15,17 +15,19 @@ export const FRANCE_VIEWBOX = '0 0 600 640'
  * trois repères, dans l'ordre où l'œil les cherche : la pointe de la
  * Bretagne (un vrai triangle qui pointe à l'ouest, pas une simple encoche —
  * `L40,250` la tire loin du reste du tracé), la presqu'île du Cotentin
- * juste au nord d'elle, et le creux du golfe du Lion sur la côte
- * méditerranéenne (la suite de `Q` entre Marseille et l'Espagne, qui rentre
- * vers le nord avant de ressortir). Toujours pas un tracé cartographique
- * précis (voir plus bas) — juste assez de silhouette pour se reconnaître.
+ * juste au nord d'elle (même principe, `L155,115` — un premier essai en `Q`
+ * lissait la pointe jusqu'à la rendre imperceptible, signalé par le
+ * `verificateur`), et le creux du golfe du Lion sur la côte méditerranéenne
+ * (la suite de `Q` entre Marseille et l'Espagne, qui rentre vers le nord
+ * avant de ressortir). Toujours pas un tracé cartographique précis (voir
+ * plus bas) — juste assez de silhouette pour se reconnaître.
  */
 export const FRANCE_CONTOUR_PATH =
   'M200,80 Q260,50 330,45 Q400,40 460,60 Q505,78 525,110 Q558,145 565,215 ' +
   'Q568,275 550,325 Q535,375 540,420 Q545,460 540,470 Q515,530 490,562 ' +
   'Q460,585 430,555 Q400,528 380,530 Q345,532 330,555 Q315,578 300,568 ' +
   'Q260,585 200,570 Q140,552 115,520 Q95,490 92,440 Q90,390 100,350 ' +
-  'L108,300 L40,250 L130,195 Q170,160 165,120 Q175,95 200,80 Z'
+  'L108,300 L40,250 L130,195 L155,115 L200,80 Z'
 
 /**
  * 5 des 8 pays frontaliers de la France (voir `cp-geographie-pays-voisins`) : Monaco,
