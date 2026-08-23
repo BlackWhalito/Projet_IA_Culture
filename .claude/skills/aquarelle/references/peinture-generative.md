@@ -34,6 +34,8 @@ Piège associé, déjà corrigé mais à ne pas réintroduire : un chemin de **2
 
 Dessiner seulement la courbe donne un pétale suspendu. Une arche est : montant gauche → naissance de la courbe → demi-cercle → montant droit → sol. La naissance se calcule **depuis le haut de l'ouverture** (`yTop + hauteur * 0.42`), jamais depuis un point flottant au milieu.
 
+**La voûte elle-même doit être un vrai demi-cercle échantillonné, jamais deux segments obliques vers un sommet.** Une bouche de grotte (`grotteLointaine()`, `LevelMapScreen/levelArt.ts`) dessinée avec seulement 3 points au sommet (montant → point milieu en pointe → montant) se lisait comme un blason ou un trou découpé au ciseau, jugé raté par le propriétaire deux fois de suite avant que le sommet ne devienne un arc échantillonné sur 6-8 points (`angle = π(1 - i/n)`, `x = cx + cos(angle)·rx`, `y = naissance - sin(angle)·(naissance - gorge)`). Une lèvre chaude (`dryStroke` fin, suivant ces mêmes points) donne l'arête qui manque encore à l'aplat seul.
+
 ## Une lumière unique, décidée avant de peindre
 
 Le défaut le plus coûteux en harmonie : chaque objet calcule son ombre dans son coin, donc rien ne se répond. Décide **un** `LightPlan` par scène (`light.ts`) et passe-le à chaque élément. Toutes les ombres tombent alors du même côté — c'est ce qui fait tenir un tableau.
@@ -87,3 +89,24 @@ Le risque est spécifique et plus élevé qu'ailleurs : un visage raté se voit 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
 
 **Juge à la taille d'affichage réelle, pas seulement sur une capture zoomée.** Des colonnes ajoutées à `citeEngloutieScene` paraissaient nettes sur une capture agrandie (le canvas source, en résolution `devicePixelRatio`) mais étaient sous le seuil de lisibilité une fois réduites à la largeur CSS réellement affichée (170px, contre 220px de source — sans compter que la page peut encore la rétrécir sur un écran étroit). Avant de juger un détail petit ou fin, capture le canvas à sa taille CSS réelle (`getBoundingClientRect()`), pas sa résolution interne.
+
+**Pour juger une VALEUR (clair/sombre, contraste), ne te fie jamais à ta propre lecture d'une capture PNG — échantillonne les pixels réels.** Sur le tableau du Niveau 1 (`levelArt.ts`), une masse rocheuse a été décrite deux fois de suite comme « presque blanche » ou « gris pâle » en regardant une capture, alors qu'un `page.evaluate(() => ctx.getImageData(...))` sur le même canvas montrait des valeurs RGB autour de 60-90/255 — sombre, correct. La cause n'était pas un bug de rendu : c'est la lecture visuelle d'une petite image compressée, avec des contrastes simultanés forts autour (feu, ciel clair), qui trompe. **La règle** : avant de conclure « trop clair »/« trop sombre »/« pas assez de contraste », échantillonne quelques points avec `getImageData` (voir un exemple de script dans les captures du `verificateur`) et compare des VALEURS, pas une impression. Réserve le jugement visuel à la composition et à la forme (est-ce qu'on reconnaît un rocher ? une grotte ? une silhouette ?), jamais à la luminosité absolue.
+
+## Le contexte fait la valeur — un `wash()` isolé ne fonce jamais assez seul
+
+`rocher()` (`terrain.ts`) paraît sombre et convaincant dans la lagune de l'accueil (`oceanScene`) — mais ce n'est pas sa propre densité de pigment qui le fait : c'est qu'il est peint PAR-DESSUS une eau déjà très sombre (`gradedWash` jusqu'à alpha 0.72). Réutilisé tel quel sur du papier nu (première version du tableau du Niveau 1), le même appel rendait un gris moyen à peine plus foncé que le ciel — mesuré : une masse en `ENCRE_SOMBRE` à 30+ couches ne couvre qu'environ 40-60 % du papier, loin d'une opacité franche.
+
+**La règle** : avant de réutiliser une masse (`rocher()` ou toute forme `wash()`-based) qui « avait l'air sombre » dans une autre scène, vérifie ce qui se trouve DESSOUS dans cette scène d'origine. Si c'était un dégradé déjà sombre, pose le même genre de fond sombre avant de peindre la masse — sinon elle rendra nettement plus pâle que dans son contexte d'origine, quels que soient ses propres réglages de `layers`/`alpha`.
+
+## Un objet optique lisse (lune, halo, reflet d'une lumière) veut un dégradé radial natif, jamais `wash()`
+
+`wash()` déforme tout par du bruit fractal — parfait pour un bord de pigment organique (rocher, nuage, feu), mais un disque de lune ou une nappe de lumière réfléchie sur l'eau doivent rester lisses. Deux primitives dédiées existent maintenant dans `components/watercolor/atmosphere.ts`, à réutiliser plutôt qu'à réinventer :
+
+- **`moon(ctx, cx, cy, r, color)`** — un disque et son halo, en `createRadialGradient`, pour toute source lumineuse ronde dans le ciel.
+- **`waterGlow(ctx, cx, cy, rx, ry, color)`** — le même principe mais APLATI en ellipse (`ctx.scale`), pour le reflet d'une lumière lointaine sur une eau calme. Ne pas confondre avec `reflection()` (des traits verticaux nets, faits pour un objet DRESSÉ — mât, tour — jamais pour une source de lumière elle-même, dont le reflet est une nappe large et basse, pas un fil qui descend).
+
+Les deux premiers essais de la lune (en `wash()`, à disque et halo de teintes différentes) et du reflet de grotte (en `reflection()`, lu comme « des gouttes qui tombent ») ont été jugés ratés avant ce changement de technique — pas de simple réglage de paramètres.
+
+## Le même primitive à deux échelles fait la profondeur
+
+Pour opposer un premier plan à un lointain (rocher + silhouette devant, grotte minuscule de l'autre côté de l'eau), réutilise LA MÊME fonction (`rocher()`) à deux échelles nettement différentes plutôt que d'écrire une fonction dédiée pour la version lointaine. C'est l'écart d'échelle et de contraste entre les deux appels, pas une différence de forme, qui fait lire « loin » — une forme différente pour l'objet lointain risque de le faire lire comme un objet distinct plutôt que comme la même chose vue de loin.
