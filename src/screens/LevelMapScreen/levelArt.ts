@@ -72,24 +72,40 @@ function grotteLointaine(ctx: CanvasRenderingContext2D, cx: number, cyBase: numb
   // L'entrée elle-même, agrandie dans les mêmes proportions (0.3 → 0.4 de
   // la largeur du rocher) pour rester une vraie ouverture visible, pas
   // seulement un point sombre.
-  const archWidth = rockWidth * 0.4
-  const archHeight = rockHeight * 0.88
+  //
+  // Une vraie voûte arrondie (un demi-cercle échantillonné), pas les deux
+  // segments obliques d'un premier essai qui pointaient en triangle net —
+  // une pointe géométrique se lit comme un blason ou un trou découpé,
+  // jamais comme l'entrée naturelle d'une grotte. Montants verticaux
+  // (`naissance`), puis l'arc, exactement la construction en trois temps
+  // documentée pour une arche (`peinture-generative.md`).
+  const archWidth = rockWidth * 0.42
+  const archHeight = rockHeight * 0.9
   const halfW = archWidth / 2
-  const naissance = cyBase - archHeight * 0.2
+  const naissance = cyBase - archHeight * 0.22
   const gorge = cyBase - archHeight
+  const voute: Point[] = []
+  const marches = 8
+  for (let i = 1; i < marches; i += 1) {
+    const angle = Math.PI * (1 - i / marches)
+    voute.push([cx + Math.cos(angle) * halfW, naissance - Math.sin(angle) * (naissance - gorge)])
+  }
   wash(
     ctx,
-    [
-      [cx - halfW, cyBase],
-      [cx - halfW, naissance],
-      [cx - halfW * 0.5, gorge + archHeight * 0.1],
-      [cx, gorge],
-      [cx + halfW * 0.5, gorge + archHeight * 0.1],
-      [cx + halfW, naissance],
-      [cx + halfW, cyBase],
-    ],
+    [[cx - halfW, cyBase], [cx - halfW, naissance], ...voute, [cx + halfW, naissance], [cx + halfW, cyBase]],
     rng,
-    { color: ENCRE_SOMBRE, layers: 22, alpha: 0.7 / 22, spread: 0.08, jitter: 0.08 },
+    { color: ENCRE_SOMBRE, layers: 22, alpha: 0.7 / 22, spread: 0.06, jitter: 0.07 },
+  )
+
+  // La lèvre de l'entrée, tout contre la lueur : un trait chaud et fin qui
+  // en suit le contour arrondi — sans lui, l'ouverture reste un aplat sans
+  // arête, jamais une vraie bouche creusée dans la roche.
+  dryStroke(
+    ctx,
+    [[cx - halfW, naissance], ...voute, [cx + halfW, naissance]],
+    archWidth * 0.06,
+    rng,
+    { color: SABLE, alpha: 0.4, layers: 2, jitter: 0.05 },
   )
 
   // La lueur, tout au fond, tenue : petite, chaude, seule touche de
