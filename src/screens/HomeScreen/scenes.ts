@@ -1,6 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
-import type { Point } from '../../components/watercolor/engine'
 import {
   arcade,
   column,
@@ -10,10 +9,10 @@ import {
   pediment,
   ruinFacade,
 } from '../../components/watercolor/architecture'
-import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
+import { cloud, glint, gradedWash, houle, reflection, ripples } from '../../components/watercolor/atmosphere'
 import { adultReading, childWatchingSea, girlWriting } from '../../components/watercolor/figure'
-import { litFromLeft } from '../../components/watercolor/light'
 import type { LightPlan } from '../../components/watercolor/light'
+import { rocher } from '../../components/watercolor/terrain'
 
 /**
  * Les deux tableaux qui encadrent l'accueil. Pensés comme des aquarelles
@@ -50,38 +49,6 @@ const LUMIERE: LightPlan = {
 }
 
 /**
- * Un éclat de lumière réservée sur l'eau : un trait fin et allongé, jamais
- * une nappe. `highlight()`/`wash()` déforme toujours une forme aussi plate
- * (un ratio largeur/hauteur élevé) vers un disque, quels que soient les
- * réglages de `spread`/`jitter` — le contour fermé finit par s'arrondir.
- * `dryStroke`, fait pour les traits, garde le fil de lumière.
- */
-function glint(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  length: number,
-  thickness: number,
-  rng: () => number,
-  alpha: number,
-): void {
-  dryStroke(ctx, [
-    [cx - length / 2, cy],
-    [cx, cy + (rng() - 0.5) * thickness],
-    [cx + length / 2, cy],
-  ], thickness, rng, { color: PAPIER, alpha, layers: 2, jitter: 0.05 })
-}
-
-/** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
-function houle(y: number, amplitude: number, w: number, rng: () => number): Point[] {
-  const points: Point[] = []
-  for (let i = 0; i <= 12; i += 1) {
-    points.push([(i / 12) * w, y + Math.sin(i * 1.3 + amplitude) * amplitude + (rng() - 0.5) * amplitude * 0.6])
-  }
-  return points
-}
-
-/**
  * Une voile : un triangle penché, sa coque, son mât. Minuscule — c'est ce
  * qui donne l'échelle à la lagune. Sans un objet de taille connue, une
  * étendue d'eau n'a aucune profondeur lisible.
@@ -110,84 +77,6 @@ function voile(
     alpha: alpha * 0.9,
     layers: 2,
   })
-}
-
-/**
- * Un rocher de premier plan : masse sombre et anguleuse qui mord le bord
- * bas du tableau. Contrairement à un nuage (base plate, sommet bombé et
- * mou), un rocher veut un contour plus dur — moins de `spread`/`jitter`,
- * une silhouette à facettes plutôt qu'une bosse arrondie. Rendu `stone`
- * bien plus opaque que n'importe quel lavis atmosphérique de la scène :
- * c'est le seul objet solide et net au premier plan, il doit se voir comme
- * tel plutôt que se fondre dans l'eau.
- *
- * Retourne le point (x, y) du sommet, pour y poser une figure assise.
- */
-function rocher(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cyBase: number,
-  width: number,
-  height: number,
-  rng: () => number,
-  plan: LightPlan,
-  options: { stone: string; shade: string },
-): Point {
-  const { stone, shade } = options
-  const lit = litFromLeft(plan)
-  const x0 = cx - width / 2
-  const x1 = cx + width / 2
-
-  // Le contour : une poignée de sommets inégaux reliés de gauche à droite,
-  // jamais une bosse arrondie — c'est la ligne brisée, comme sur
-  // `ruinFacade`, qui distingue un rocher anguleux d'un nuage. Bombé au
-  // centre par le même gabarit `taper` que les nuages, mais avec un tirage
-  // par sommet net (pas de spread/jitter mou) pour garder des angles francs.
-  const peaks = 4 + Math.floor(rng() * 2)
-  const edge: Point[] = []
-  for (let i = 0; i <= peaks; i += 1) {
-    const t = i / peaks
-    const taper = 0.3 + Math.sin(t * Math.PI) * 0.7
-    edge.push([x0 + width * t, cyBase - height * taper * (0.55 + rng() * 0.45)])
-  }
-
-  // La masse. `warm`/`shade` reprennent ensuite les points de CE contour —
-  // jamais un rectangle indépendant : en `multiply`, rien n'occulte rien,
-  // un aplat qui déborde du contour reste visible flottant à côté du
-  // rocher plutôt que dessus (piège déjà documenté pour `ruinFacade`).
-  wash(ctx, [[x0, cyBase], ...edge, [x1, cyBase]], rng, {
-    color: stone,
-    layers: 28,
-    alpha: 0.65 / 28,
-    spread: 0.045,
-    jitter: 0.05,
-  })
-
-  const mid = Math.floor(edge.length / 2)
-  const warmSlice = lit ? edge.slice(0, mid + 1) : edge.slice(mid)
-  const warmBase: Point[] = lit
-    ? [[x0, cyBase], ...warmSlice, [warmSlice[warmSlice.length - 1][0], cyBase]]
-    : [[warmSlice[0][0], cyBase], ...warmSlice, [x1, cyBase]]
-  wash(ctx, warmBase, rng, { color: plan.warm, layers: 10, alpha: 0.12 / 10, spread: 0.035, jitter: 0.05 })
-
-  const shadeSlice = lit ? edge.slice(mid) : edge.slice(0, mid + 1)
-  const shadeBase: Point[] = lit
-    ? [[shadeSlice[0][0], cyBase], ...shadeSlice, [x1, cyBase]]
-    : [[x0, cyBase], ...shadeSlice, [shadeSlice[shadeSlice.length - 1][0], cyBase]]
-  wash(ctx, shadeBase, rng, { color: shade, layers: 16, alpha: 0.32 / 16, spread: 0.045, jitter: 0.06 })
-
-  // L'arête éclairée, nette — le seul bord franc de la masse.
-  const edgeXY = lit ? edge[0] : edge[edge.length - 1]
-  dryStroke(ctx, [[edgeXY[0], cyBase], [edgeXY[0], edgeXY[1]]], 1.2, rng, {
-    color: ENCRE_SOMBRE,
-    alpha: 0.4,
-    layers: 2,
-  })
-
-  // Le sommet, pour y poser une figure assise : le point le plus haut du
-  // contour, pas nécessairement `cx` — le tirage par sommet peut décaler le
-  // point culminant.
-  return edge.reduce((a, b) => (b[1] < a[1] ? b : a))
 }
 
 /**
@@ -305,8 +194,8 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
 
   // Éclats de lumière réservée sur les crêtes.
   stroke(ctx, houle(h * 0.55, 4, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.045, layers: 10 })
-  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
+  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5, PAPIER)
+  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45, PAPIER)
 
   // Une profondeur qui referme le bas du tableau.
   wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.9, h * 0.14, 11, 0, rng), rng, {
@@ -336,6 +225,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   const rockTop = rocher(ctx, w * 0.76, h * 1.02, w * 0.5, h * 0.15, rng, LUMIERE, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
+    accent: ENCRE_SOMBRE,
   })
   // Assise relevée au-dessus du sommet plutôt qu'à cheval dessus : posée
   // dans la masse du rocher, la silhouette (torse, genoux) se fondait dans
@@ -578,8 +468,8 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   stroke(ctx, houle(h * 0.72, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
   // Deux éclats de lumière francs sur l'eau — le papier qui perce net,
   // pas seulement un voile pâle.
-  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45)
+  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5, PAPIER)
+  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45, PAPIER)
 
   // La barque : petite, décalée, avec sa voile et son sillage.
   const bx = w * 0.32
@@ -611,8 +501,8 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   // `glint()`. Une couleur saturée (essayé ici avec `BLEU_CLAIR`) se lisait
   // comme une tache posée sur l'eau, pas comme un reflet ; une forme ronde
   // (essayé ensuite avec `highlight()`) se lisait comme un galet flottant.
-  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4)
-  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35)
+  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4, PAPIER)
+  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35, PAPIER)
 
   // Un dernier voile vert-de-gris sur l'eau basse, pour le côté submergé.
   wash(ctx, polygon(w * 0.5, h * 0.9, w * 0.7, h * 0.1, 10, 0, rng), rng, {

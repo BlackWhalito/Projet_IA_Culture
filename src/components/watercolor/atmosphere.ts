@@ -19,6 +19,84 @@ import type { LightPlan } from './light'
  */
 
 /**
+ * Une lune : un disque et son halo, tous deux en dégradé radial natif —
+ * jamais la technique `wash()` (polygone déformé par un bruit fractal),
+ * pensée pour un bord de pigment organique. Un disque de lune veut un bord
+ * lisse et un halo qui s'éteint en douceur tout autour : le même bruit
+ * fractal qui fait un beau rocher irrégulier fait ici un cercle bancal et
+ * un halo en tache, jamais la forme nette qu'une lune demande.
+ */
+export function moon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: string): void {
+  const rgb = hexToRgb(color)
+
+  const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 3)
+  halo.addColorStop(0, `rgba(${rgb}, 0.22)`)
+  halo.addColorStop(0.4, `rgba(${rgb}, 0.09)`)
+  halo.addColorStop(1, `rgba(${rgb}, 0)`)
+  ctx.save()
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(cx, cy, r * 3, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+
+  // Le disque : un dégradé radial resserré plutôt qu'un aplat, pour une
+  // toute petite rondeur de volume — jamais un cercle parfaitement plat,
+  // qui se lirait comme une pastille collée plutôt qu'une sphère.
+  const disque = ctx.createRadialGradient(cx - r * 0.15, cy - r * 0.15, 0, cx, cy, r)
+  disque.addColorStop(0, `rgba(${rgb}, 0.6)`)
+  disque.addColorStop(0.7, `rgba(${rgb}, 0.48)`)
+  disque.addColorStop(1, `rgba(${rgb}, 0.36)`)
+  ctx.save()
+  ctx.fillStyle = disque
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
+function hexToRgb(color: string): string {
+  const n = parseInt(color.slice(1), 16)
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`
+}
+
+/**
+ * L'auréole d'une lumière sur l'eau : un halo qui s'éteint en douceur,
+ * comme `moon()`, mais APLATI en ellipse plutôt que rond — une lumière qui
+ * se reflète sur une surface horizontale pose un rond de lumière large et
+ * bas, jamais un halo sphérique flottant. Même dégradé radial natif que
+ * `moon()`, avec `ctx.scale` pour aplatir le cercle plutôt qu'un second
+ * calcul de rayons.
+ *
+ * Se peint seule, sans les traits verticaux d'un `reflection()` classique
+ * (pensé pour un objet vertical net — mât, tour) : la lumière d'une source
+ * lointaine se reflète en une nappe posée sur l'eau, pas en un fil qui
+ * descend.
+ */
+export function waterGlow(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  color: string,
+): void {
+  const rgb = hexToRgb(color)
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.scale(1, ry / rx)
+  const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, rx)
+  halo.addColorStop(0, `rgba(${rgb}, 0.34)`)
+  halo.addColorStop(0.45, `rgba(${rgb}, 0.14)`)
+  halo.addColorStop(1, `rgba(${rgb}, 0)`)
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(0, 0, rx, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
+/**
  * Un lavis dégradé : la même masse peinte en tranches horizontales dont la
  * couleur et l'opacité glissent progressivement.
  *
@@ -314,6 +392,45 @@ export function ripples(
       jitter: 0.08,
     })
   }
+}
+
+/**
+ * Un éclat de lumière réservée sur l'eau : un trait fin et allongé, jamais
+ * une nappe. `highlight()`/`wash()` déforme toujours une forme aussi plate
+ * (un ratio largeur/hauteur élevé) vers un disque, quels que soient les
+ * réglages de `spread`/`jitter` — le contour fermé finit par s'arrondir.
+ * `dryStroke`, fait pour les traits, garde le fil de lumière.
+ */
+export function glint(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  length: number,
+  thickness: number,
+  rng: () => number,
+  alpha: number,
+  color: string,
+): void {
+  dryStroke(
+    ctx,
+    [
+      [cx - length / 2, cy],
+      [cx, cy + (rng() - 0.5) * thickness],
+      [cx + length / 2, cy],
+    ],
+    thickness,
+    rng,
+    { color, alpha, layers: 2, jitter: 0.05 },
+  )
+}
+
+/** Chemin ondulant d'un bord à l'autre, à hauteur `y`. */
+export function houle(y: number, amplitude: number, w: number, rng: () => number): Point[] {
+  const points: Point[] = []
+  for (let i = 0; i <= 12; i += 1) {
+    points.push([(i / 12) * w, y + Math.sin(i * 1.3 + amplitude) * amplitude + (rng() - 0.5) * amplitude * 0.6])
+  }
+  return points
 }
 
 /**

@@ -98,13 +98,16 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
         <span>
           {index + 1} / {cibles.length}
         </span>
-        {phase === 'jeu' && cible && <span className={styles.consigne}>Trouve : {cible.label}</span>}
+        {phase === 'jeu' && cible && (
+          <span className={styles.consigne}>{content.clues?.[cible.id] ?? `Trouve : ${cible.label}`}</span>
+        )}
       </div>
 
       <div className={styles.carteZone}>
         {content.carteId === 'europe' ? (
           <EuropeMap
             onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            interactiveZoneIds={content.cibles}
             showAllLabels={false}
             revealedZoneIds={revealedIds}
             activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}
@@ -112,6 +115,7 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
         ) : (
           <FranceMap
             onZoneClick={(id) => phase === 'jeu' && resoudre(id)}
+            interactiveZoneIds={content.cibles}
             showAllLabels={false}
             revealedZoneIds={revealedIds}
             activeZoneId={phase === 'feedback' ? (cible?.id ?? null) : null}

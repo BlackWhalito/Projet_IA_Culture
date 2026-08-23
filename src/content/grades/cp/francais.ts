@@ -22,8 +22,7 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'M', panierId: 'consonne' },
           { label: 'U', panierId: 'voyelle' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 20,
         objectif: 5,
       },
       qcm: {
@@ -53,8 +52,7 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'Maison', panierId: 'nom' },
           { label: 'Manger', panierId: 'verbe' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 16,
         objectif: 4,
       },
       qcm: {
@@ -86,29 +84,38 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 1,
     title: 'Masculin et féminin',
-    summary: 'En français, chaque nom est soit masculin (un/le), soit féminin (une/la).',
-    funFact: "Certains mots changent complètement de sens selon leur genre : « un livre » (à lire) et « une livre » (un poids ou une monnaie) !",
+    summary: "Le genre d'un nom ne se devine pas à l'oreille : plusieurs mots très courants trompent régulièrement les adultes les plus sûrs d'eux.",
+    funFact:
+      "Trois mots narguent la règle qu'on croit connaître : « amour », « délice » et « orgue » sont masculins au singulier, mais basculent au féminin dès qu'on les emploie au pluriel dans leur sens le plus noble — on dit « un grand amour », mais « de folles amours », et « les grandes orgues » de Notre-Dame.",
     games: {
       riviere: {
+        regle:
+          'Masculin ou féminin ? Les mots arrivent sans article devant pour te souffler la réponse. Certains, comme « oasis » ou « apogée », trompent même les meilleurs.',
         paniers: [
           { id: 'masculin', label: 'Masculin' },
           { id: 'feminin', label: 'Féminin' },
         ],
         flottants: [
-          { label: 'Un chat', panierId: 'masculin' },
-          { label: 'Une chaise', panierId: 'feminin' },
-          { label: 'Un livre', panierId: 'masculin' },
-          { label: 'Une pomme', panierId: 'feminin' },
-          { label: 'Un stylo', panierId: 'masculin' },
-          { label: 'Une fleur', panierId: 'feminin' },
+          { label: 'Oasis', panierId: 'feminin' },
+          { label: 'Pétale', panierId: 'masculin' },
+          { label: 'Apogée', panierId: 'masculin' },
+          { label: 'Échappatoire', panierId: 'feminin' },
+          { label: 'Tentacule', panierId: 'masculin' },
+          { label: 'Astérisque', panierId: 'masculin' },
+          { label: 'Ecchymose', panierId: 'feminin' },
+          { label: 'Omoplate', panierId: 'feminin' },
+          { label: 'Anagramme', panierId: 'feminin' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
-        objectif: 6,
+        // ~5,5 s par bonne réponse exigée, contre 4 s pour les tris qu'on
+        // reconnaît d'un coup d'œil : ces mots-là demandent de vraiment
+        // hésiter. Le budget laisse la place à deux ou trois erreurs sans
+        // condamner la manche.
+        dureeSec: 50,
+        objectif: 9,
       },
       qcm: {
         question: 'Lequel de ces mots est féminin ?',
-        choices: ['Une pomme', 'Un chat', 'Un stylo'],
+        choices: ['Omoplate', 'Tentacule', 'Astérisque'],
         correctIndex: 0,
       },
     },
@@ -160,7 +167,8 @@ export const CP_FRANCAIS: Notion[] = [
     difficulty: 2,
     title: 'La ponctuation de base',
     summary: 'Le point, le point d\'interrogation et le point d\'exclamation terminent une phrase.',
-    funFact: "Le point d'interrogation vient d'une abréviation du mot latin « quaestio », qui veut dire « question ».",
+    funFact:
+      "Le point d'interrogation vient du « punctus interrogativus », un signe ondulé inventé au IXe siècle par les copistes carolingiens pour noter l'intonation montante d'une question à voix haute — pas d'une abréviation du mot latin « quaestio », une explication populaire qu'aucun paléographe ne retient plus.",
     games: {
       qcm: {
         question: 'Quel signe de ponctuation termine une phrase interrogative ?',

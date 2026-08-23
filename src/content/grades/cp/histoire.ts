@@ -39,8 +39,10 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 2,
     title: 'Louis XIV, le Roi Soleil',
-    summary: 'Louis XIV a été roi de France et a fait construire le château de Versailles.',
-    funFact: "Louis XIV est le roi qui a régné le plus longtemps dans l'histoire de France : 72 ans !",
+    summary:
+      "Louis XIV n'a pas fait construire Versailles : il a démesurément agrandi le pavillon de chasse de son père Louis XIII, jusqu'à en faire le plus grand palais d'Europe.",
+    funFact:
+      "Louis XIV est resté roi 72 ans, le règne le plus long de l'histoire de France — mais il n'a vraiment gouverné qu'à partir de ses 22 ans, à la mort de Mazarin, qui dirigeait jusque-là avec sa mère. Et la phrase qu'on lui prête, « L'État, c'est moi », n'a jamais été prononcée : aucune source de son époque ne l'atteste.",
     games: {
       qcm: {
         question: 'Quel célèbre château Louis XIV a-t-il fait construire ?',
@@ -49,9 +51,13 @@ export const CP_HISTOIRE: Notion[] = [
       },
       fildesjours: {
         personnage: { nom: 'Louis XIV', annee: '1685', role: 'Roi de France, à Versailles' },
+        regle:
+          "Chaque décision de ce lever muscle l'une de tes deux forces et affaiblit presque toujours l'autre : ton **autorité**, l'image d'un roi qui commande, et l'**attention de la Cour**, combien de courtisans te sont redevables ce matin. Il n'y a pas de bon choix dans l'absolu — seulement un équilibre à tenir. Si l'une des deux s'effondre, la matinée s'arrête là.",
+        echec:
+          "La rumeur s'est répandue plus vite qu'un ordre royal : ce matin-là, quelque chose s'est rompu entre le roi et sa Cour. À Versailles, un souverain ne se maintient que si l'équilibre tient — et ce jour-là, il n'a pas tenu. Le Grand Lever s'achève sans éclat, et la journée qui suit n'appartient plus tout à fait au roi.",
         jauges: [
-          { id: 'autorite', label: 'Autorité', depart: 60 },
-          { id: 'attentionCour', label: 'Attention de la Cour', depart: 40 },
+          { id: 'autorite', label: 'Autorité', depart: 60, critique: true },
+          { id: 'attentionCour', label: 'Attention de la Cour', depart: 40, critique: true },
         ],
         etapes: [
           {
@@ -234,9 +240,11 @@ export const CP_HISTOIRE: Notion[] = [
     gradeId: 'cp',
     domainId: 'histoire',
     difficulty: 2,
-    title: 'Les grandes inventions de la Préhistoire',
-    summary: "Le feu, la roue, l'écriture et l'agriculture ont transformé la vie des humains.",
-    funFact: "L'écriture est apparue il y a environ 5000 ans, bien après la maîtrise du feu.",
+    title: 'Les grandes inventions qui ont changé la vie humaine',
+    summary:
+      "Le feu, l'agriculture et la roue viennent de la Préhistoire ; l'écriture, elle, la termine — par définition, c'est elle qui fait entrer dans l'Histoire.",
+    funFact:
+      "Il n'y a pas eu d'« an zéro » de l'écriture : elle apparaît vers 3300 avant notre ère en Mésopotamie, plusieurs centaines de milliers d'années après la maîtrise du feu — et c'est cette apparition elle-même qui, par convention, marque la fin de la Préhistoire.",
     games: {
       match: {
         pairs: [
@@ -309,6 +317,16 @@ export const CP_HISTOIRE: Notion[] = [
       },
       fildesjours: {
         personnage: { nom: 'Christophe Colomb', annee: '1492', role: 'Amiral de la mer Océane' },
+        regle:
+          "Deux ressources évoluent tout au long de la traversée : les **vivres et l'eau douce**, et le **moral de l'équipage**. Elles ne s'opposent pas nécessairement — mais les négliger toutes les deux à la fois pèsera lourd sur la façon dont cette traversée se termine.",
+        // Ni `vivres` ni `moral` ne sont marquées `critique` : avec les effets
+        // réels des 7 étapes ci-dessous, leur plancher atteignable est
+        // respectivement 30 et 35 (vérifié par exploration exhaustive des 3^7
+        // combinaisons de choix) — jamais 0. Les marquer `critique` promettrait
+        // un échec structurellement impossible. Pour rouvrir cette voie, il
+        // faudrait rééquilibrer les `effets` ci-dessous, pas seulement le champ.
+        echec:
+          "Le journal de bord s'arrête net, quelque part entre les Canaries et l'inconnu. Sans vivres ou sans équipage encore prêt à tenir, aucune caravelle n'atteint jamais l'autre rive.",
         jauges: [
           { id: 'vivres', label: 'Vivres et eau douce', depart: 75 },
           { id: 'moral', label: "Moral de l'équipage", depart: 75 },
@@ -497,8 +515,9 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 3,
     title: "L'origine des jours de la semaine",
-    summary: 'Les noms des jours de la semaine viennent des astres et des dieux romains.',
-    funFact: 'Lundi vient de la Lune, et vendredi vient de Vénus : les jours de la semaine gardent la trace des astres observés par les Romains.',
+    summary: 'Cinq jours de la semaine viennent des astres et des dieux romains — mais pas les deux derniers.',
+    funFact:
+      "Lundi vient de la Lune, vendredi de Vénus. Mais samedi ne doit rien à Saturne : il vient de l'hébreu « Shabbat », et dimanche vient du latin chrétien « dies dominicus », le jour du Seigneur. L'anglais, lui, a gardé les noms romains : Saturday, Sunday.",
     games: {
       match: {
         pairs: [

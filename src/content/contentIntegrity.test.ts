@@ -81,6 +81,21 @@ describe('intégrité du contenu', () => {
     }
   })
 
+  it('chaque clue de « Cap sur » cible bien une cible réellement demandée', () => {
+    // Une clé de `clues` qui ne correspond à aucune cible de `cibles` ne fait planter
+    // rien : elle ne s'affiche simplement jamais. Un rédacteur qui corrige une faute de
+    // frappe sur un id de zone dans `clues` sans toucher `cibles` (ou l'inverse) ne le
+    // remarquerait qu'en rejouant la manche entière.
+    for (const notion of ALL_NOTIONS) {
+      const capsur = notion.games.capsur
+      if (!capsur?.clues) continue
+      const cibles = new Set(capsur.cibles)
+      for (const zoneId of Object.keys(capsur.clues)) {
+        expect(cibles.has(zoneId), `${notion.id} : clue pour "${zoneId}", absente de ses cibles`).toBe(true)
+      }
+    }
+  })
+
   it('chaque scénario du Fil des jours se termine par un épilogue filet de sécurité', () => {
     for (const notion of ALL_NOTIONS) {
       const fildesjours = notion.games.fildesjours

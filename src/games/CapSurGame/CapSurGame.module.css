@@ -19,8 +19,14 @@
   color: var(--encre);
 }
 
+/* La carte déborde volontairement du rembourrage de `GameShell` (marge
+   négative) : enfermée dedans, elle ne faisait que ~241 px de large sur un
+   téléphone de 375 px, ce qui écrasait toutes les zones tactiles bien en
+   dessous du minimum de 44 px. Gagner ces ~64 px change la jouabilité, pas
+   seulement le confort. */
 .carteZone {
   position: relative;
+  margin: 0 calc(var(--space-5) * -1);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: color-mix(in srgb, var(--color-domain-geographie) 6%, var(--color-surface));

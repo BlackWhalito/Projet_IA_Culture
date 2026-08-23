@@ -15,10 +15,13 @@
   stroke: none;
 }
 
+/* Même raison que `RAYON_TACTILE` dans FranceMap.tsx : à 26 unités, la bande
+   tactile d'un fleuve tombait à ~13 px de large à l'écran. 88 unités donnent
+   les 44 px réglementaires de part et d'autre du tracé. */
 .fleuveZoneHit {
   fill: none;
   stroke: transparent;
-  stroke-width: 26;
+  stroke-width: 88;
   cursor: pointer;
 }
 

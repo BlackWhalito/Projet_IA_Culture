@@ -47,10 +47,18 @@ describe('FranceMap', () => {
     expect(screen.getByRole('button', { name: 'Lyon' })).toBeInTheDocument()
   })
 
-  it("n'active pas une zone exclue de interactiveZoneIds", () => {
+  it("n'expose pas du tout comme bouton une zone exclue de interactiveZoneIds", () => {
     const onZoneClick = vi.fn()
     render(<FranceMap onZoneClick={onZoneClick} interactiveZoneIds={['paris']} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Lyon' }))
+
+    // La cible de la manche reste un bouton...
+    expect(screen.getByRole('button', { name: 'Paris' })).toBeInTheDocument()
+    // ...mais une zone hors manche n'en est plus un du tout. Elle était
+    // auparavant annoncée comme bouton et focalisable tout en n'ayant aucun
+    // effet au clic : une cible qui a l'air tapable et ne fait rien se
+    // ressent comme un jeu cassé, exactement le défaut qu'on corrige.
+    expect(screen.queryByRole('button', { name: 'Lyon' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('Lyon'))
     expect(onZoneClick).not.toHaveBeenCalled()
   })
 })

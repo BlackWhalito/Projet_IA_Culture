@@ -1,5 +1,14 @@
 import type { FilDesJoursContent } from '../types/game'
 
+/**
+ * Vrai dès qu'une jauge marquée `critique` est tombée à 0. Une jauge sans
+ * `critique` (ex. un compteur de progression comme la distance parcourue) ne
+ * peut jamais provoquer d'échec, même à 0 — c'est le repère qui la distingue.
+ */
+export function enEchec(jauges: FilDesJoursContent['jauges'], etat: Record<string, number>): boolean {
+  return jauges.some((jauge) => jauge.critique && (etat[jauge.id] ?? 0) <= 0)
+}
+
 const JAUGE_MIN = 0
 const JAUGE_MAX = 100
 

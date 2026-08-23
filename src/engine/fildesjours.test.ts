@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from './fildesjours'
+import { appliquerEffets, enEchec, jaugesInitiales, resoudreEpilogue } from './fildesjours'
 import type { FilDesJoursContent } from '../types/game'
 
 describe('jaugesInitiales', () => {
@@ -37,6 +37,25 @@ describe('appliquerEffets', () => {
     const initial = { moral: 50 }
     appliquerEffets(initial, { moral: 10 })
     expect(initial.moral).toBe(50)
+  })
+})
+
+describe('enEchec', () => {
+  const jauges: FilDesJoursContent['jauges'] = [
+    { id: 'autorite', label: 'Autorité', depart: 60, critique: true },
+    { id: 'milles', label: 'Distance parcourue', depart: 0 },
+  ]
+
+  it('signale un échec quand une jauge critique atteint 0', () => {
+    expect(enEchec(jauges, { autorite: 0, milles: 40 })).toBe(true)
+  })
+
+  it("n'échoue pas tant que la jauge critique est au-dessus de 0", () => {
+    expect(enEchec(jauges, { autorite: 1, milles: 40 })).toBe(false)
+  })
+
+  it("ignore une jauge à 0 qui n'est pas marquée critique", () => {
+    expect(enEchec(jauges, { autorite: 60, milles: 0 })).toBe(false)
   })
 })
 

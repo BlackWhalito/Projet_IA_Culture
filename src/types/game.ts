@@ -38,12 +38,25 @@ export interface TimelineContent {
 }
 
 export interface RiviereContent {
+  /**
+   * Écran bref affiché avant le lancement du chrono, si présent — sinon la
+   * partie démarre directement. Réservé aux notions où le critère de tri
+   * n'est pas évident au premier coup d'œil (ex. le genre d'un nom qu'on
+   * croit connaître) : une phrase, pas un paragraphe.
+   */
+  regle?: string
   paniers: { id: string; label: string }[]
   flottants: { label: string; panierId: string }[]
-  /** Durée en secondes pour qu'un mot traverse l'écran de haut en bas au démarrage. */
-  vitesseInitialeSec: number
-  /** Réduction proportionnelle de la durée de chute tous les `PALIER` objets classés (ex: 0.15 = 15% plus rapide). */
-  accelerationParPalier: number
+  /**
+   * Durée totale de la manche, en secondes. Un seul chrono pour toute la
+   * partie, jamais un minuteur par mot : la version précédente faisait
+   * tomber chaque mot en 5,5 s, ce qui obligeait à ATTENDRE alors que la
+   * réponse est connue en une demi-seconde — jugé « long et chiant » par le
+   * propriétaire. Ici le mot suivant apparaît instantanément après chaque
+   * réponse : la tension vient du temps qui reste pour toute la manche, et
+   * répondre vite est enfin récompensé.
+   */
+  dureeSec: number
   /** Nombre d'objets à classer correctement pour gagner la manche. */
   objectif: number
 }
@@ -52,12 +65,34 @@ export interface CapSurContent {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */
   cibles: string[]
+  /**
+   * Consigne personnalisée par id de zone ciblée, pour poser une question de
+   * raisonnement (« la ville la plus au nord ») plutôt que de mémorisation du
+   * nom. Zone absente de la map = repli sur `Trouve : {label}`, le
+   * comportement historique.
+   */
+  clues?: Record<string, string>
   secondesParCible: number
 }
 
 export interface FilDesJoursContent {
   personnage: { nom: string; annee: string; role: string }
-  jauges: { id: string; label: string; depart: number }[]
+  /**
+   * Explique au joueur, avant de commencer, les forces en jeu — typiquement que
+   * les jauges s'opposent et ne montent jamais ensemble. Sans cette règle, le
+   * joueur cherche « la bonne réponse » d'un QCM, ne la trouve pas, et se sent
+   * perdu : les options ne sont pas classées bonnes ou mauvaises, elles arbitrent.
+   */
+  regle: string
+  jauges: {
+    id: string
+    label: string
+    depart: number
+    /** Si vrai, cette jauge tombée à 0 termine la partie en échec immédiat. */
+    critique?: boolean
+  }[]
+  /** Scène affichée quand une jauge `critique` tombe à 0 — la partie s'arrête là. */
+  echec: string
   etapes: {
     titre: string
     scene: string

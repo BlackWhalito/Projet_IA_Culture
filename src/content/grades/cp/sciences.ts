@@ -56,25 +56,52 @@ export const CP_SCIENCES: Notion[] = [
     domainId: 'sciences',
     difficulty: 1,
     title: "Les 3 états de l'eau",
-    summary: "L'eau peut être solide, liquide ou gazeuse.",
-    funFact: "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée (de minuscules gouttes d'eau).",
+    summary: "L'eau peut être solide, liquide ou gazeuse — et chaque passage d'un état à l'autre porte un nom savant précis, pas seulement « ça fond » ou « ça s'évapore ».",
+    // Précédente version : « condensation » y était définie comme le passage
+    // gaz → solide, l'opposé de ce que le mot désigne réellement en usage
+    // courant (gaz → liquide, synonyme de liquéfaction) — et se contredisait
+    // en plus elle-même en attribuant à cette « condensation » un exemple de
+    // sublimation (solide → gaz). Signalé par le `verificateur`, corrigé en
+    // supprimant l'affirmation fausse plutôt qu'en la retravaillant : la
+    // nuance qu'elle visait (langage courant vs terme savant) n'était pas
+    // indispensable au fait intéressant qui suit.
+    funFact:
+      "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée, c'est-à-dire de l'eau redevenue liquide — la liquéfaction, que le langage courant appelle souvent « condensation ». Un autre passage d'état surprend davantage : c'est la sublimation qui sèche le linge étendu dehors par grand froid, la glace des fibres se changeant directement en vapeur sans jamais redevenir liquide.",
     games: {
       riviere: {
+        // Le `match` qui portait cette notion faisait deviner un mot savant à
+        // partir d'une flèche déjà résolue (« Glace → eau liquide ») : une
+        // recherche visuelle sans compréhension, jugée pas fun par le
+        // propriétaire. Ici, chaque étiquette est une scène brute — le
+        // joueur reconstruit lui-même quel changement d'état est en train de
+        // se produire, sous le chrono de la Rivière. Fiche du game-designer,
+        // deux scènes de linge volontairement en miroir (mouillé qui sèche
+        // au vent vs gelé qui sèche sans fondre) pour forcer la vraie
+        // distinction vaporisation/sublimation du `funFact`, pas la
+        // reconnaissance d'un mot-clé.
+        regle:
+          "Chaque phrase raconte une scène avec de l'eau : devine vite quel changement d'état est en train de se produire.",
         paniers: [
-          { id: 'solide', label: 'Solide' },
-          { id: 'liquide', label: 'Liquide' },
-          { id: 'gaz', label: 'Gaz' },
+          { id: 'fusion', label: 'Fusion' },
+          { id: 'solidification', label: 'Solidification' },
+          { id: 'vaporisation', label: 'Vaporisation' },
+          { id: 'liquefaction', label: 'Liquéfaction' },
+          { id: 'sublimation', label: 'Sublimation' },
         ],
         flottants: [
-          { label: 'Glaçon', panierId: 'solide' },
-          { label: 'Pluie', panierId: 'liquide' },
-          { label: 'Vapeur', panierId: 'gaz' },
-          { label: 'Neige', panierId: 'solide' },
-          { label: 'Rivière', panierId: 'liquide' },
+          { label: 'Le glaçon fond', panierId: 'fusion' },
+          { label: 'La glace devient eau', panierId: 'fusion' },
+          { label: "L'eau gèle", panierId: 'solidification' },
+          { label: 'La flaque gèle la nuit', panierId: 'solidification' },
+          { label: "L'eau bout", panierId: 'vaporisation' },
+          { label: 'Le linge sèche au vent', panierId: 'vaporisation' },
+          { label: 'La buée sur la vitre', panierId: 'liquefaction' },
+          { label: "Les lunettes s'embuent", panierId: 'liquefaction' },
+          { label: 'Le linge gelé sèche dehors', panierId: 'sublimation' },
+          { label: 'Le givre sèche sans fondre', panierId: 'sublimation' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
-        objectif: 5,
+        dureeSec: 55,
+        objectif: 10,
       },
       qcm: {
         question: "Comment s'appelle l'eau à l'état solide ?",
@@ -149,8 +176,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'On rentre à l\'école', panierId: 'automne' },
           { label: 'Les arbres sont nus', panierId: 'hiver' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 32,
         objectif: 8,
       },
       qcm: {
@@ -182,8 +208,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'Vache', panierId: 'vivipare' },
           { label: 'Serpent', panierId: 'ovipare' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 24,
         objectif: 6,
       },
       qcm: {
@@ -215,8 +240,7 @@ export const CP_SCIENCES: Notion[] = [
           { label: 'Un champignon', panierId: 'vivant' },
           { label: 'Une voiture', panierId: 'non-vivant' },
         ],
-        vitesseInitialeSec: 4,
-        accelerationParPalier: 0.15,
+        dureeSec: 24,
         objectif: 6,
       },
       qcm: {
@@ -233,7 +257,8 @@ export const CP_SCIENCES: Notion[] = [
     difficulty: 1,
     title: "D'où viennent nos aliments",
     summary: 'Le lait, le miel, les œufs et la laine viennent tous des animaux.',
-    funFact: "Une seule abeille produit, à elle seule, à peine une cuillère à café de miel dans toute sa vie.",
+    funFact:
+      "Une seule abeille ne produit, dans toute sa vie, qu'environ un douzième de cuillère à café de miel — il faut le travail de centaines d'entre elles pour remplir un seul petit pot.",
     games: {
       match: {
         pairs: [

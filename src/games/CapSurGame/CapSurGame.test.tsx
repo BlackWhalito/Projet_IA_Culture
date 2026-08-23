@@ -25,10 +25,14 @@ describe('CapSurGame', () => {
     expect(screen.getByText(`Juste ! C'est bien ${premiere}.`)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
 
-    // Cible 2 : mauvaise réponse délibérée (Toulouse n'est jamais une cible de ce contenu).
+    // Cible 2 : mauvaise réponse délibérée. Elle doit porter sur une autre
+    // CIBLE de la manche, pas sur une ville quelconque de la carte : seules
+    // les cibles sont désormais tapables (les 19 zones l'étaient toutes
+    // avant, ce qui laissait rater une ville en touchant un fleuve voisin).
     const deuxieme = villeDemandee()
-    fireEvent.click(screen.getByRole('button', { name: 'Toulouse' }))
-    expect(screen.getByText(`Ça, c'est Toulouse. ${deuxieme} était ailleurs.`)).toBeInTheDocument()
+    const autreCible = ['Paris', 'Lyon', 'Marseille', 'Lille', 'Nantes'].find((v) => v !== deuxieme)!
+    fireEvent.click(screen.getByRole('button', { name: autreCible }))
+    expect(screen.getByText(`Ça, c'est ${autreCible}. ${deuxieme} était ailleurs.`)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
 
     // Cibles 3 à 5 : toutes justes.
@@ -54,6 +58,24 @@ describe('CapSurGame', () => {
     const premiere = villeDemandee()
     fireEvent.click(screen.getByRole('button', { name: premiere }))
     expect(screen.getByText(`Juste ! C'est bien ${premiere}.`)).toBeInTheDocument()
+  })
+
+  it('affiche la consigne personnalisée quand une clue est fournie pour la cible, au lieu du nom réel', () => {
+    const onComplete = vi.fn()
+    const contenuAvecClue: CapSurContent = {
+      carteId: 'france',
+      cibles: ['lille'],
+      clues: { lille: 'La ville la plus au nord' },
+      secondesParCible: 6,
+    }
+    render(<CapSurGame content={contenuAvecClue} onComplete={onComplete} />)
+
+    expect(screen.getByText('La ville la plus au nord')).toBeInTheDocument()
+    expect(screen.queryByText('Trouve : Lille')).not.toBeInTheDocument()
+
+    // La réponse, elle, révèle bien le vrai nom.
+    fireEvent.click(screen.getByRole('button', { name: 'Lille' }))
+    expect(screen.getByText("Juste ! C'est bien Lille.")).toBeInTheDocument()
   })
 
   it('révèle la cible manquée quand le temps expire', () => {
