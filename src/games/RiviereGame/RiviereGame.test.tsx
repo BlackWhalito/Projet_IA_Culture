@@ -76,6 +76,29 @@ describe('RiviereGame', () => {
     expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number), mistakes: 1 })
   })
 
+  it("affiche la règle avant de jouer quand elle est fournie, et ne compte aucun raté tant qu'on ne l'a pas quittée", () => {
+    const onComplete = vi.fn()
+    const contenuAvecRegle: RiviereContent = { ...CONTENU, regle: 'Range chaque mot dans le bon panier.' }
+    render(<RiviereGame content={contenuAvecRegle} onComplete={onComplete} />)
+
+    expect(screen.getByText('Range chaque mot dans le bon panier.')).toBeInTheDocument()
+    // Aucun mot ne tombe tant que la règle est affichée : un temps largement
+    // supérieur à la durée de chute nominale ne doit provoquer aucun raté.
+    act(() => {
+      vi.advanceTimersByTime(10000)
+    })
+    expect(onComplete).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
+    expect(screen.queryByText('Range chaque mot dans le bon panier.')).not.toBeInTheDocument()
+
+    const mot = motActuel()
+    const panier = panierCorrectPour(mot)
+    fireEvent.click(screen.getByRole('button', { name: mot }))
+    fireEvent.click(screen.getByRole('button', { name: panier }))
+    expect(screen.getByText('1 / 3 classés')).toBeInTheDocument()
+  })
+
   it('échoue la manche après trois mots ratés (laissés filer sans réponse)', () => {
     const onComplete = vi.fn()
     render(<RiviereGame content={CONTENU} onComplete={onComplete} />)

@@ -52,6 +52,9 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
   const [correctCount, setCorrectCount] = useState(0)
   const [rateCount, setRateCount] = useState(0)
   const [wrongTapCount, setWrongTapCount] = useState(0)
+  // Sans `regle`, la partie démarre directement — comportement historique,
+  // préservé pour tout contenu qui n'a pas encore ce champ.
+  const [enRegle, setEnRegle] = useState(Boolean(content.regle))
   const [prefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
@@ -69,8 +72,9 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
   )
 
   useEffect(() => {
+    if (enRegle) return
     startedAtRef.current = Date.now()
-  }, [])
+  }, [enRegle])
 
   // Un seul mot en jeu à la fois : le retirer de la file avance vers le suivant, en
   // rechargeant une nouvelle vague si elle est épuisée (au cas où objectif > nombre de
@@ -105,9 +109,12 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     window.setTimeout(() => setRejectPanierId(null), REJET_DUREE_MS)
   }
 
-  // Un mot non classé qui atteint le bas de l'écran compte comme raté.
+  // Un mot non classé qui atteint le bas de l'écran compte comme raté. Ne
+  // démarre jamais pendant l'écran de règle : sans cette garde, le premier
+  // mot tombait et pouvait être compté raté pendant que le joueur lisait
+  // encore la règle, avant d'avoir rien pu faire.
   useEffect(() => {
-    if (!current || finished) return
+    if (!current || finished || enRegle) return
     const dureeMs = vitesseSec * 1000
     const timer = window.setTimeout(() => {
       setSelectedSpawnId(null)
@@ -115,7 +122,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
       avancerQueue()
     }, dureeMs)
     return () => window.clearTimeout(timer)
-  }, [current, vitesseSec, finished, avancerQueue])
+  }, [current, vitesseSec, finished, enRegle, avancerQueue])
 
   // Fin de manche : objectif atteint (victoire) ou trois ratés (échec).
   useEffect(() => {
@@ -128,6 +135,19 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
       onComplete({ correct: succes, timeMs, mistakes })
     }, FIN_DELAI_MS)
   }, [finished, correctCount, rateCount, wrongTapCount, content.objectif, onComplete])
+
+  if (enRegle && content.regle) {
+    return (
+      <div className={styles.game}>
+        <div className={styles.regle}>
+          <p className={styles.regleTexte}>{content.regle}</p>
+          <button type="button" className={styles.primaryButton} onClick={() => setEnRegle(false)}>
+            Commencer
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.game}>

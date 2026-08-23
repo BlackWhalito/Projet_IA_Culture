@@ -5,7 +5,7 @@ import { GameSessionScreen } from './GameSessionScreen'
 import { getLevelById } from '../../content/levels'
 import { getNotionById } from '../../content/notions'
 import { useProgressStore } from '../../state/progressStore'
-import type { RiviereContent, MatchContent, CapSurContent } from '../../types/game'
+import type { RiviereContent, CapSurContent } from '../../types/game'
 
 /**
  * Le parcours réel du Niveau 1 refondu, joué de bout en bout avec le contenu
@@ -34,10 +34,17 @@ describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
     vi.useRealTimers()
   })
 
-  it('se compose bien de 4 créneaux, un par mécanique, sans QCM en découverte', () => {
+  it('se compose bien de 4 créneaux, sans QCM en découverte', () => {
     expect(NIVEAU_1.notionIds).toHaveLength(4)
     const mecaniques = NIVEAU_1.notionIds.map((n) => n.gameType)
-    expect(mecaniques).toEqual(['riviere', 'match', 'capsur', 'fildesjours'])
+    // Deux Rivières (masculin/féminin, états de l'eau) plutôt qu'une par
+    // mécanique : le `match` qui portait les états de l'eau associait des
+    // paires déjà résolues (« Glace → eau liquide ») sans rien à
+    // comprendre, jugé pas fun par le propriétaire et remplacé par une
+    // Rivière à scénarios. Ce n'est pas une règle du projet qu'un niveau
+    // n'utilise jamais deux fois la même mécanique (les niveaux 2 et 3 le
+    // font déjà) — seulement un hasard de la petite taille du Niveau 1.
+    expect(mecaniques).toEqual(['riviere', 'riviere', 'capsur', 'fildesjours'])
   })
 
   it('joue le Niveau 1 en entier, une bonne et une mauvaise réponse par mécanique, et enregistre la progression', () => {
@@ -56,6 +63,10 @@ describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
     const masculinFeminin = getNotionById('cp-francais-masculin-feminin')!
     const riviere = masculinFeminin.games.riviere as RiviereContent
     const panierLabels = new Set(riviere.paniers.map((p) => p.label))
+
+    // Écran de règle avant le premier mot.
+    expect(screen.getByText(riviere.regle!)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
 
     function motActuel(): string {
       const bouton = currentButtons().find((b) => !panierLabels.has(b.textContent ?? ''))
@@ -90,19 +101,42 @@ describe('Niveau 1 — parcours complet avec le vrai contenu', () => {
     expect(screen.getByText(masculinFeminin.title)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
 
-    // ---- Créneau 2 : Association — les états de l'eau ----
+    // ---- Créneau 2 : La Rivière — les états de l'eau ----
     const etatsEau = getNotionById('cp-sciences-etats-eau')!
-    const match = etatsEau.games.match as MatchContent
+    const riviereEtatsEau = etatsEau.games.riviere as RiviereContent
+    const panierLabelsEtatsEau = new Set(riviereEtatsEau.paniers.map((p) => p.label))
 
-    // Une paire fausse volontaire (gauche 1 avec droite 2), puis les 5 vraies paires.
-    fireEvent.click(screen.getByRole('button', { name: match.pairs[0].left }))
-    fireEvent.click(screen.getByRole('button', { name: match.pairs[1].right }))
+    // Écran de règle avant la première scène : ce créneau en a un, contrairement
+    // à masculin/féminin dans ce test — vérifie que « Commencer » le quitte bien.
+    expect(screen.getByText(riviereEtatsEau.regle!)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }))
+
+    function sceneActuelle(): string {
+      const bouton = currentButtons().find((b) => !panierLabelsEtatsEau.has(b.textContent ?? ''))
+      return bouton!.textContent!
+    }
+    function panierCorrectPourScene(scene: string): string {
+      const flottant = riviereEtatsEau.flottants.find((f) => f.label === scene)!
+      return riviereEtatsEau.paniers.find((p) => p.id === flottant.panierId)!.label
+    }
+
+    // Une mauvaise réponse volontaire sur la première scène, puis la bonne.
+    const premiereScene = sceneActuelle()
+    const bonPanierScene = panierCorrectPourScene(premiereScene)
+    const mauvaisPanierScene = [...panierLabelsEtatsEau].find((l) => l !== bonPanierScene)!
+    fireEvent.click(screen.getByRole('button', { name: premiereScene }))
+    fireEvent.click(screen.getByRole('button', { name: mauvaisPanierScene }))
     act(() => {
       vi.advanceTimersByTime(500)
     })
-    for (const pair of match.pairs) {
-      fireEvent.click(screen.getByRole('button', { name: pair.left }))
-      fireEvent.click(screen.getByRole('button', { name: pair.right }))
+    fireEvent.click(screen.getByRole('button', { name: premiereScene }))
+    fireEvent.click(screen.getByRole('button', { name: bonPanierScene }))
+
+    // Le reste des scènes, toutes correctes, jusqu'à l'objectif.
+    for (let i = 1; i < riviereEtatsEau.objectif; i++) {
+      const scene = sceneActuelle()
+      fireEvent.click(screen.getByRole('button', { name: scene }))
+      fireEvent.click(screen.getByRole('button', { name: panierCorrectPourScene(scene) }))
     }
     act(() => {
       vi.advanceTimersByTime(400)

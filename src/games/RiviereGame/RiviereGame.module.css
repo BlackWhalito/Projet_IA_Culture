@@ -4,6 +4,33 @@
   gap: var(--space-3);
 }
 
+.regle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.regleTexte {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.primaryButton {
+  align-self: flex-start;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--violet);
+  color: var(--color-surface);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primaryButton:active {
+  transform: scale(0.98);
+}
+
 .entete {
   display: flex;
   align-items: center;
@@ -30,7 +57,11 @@
 
 .piste {
   position: relative;
-  min-height: 55vh;
+  /* 55vh laissait « Sublimation » hors écran sur un mobile réel dès qu'une
+     notion utilise 5 paniers (états de l'eau) au lieu des 2-4 habituels —
+     repéré en jouant réellement le niveau, pas seulement en relisant le
+     code. La chute reste largement assez longue pour lire un mot à 40vh. */
+  min-height: 40vh;
   max-height: 420px;
   overflow: hidden;
   border-radius: var(--radius-md);
@@ -40,7 +71,7 @@
 
 .flottant {
   position: absolute;
-  top: -15%;
+  top: 0%;
   left: 50%;
   transform: translateX(-50%);
   min-height: var(--touch-target-min);
@@ -57,8 +88,15 @@
 }
 
 @keyframes chute {
+  /*
+   * Départ à 0% (pas -15%) : le conteneur `.piste` masque tout ce qui
+   * dépasse (overflow: hidden), donc un départ négatif rendait le mot
+   * invisible pendant le début de sa chute — un temps de lecture perdu sur
+   * la durée nominale, repéré en jouant réellement le niveau. Le mot est
+   * maintenant visible dès l'apparition.
+   */
   from {
-    top: -15%;
+    top: 0%;
   }
   to {
     top: 100%;

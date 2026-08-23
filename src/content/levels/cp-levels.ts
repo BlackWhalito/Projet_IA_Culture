@@ -8,7 +8,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 1',
     notionIds: [
       { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
-      { notionId: 'cp-sciences-etats-eau', gameType: 'match' },
+      { notionId: 'cp-sciences-etats-eau', gameType: 'riviere' },
       { notionId: 'cp-geographie-points-cardinaux', gameType: 'capsur' },
       { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
     ],

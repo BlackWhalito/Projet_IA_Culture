@@ -61,30 +61,40 @@ export const CP_SCIENCES: Notion[] = [
       "La vapeur d'eau est invisible : le nuage blanc qu'on voit au-dessus d'une casserole est déjà de la buée, c'est-à-dire de l'eau redevenue liquide — la liquéfaction. Ce mot est justement celui qu'on confond avec « condensation », que les scientifiques réservent au passage direct du gaz au solide, l'inverse exact de la sublimation : c'est elle qui sèche le linge étendu dehors par grand froid, la glace des fibres se changeant directement en vapeur sans jamais redevenir liquide.",
     games: {
       riviere: {
+        // Le `match` qui portait cette notion faisait deviner un mot savant à
+        // partir d'une flèche déjà résolue (« Glace → eau liquide ») : une
+        // recherche visuelle sans compréhension, jugée pas fun par le
+        // propriétaire. Ici, chaque étiquette est une scène brute — le
+        // joueur reconstruit lui-même quel changement d'état est en train de
+        // se produire, sous le chrono de la Rivière. Fiche du game-designer,
+        // deux scènes de linge volontairement en miroir (mouillé qui sèche
+        // au vent vs gelé qui sèche sans fondre) pour forcer la vraie
+        // distinction vaporisation/sublimation du `funFact`, pas la
+        // reconnaissance d'un mot-clé.
+        regle:
+          "Chaque phrase raconte une scène avec de l'eau : devine vite quel changement d'état est en train de se produire.",
         paniers: [
-          { id: 'solide', label: 'Solide' },
-          { id: 'liquide', label: 'Liquide' },
-          { id: 'gaz', label: 'Gaz' },
+          { id: 'fusion', label: 'Fusion' },
+          { id: 'solidification', label: 'Solidification' },
+          { id: 'vaporisation', label: 'Vaporisation' },
+          { id: 'liquefaction', label: 'Liquéfaction' },
+          { id: 'sublimation', label: 'Sublimation' },
         ],
         flottants: [
-          { label: 'Glaçon', panierId: 'solide' },
-          { label: 'Pluie', panierId: 'liquide' },
-          { label: 'Vapeur', panierId: 'gaz' },
-          { label: 'Neige', panierId: 'solide' },
-          { label: 'Rivière', panierId: 'liquide' },
+          { label: 'Le glaçon fond', panierId: 'fusion' },
+          { label: 'La glace devient eau', panierId: 'fusion' },
+          { label: "L'eau gèle", panierId: 'solidification' },
+          { label: 'La flaque gèle la nuit', panierId: 'solidification' },
+          { label: "L'eau bout", panierId: 'vaporisation' },
+          { label: 'Le linge sèche au vent', panierId: 'vaporisation' },
+          { label: 'La buée sur la vitre', panierId: 'liquefaction' },
+          { label: "Les lunettes s'embuent", panierId: 'liquefaction' },
+          { label: 'Le linge gelé sèche dehors', panierId: 'sublimation' },
+          { label: 'Le givre sèche sans fondre', panierId: 'sublimation' },
         ],
-        vitesseInitialeSec: 4,
+        vitesseInitialeSec: 5.5,
         accelerationParPalier: 0.15,
-        objectif: 5,
-      },
-      match: {
-        pairs: [
-          { left: 'Glace → eau liquide', right: 'Fusion' },
-          { left: 'Eau liquide → glace', right: 'Solidification' },
-          { left: 'Eau liquide → vapeur', right: 'Vaporisation' },
-          { left: 'Vapeur → eau liquide', right: 'Liquéfaction' },
-          { left: 'Glace → vapeur (directement)', right: 'Sublimation' },
-        ],
+        objectif: 10,
       },
       qcm: {
         question: "Comment s'appelle l'eau à l'état solide ?",

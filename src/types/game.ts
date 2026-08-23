@@ -38,6 +38,14 @@ export interface TimelineContent {
 }
 
 export interface RiviereContent {
+  /**
+   * Écran bref affiché avant que le premier mot ne tombe, si présent — sinon
+   * la partie démarre directement (comportement historique, préservé pour
+   * tout contenu qui n'a pas encore ce champ). Réservé aux notions où le
+   * critère de tri n'est pas évident au premier coup d'œil (ex. le genre
+   * d'un nom qu'on croit connaître) : une phrase, pas un paragraphe.
+   */
+  regle?: string
   paniers: { id: string; label: string }[]
   flottants: { label: string; panierId: string }[]
   /** Durée en secondes pour qu'un mot traverse l'écran de haut en bas au démarrage. */

@@ -91,6 +91,8 @@ export const CP_FRANCAIS: Notion[] = [
       "Trois mots narguent la règle qu'on croit connaître : « amour », « délice » et « orgue » sont masculins au singulier, mais basculent au féminin dès qu'on les emploie au pluriel dans leur sens le plus noble — on dit « un grand amour », mais « de folles amours », et « les grandes orgues » de Notre-Dame.",
     games: {
       riviere: {
+        regle:
+          'Range chaque mot dans le bon panier avant qu\'il ne touche le fond — sans article devant pour te souffler la réponse. Certains, comme « oasis » ou « apogée », trompent même les meilleurs.',
         paniers: [
           { id: 'masculin', label: 'Masculin' },
           { id: 'feminin', label: 'Féminin' },
@@ -106,7 +108,11 @@ export const CP_FRANCAIS: Notion[] = [
           { label: 'Omoplate', panierId: 'feminin' },
           { label: 'Anagramme', panierId: 'feminin' },
         ],
-        vitesseInitialeSec: 4,
+        // 5.5s (au lieu de 4) : ces mots demandent de vraiment hésiter, pas
+        // seulement de classer un objet reconnu d'un coup d'œil — repéré en
+        // jouant réellement le niveau, jugé trop rapide même pour un adulte
+        // qui prend le temps de réfléchir.
+        vitesseInitialeSec: 5.5,
         accelerationParPalier: 0.15,
         objectif: 9,
       },
