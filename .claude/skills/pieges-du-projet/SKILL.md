@@ -164,6 +164,35 @@ ensuite, et vérifie par `grep` qu'il ne reste rien.
 > code, passe par l'outil d'édition, jamais par un script shell. Le même piège
 > est décrit côté `grep` dans la skill `audit-des-skills`.
 
+## Texte de bouton invisible sur l'appareil du propriétaire, jamais en test
+
+Symptôme rapporté : « je n'ai rien qui s'affiche, pour tous les jeux » — les
+boutons de réponse apparaissent vides. Rien en local, rien dans les tests,
+rien même en pilotant Chromium avec `colorScheme: 'dark'`.
+
+Cause : l'app ne déclarait **aucun `color-scheme`**, et plusieurs boutons ne
+fixaient pas leur `color`. Ils héritaient donc de la couleur système
+`buttontext`, qui devient **blanche** quand l'appareil est en mode sombre —
+donc du blanc sur le fond crème de l'app. Le propriétaire est sur iOS, où
+Safari applique cet habillage sombre aux contrôles ; Chromium ne le fait pas
+sans qu'on le lui demande, d'où l'absence totale de reproduction.
+
+**Pour reproduire** un défaut de ce genre, il ne suffit pas de lancer le
+navigateur en `colorScheme: 'dark'` : il faut forcer l'habillage natif des
+contrôles, ce que fait `page.addStyleTag({ content: ':root{color-scheme:dark}' })`.
+La couleur calculée passe alors à `rgb(255,255,255)` et le défaut saute aux yeux.
+
+**Les deux règles** : `tokens.css` épingle `color-scheme: light` (l'app est
+mono-thème, tout est posé sur du papier crème), et `global.css` donne
+`color: inherit` à `button` — aucun élément ne doit jamais dépendre d'une
+couleur système. `src/styles/theme.test.ts` garde les deux.
+
+Leçon plus générale : **un contraste ne se vérifie pas à l'œil sur ta propre
+machine.** Le balayage utile parcourt le DOM, calcule le ratio de contraste
+réel de chaque nœud texte contre son fond effectif, et signale tout ce qui
+passe sous 3:1 — quelques lignes de `page.evaluate`, rejouables sur chaque
+écran.
+
 ## Environnement Windows
 
 - Le shell principal est **PowerShell**, pas bash. `&&` n'existe pas en PowerShell 5.1 : utiliser `;` ou `if ($?) { }`.

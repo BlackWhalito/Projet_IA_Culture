@@ -1,4 +1,18 @@
 :root {
+  /*
+   * L'app est volontairement mono-thème : tout est posé sur du papier crème
+   * (`--papier`), il n'existe pas de palette sombre. Sans cette déclaration,
+   * un appareil réglé en mode sombre fait basculer l'habillage natif des
+   * contrôles de formulaire : `buttontext` devient blanc, et un bouton qui
+   * ne fixe pas sa couleur affiche alors du blanc sur notre fond crème —
+   * texte invisible. C'est exactement le bug remonté par le propriétaire
+   * (« je n'ai rien qui s'affiche pour tous les jeux »), reproduit en
+   * forçant `color-scheme: dark`. Épingler le thème clair règle la cause ;
+   * chaque bouton fixe en plus sa propre couleur, pour ne jamais dépendre
+   * d'une couleur système.
+   */
+  color-scheme: light;
+
   --papier: #f7f2e7;
   --papier-ombre: #e8dfe4;
   --color-bg: var(--papier);

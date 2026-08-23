@@ -17,6 +17,14 @@ body {
 }
 
 button {
+  /*
+   * `color: inherit` plutôt que la couleur système `buttontext` : cette
+   * dernière dépend de l'apparence de l'appareil et vire au blanc en mode
+   * sombre, rendant invisible tout bouton posé sur nos fonds clairs (voir la
+   * note de `tokens.css`). Un bouton qui veut une autre couleur la déclare
+   * explicitement dans son module CSS.
+   */
+  color: inherit;
   font-family: inherit;
 }
 
