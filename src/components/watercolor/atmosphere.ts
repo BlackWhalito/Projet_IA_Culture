@@ -61,6 +61,42 @@ function hexToRgb(color: string): string {
 }
 
 /**
+ * L'auréole d'une lumière sur l'eau : un halo qui s'éteint en douceur,
+ * comme `moon()`, mais APLATI en ellipse plutôt que rond — une lumière qui
+ * se reflète sur une surface horizontale pose un rond de lumière large et
+ * bas, jamais un halo sphérique flottant. Même dégradé radial natif que
+ * `moon()`, avec `ctx.scale` pour aplatir le cercle plutôt qu'un second
+ * calcul de rayons.
+ *
+ * Se peint seule, sans les traits verticaux d'un `reflection()` classique
+ * (pensé pour un objet vertical net — mât, tour) : la lumière d'une source
+ * lointaine se reflète en une nappe posée sur l'eau, pas en un fil qui
+ * descend.
+ */
+export function waterGlow(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  color: string,
+): void {
+  const rgb = hexToRgb(color)
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.scale(1, ry / rx)
+  const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, rx)
+  halo.addColorStop(0, `rgba(${rgb}, 0.34)`)
+  halo.addColorStop(0.45, `rgba(${rgb}, 0.14)`)
+  halo.addColorStop(1, `rgba(${rgb}, 0)`)
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(0, 0, rx, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
+/**
  * Un lavis dégradé : la même masse peinte en tranches horizontales dont la
  * couleur et l'opacité glissent progressivement.
  *

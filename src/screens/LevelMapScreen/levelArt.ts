@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, highlight, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { glint, gradedWash, houle, moon, reflection, ripples } from '../../components/watercolor/atmosphere'
+import { glint, gradedWash, houle, moon, ripples, waterGlow } from '../../components/watercolor/atmosphere'
 import { childWatchingSea } from '../../components/watercolor/figure'
 import { rocher } from '../../components/watercolor/terrain'
 import type { LightPlan } from '../../components/watercolor/light'
@@ -247,12 +247,23 @@ function veilleDuFeuScene(ctx: CanvasRenderingContext2D, w: number, h: number, r
   // d'horizon — c'est son éloignement, pas sa taille, qui doit se lire.
   grotteLointaine(ctx, w * 0.36, horizon + h * 0.05, rng)
 
-  // Le reflet de sa lueur, tiré vers le premier plan : un fil chaud sur
-  // une eau autrement froide, le chemin de lumière classique d'une source
-  // qui brille de l'autre côté d'une eau calme.
-  reflection(ctx, w * 0.36, w * 0.05, horizon + h * 0.07, h * 0.5, OCRE, rng, 4)
-  glint(ctx, w * 0.36, h * 0.62, w * 0.1, h * 0.012, rng, 0.4, SABLE)
-  glint(ctx, w * 0.34, h * 0.78, w * 0.14, h * 0.014, rng, 0.3, SABLE)
+  // Le reflet de sa lueur : une auréole posée sur l'eau (`waterGlow()`),
+  // pas les traits verticaux nets de `reflection()` — ceux-là conviennent
+  // à un objet dressé (mât, tour), mais une lumière lointaine se reflète
+  // en une nappe large et basse, jamais en un fil qui descend tout seul.
+  // Deux passes (large et pâle, puis petite et plus chaude au centre) pour
+  // le même dégradé de température qu'un vrai reflet de lumière : le plus
+  // chaud tout contre la source, qui se refroidit en s'élargissant.
+  waterGlow(ctx, w * 0.36, horizon + h * 0.08, w * 0.11, h * 0.045, OCRE)
+  waterGlow(ctx, w * 0.36, horizon + h * 0.08, w * 0.045, h * 0.02, SABLE)
+
+  // Le chemin de lumière, tiré vers le premier plan à partir de cette
+  // auréole : des touches de plus en plus petites, pâles et écartées à
+  // mesure qu'elles s'éloignent de la source — jamais une ligne continue,
+  // c'est cette dégradation qui fait « loin » plutôt qu'un fil collé.
+  glint(ctx, w * 0.365, h * 0.5, w * 0.05, h * 0.01, rng, 0.32, SABLE)
+  glint(ctx, w * 0.35, h * 0.62, w * 0.07, h * 0.012, rng, 0.24, SABLE)
+  glint(ctx, w * 0.33, h * 0.76, w * 0.09, h * 0.014, rng, 0.16, SABLE)
 
   // Les rides, en perspective : serrées et fines près de l'horizon, plus
   // rares et plus marquées au premier plan.
