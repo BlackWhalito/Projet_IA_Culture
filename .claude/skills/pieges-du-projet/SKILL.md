@@ -90,6 +90,12 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 Sans ce contournement, on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu ce qu'il a vu.
 
+**En session cloud, il y a bien mieux et il faut le tenter d'abord.** Chromium est préinstallé (`/opt/pw-browsers/`, avec `PLAYWRIGHT_BROWSERS_PATH` déjà positionné) : `npm install playwright-core` dans le dossier de travail temporaire, `npx vite` en tâche de fond, et une douzaine de lignes suffisent à charger une page, injecter la progression dans `localStorage`, capturer un élément précis par son `boundingBox()`, et écrire un PNG que l'outil `Read` affiche. Trois choses que le contournement ci-dessus ne donne pas :
+
+- **le `deviceScaleFactor`**, donc la même image à sa taille réelle ET agrandie, sans jamais confondre les deux ;
+- **`getImageData` depuis la page**, donc la mesure des valeurs plutôt que leur appréciation à l'œil (voir la section correspondante de `references/peinture-generative.md` de la skill `aquarelle`) ;
+- **une comparaison binaire d'un rendu avant/après**, qui prouve en une ligne qu'un changement au moteur n'a rien cassé sur les écrans déjà validés.
+
 ## `window.matchMedia` absent en test
 
 **Symptôme.** Un composant qui lit `prefers-reduced-motion` au montage (`window.matchMedia(...)` dans un `useState(() => ...)`, voir la skill `aquarelle`) fait planter tout test qui le rend : `TypeError: window.matchMedia is not a function`.

@@ -82,6 +82,50 @@ Le risque est spécifique et plus élevé qu'ailleurs : un visage raté se voit 
 - **La coiffure** est le repère le plus fiable pour l'âge/le genre d'une silhouette (ex. deux couettes → « une enfant ») — plus fiable qu'aucun détail de visage, et sans aucun risque puisque c'est une simple masse de `wash()`.
 - **Un petit objet posé sur une surface de teinte proche disparaît** : le carnet (papier clair sur bois clair) était invisible tant qu'il n'avait pas son propre contour sombre (`dryStroke` en rectangle). Toute forme claire posée sur un fond clair a besoin d'un bord tracé, pas seulement d'un remplissage.
 
+## `jitter` est le seul réglage qui élargit un bord — et les valeurs « organiques » sont trop basses
+
+Symptôme : la scène sort en **aplats vectoriels**, bords au ruban adhésif, alors que tous les réglages sont dans les fourchettes documentées. Le réflexe est d'accuser la couleur ou le nombre de couches. C'est faux.
+
+`wash()` construit son bord par l'écart entre deux couches successives, et `deform()` déplace chaque point d'une fraction de la **longueur de son arête**. Or la forme parente est déjà subdivisée deux fois : ses arêtes font environ un quart de celles du polygone d'origine. Avec `jitter: 0.1` sur un polygone dont les arêtes font 15 px, l'écart entre deux couches vaut donc ~0,4 px. Un bord de 0,4 px est un bord net.
+
+Ordres de grandeur qui marchent réellement, mesurés sur le tableau de Versailles :
+
+| Sujet | `spread` | `jitter` |
+|---|---|---|
+| Maçonnerie (façade, margelle) | 0.04 – 0.06 | 0.10 – 0.14 |
+| Feuillage, plate-bande, eau | 0.10 – 0.16 | 0.26 – 0.40 |
+| Vapeur, gerbe d'eau, brume | 0.20 – 0.34 | 0.40 – 0.46 |
+
+`spread` reste borné à ~0.3 (au-delà la silhouette part en lambeaux) ; `jitter`, lui, ne fait qu'adoucir et peut monter bien plus haut qu'on ne l'imagine.
+
+## Mesurer les valeurs, pas les regarder
+
+Le défaut le plus coûteux du tableau de Versailles a résisté à cinq itérations : le palais paraissait fade et gris, et chaque tentative portait sur sa **couleur**. Un relevé de pixels (`ctx.getImageData` depuis la console) a tranché en une minute : façade à 190 de luminance, ciel à 183. Deux masses à la même valeur ne se séparent jamais, quelle que soit leur teinte.
+
+**Réflexe** : avant de retoucher une couleur, relève la luminance des deux masses qui devraient s'opposer. Si l'écart est sous ~25, c'est un problème de valeur, et aucune retouche de teinte ne le corrigera.
+
+Corollaire pour un ciel en dégradé derrière un bâtiment : sa chute doit être calée **exactement sur la ligne de toit**. Trop haut, le ciel n'a plus de densité au-dessus du bâtiment et les deux se rejoignent en valeur. Trop bas, le ciel teinte le bâtiment à travers lui (`multiply`) — un ciel chaud rend un palais rose.
+
+## Le produit de deux pigments, jamais un pigment seul
+
+En `multiply`, ce qu'on voit est le **produit** de tout ce qui a été posé. Trois pièges rencontrés d'affilée sur la même image, chacun sur des couleurs pourtant justes prises isolément :
+
+- **Prune sur vert → brun.** `VIOLET_PROFOND` en ombre sur des ifs `VERT` : quelques cônes viraient au marron pendant que leurs voisins restaient verts, selon la part du cône que l'ombre couvrait. L'ombre d'un feuillage se peint en bleu ardoise. La règle du projet est « une ombre n'est jamais grise », pas « une ombre est toujours violette ».
+- **Sable orangé sous du vert → kaki.** Le sable des allées en `SABLE` teintait en tan tout if qui le chevauchait. Un sable en `PIERRE_PALE` (crème) ne fait pas ça.
+- **Pierre ocre sous un ciel chaud → rose.** `PIERRE_CHAUDE` + un dégradé `SABLE` a rendu un Versailles de dragée. La pierre au soleil se peint en crème, et la chaleur vient d'un voile étroit posé du seul côté éclairé.
+
+**Réflexe** : quand une teinte dérape, ne cherche pas quelle couleur est fausse — cherche quelles DEUX couleurs se superposent à cet endroit.
+
+## Une réserve claire se prépare, elle ne se peint pas
+
+On ne peut pas éclaircir en `multiply`. Un jet d'eau, une écume, un rai de lumière n'existent que **là où le papier a été laissé nu**. La gerbe du bassin de Versailles ne fonctionne que parce qu'elle monte au-dessus de l'allée de sable, seule zone quasi non peinte du tableau ; posée devant les parterres, elle disparaissait.
+
+Corollaire : place d'abord la zone claire dans la composition, peins le voile ensuite. L'inverse ne marche jamais.
+
+## Un vide se remplit par un sujet, pas par de la matière
+
+Le quart de tableau vide entre le palais et les parterres a résisté à trois lavis de sol successifs — chacun le grisait sans le remplir. Ce qui a marché : y mettre **ce qui s'y trouve réellement**, le Parterre d'Eau et ses deux miroirs. C'est le piège fondateur de ce fichier sous un autre angle : quand une zone paraît vide, il lui manque un sujet, pas du pigment.
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
