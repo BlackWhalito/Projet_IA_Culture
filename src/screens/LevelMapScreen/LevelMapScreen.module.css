@@ -76,3 +76,38 @@
   position: relative;
   color: var(--color-text-muted);
 }
+
+/*
+ * Un niveau illustré : le tableau occupe toute la largeur de la carte,
+ * bord à bord. Le remplissage passe donc du nœud à son seul texte —
+ * une peinture encadrée d'une marge se lit comme une vignette collée
+ * dessus, pas comme la carte du niveau.
+ */
+.withArt {
+  width: 74%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.art {
+  display: block;
+  width: 100%;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+}
+
+/*
+ * Verrouillé : le tableau reste visible mais voilé, comme derrière un
+ * papier calque. Le masquer complètement retirerait la seule chose qui
+ * donne envie d'y arriver.
+ */
+.locked .art {
+  opacity: 0.42;
+  filter: saturate(0.45);
+}

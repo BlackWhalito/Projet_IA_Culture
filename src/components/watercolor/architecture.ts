@@ -29,6 +29,15 @@ export interface BuildingOptions {
   floors?: number
   /** Fenêtres par rangée. */
   bays?: number
+  /**
+   * Irrégularité de la silhouette et du bord. Les valeurs par défaut sont
+   * volontairement très basses — une façade est maçonnée, elle doit rester
+   * plus nette qu'un feuillage. Mais sur un mur très large elles rendent un
+   * rectangle vectoriel : plus la masse est grande, plus il faut monter,
+   * sinon le bord se lit comme un tracé au ruban adhésif.
+   */
+  spread?: number
+  jitter?: number
 }
 
 /**
@@ -94,7 +103,7 @@ export function facade(
   plan: LightPlan,
   options: BuildingOptions,
 ): void {
-  const { stone, shade, distance = 0, floors = 4, bays = 2 } = options
+  const { stone, shade, distance = 0, floors = 4, bays = 2, spread = 0.025, jitter = 0.03 } = options
   const x0 = x - width / 2
   const x1 = x + width / 2
   const lit = litFromLeft(plan)
@@ -108,8 +117,8 @@ export function facade(
     color: stone,
     layers: 24,
     alpha: attenue(VALEUR.MOYEN, distance) / 24,
-    spread: 0.025,
-    jitter: 0.03,
+    spread,
+    jitter,
   })
 
   // La face au soleil se réchauffe. Une masse d'une seule teinte reste
@@ -126,8 +135,12 @@ export function facade(
     color: plan.warm,
     layers: 8,
     alpha: attenue(VALEUR.CLAIR, distance) / 8,
-    spread: 0.03,
-    jitter: 0.05,
+    // Les facteurs (1.2 et 5/3) reproduisent EXACTEMENT les anciennes
+    // constantes en écrit (0.03 et 0.05) quand `spread`/`jitter` gardent
+    // leurs valeurs par défaut : rendre ces réglages paramétrables ne
+    // devait rien changer aux tableaux déjà validés.
+    spread: spread * 1.2,
+    jitter: (jitter * 5) / 3,
   })
 
   // Le côté opposé à la lumière prend l'ombre — toujours du même côté pour
@@ -143,8 +156,8 @@ export function facade(
     color: shade,
     layers: 12,
     alpha: attenue(VALEUR.OMBRE, distance) / 12,
-    spread: 0.03,
-    jitter: 0.04,
+    spread: spread * 1.2,
+    jitter: (jitter * 4) / 3,
   })
 
   windows(ctx, x0, yTop, x1, yBase, floors, bays, rng, plan, distance)
@@ -669,4 +682,87 @@ export function stoneTexture(
     length: ry * 0.7,
     width: rx * 0.09,
   })
+}
+
+/**
+ * Une balustrade couronnée de statues : la ligne de toit d'un palais
+ * classique.
+ *
+ * C'est le repère qui oppose un palais à un château fort, et il est
+ * étonnamment sûr à cette échelle. Un château fort se lit à ses tours,
+ * c'est-à-dire à des VERTICALES qui cassent la silhouette ; un palais du
+ * Grand Siècle se lit à l'inverse, à une ligne de toit presque
+ * parfaitement HORIZONTALE, hérissée d'une frise de petits points
+ * réguliers — les balustres — et ponctuée de quelques statues. Deux
+ * dizaines de pixels de haut suffisent : c'est le rythme qui informe, pas
+ * le détail de la pierre.
+ *
+ * `y` est l'assise, c'est-à-dire le sommet du mur qu'elle couronne : la
+ * balustrade se construit AU-DESSUS, vers les valeurs de `y` décroissantes.
+ */
+export function balustrade(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  y: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number; statues?: number },
+): void {
+  const { stone, shade, distance = 0, statues = 0 } = options
+  const yTop = y - height
+
+  // Les deux lisses, haute et basse. La haute est le seul trait vraiment
+  // franc : c'est elle qui donne l'horizontale tendue du bâtiment, et une
+  // horizontale nette vaut plus, à cette taille, que tous les balustres
+  // réunis.
+  dryStroke(ctx, [[x0, y], [x1, y + (rng() - 0.5) * height * 0.15]], Math.max(0.8, height * 0.16), rng, {
+    color: shade,
+    alpha: attenue(0.3, distance),
+    layers: 2,
+  })
+  dryStroke(ctx, [[x0, yTop], [x1, yTop + (rng() - 0.5) * height * 0.12]], Math.max(0.9, height * 0.2), rng, {
+    color: plan.accent,
+    alpha: attenue(0.42, distance),
+    layers: 2,
+  })
+
+  // Les balustres : de petits fûts serrés entre les deux lisses. Leur
+  // largeur est celle du vide qui les sépare, sinon la frise vire soit au
+  // pointillé maigre, soit au bandeau plein.
+  const pitch = Math.max(2.2, height * 0.85)
+  const count = Math.max(3, Math.round((x1 - x0) / pitch))
+  const step = (x1 - x0) / count
+  for (let i = 0; i < count; i += 1) {
+    const bx = x0 + step * (i + 0.5) + (rng() - 0.5) * step * 0.14
+    dryStroke(ctx, [[bx, y - height * 0.12], [bx, yTop + height * 0.12]], step * 0.42, rng, {
+      color: stone,
+      alpha: attenue(0.34, distance),
+      layers: 2,
+      jitter: 0.08,
+    })
+  }
+
+  // Les statues : quelques silhouettes debout sur la lisse, à intervalle
+  // régulier. Volontairement sans bras ni tête distincts — à cette
+  // échelle, une masse étroite deux fois plus haute que la balustrade
+  // suffit à faire « statue », et tenter mieux ne produirait que du bruit.
+  for (let s = 0; s < statues; s += 1) {
+    const sx = x0 + ((x1 - x0) * (s + 0.5)) / statues
+    const sh = height * (1.5 + rng() * 0.5)
+    wash(ctx, [
+      [sx - height * 0.18, yTop],
+      [sx - height * 0.12, yTop - sh * 0.62],
+      [sx, yTop - sh],
+      [sx + height * 0.12, yTop - sh * 0.62],
+      [sx + height * 0.18, yTop],
+    ], rng, {
+      color: shade,
+      layers: 10,
+      alpha: attenue(0.3, distance) / 10,
+      spread: 0.12,
+      jitter: 0.16,
+    })
+  }
 }
