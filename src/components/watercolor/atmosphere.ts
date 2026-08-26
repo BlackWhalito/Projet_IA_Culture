@@ -353,3 +353,39 @@ export function reflection(
     })
   }
 }
+
+/**
+ * Le vignetage d'un ciel : un assombrissement progressif vers les bords du
+ * cadre, transparent autour d'un point de lumière.
+ *
+ * C'est le geste qui manque le plus à un ciel fait d'un seul dégradé
+ * vertical. Un vrai ciel n'est pas plus clair « en bas », il est plus clair
+ * AUTOUR DU SOLEIL, et se referme dans les angles. Le dégradé vertical seul
+ * donne une bande, ce vignetage lui donne une source.
+ *
+ * Il ne viole pas la règle « aucune texture isolée sur un dégradé » :
+ * cette règle vise les touches locales, qui s'assombrissent en tache. Ici
+ * la nappe couvre tout le ciel et ne varie que très lentement — il n'y a
+ * nulle part de discontinuité où l'œil puisse s'accrocher. Et le sens est
+ * le bon : en `multiply` on ne peut pas éclaircir un centre, mais on peut
+ * foncer des bords, ce qui revient au même à l'œil.
+ */
+export function vignette(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  options: { cx: number; cy: number; color: string; alpha: number; creux?: number },
+): void {
+  const { cx, cy, color, alpha, creux = 0.3 } = options
+  const rayon = Math.hypot(x1 - x0, y1 - y0) * 0.75
+  const gradient = ctx.createRadialGradient(cx, cy, rayon * creux, cx, cy, rayon)
+  gradient.addColorStop(0, hexToRgba(color, 0))
+  gradient.addColorStop(0.55, hexToRgba(color, alpha * 0.32))
+  gradient.addColorStop(1, hexToRgba(color, alpha))
+  ctx.save()
+  ctx.fillStyle = gradient
+  ctx.fillRect(x0, y0, x1 - x0, y1 - y0)
+  ctx.restore()
+}

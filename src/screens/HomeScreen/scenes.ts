@@ -12,6 +12,21 @@ import {
 } from '../../components/watercolor/architecture'
 import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
 import { adultReading, childWatchingSea, girlWriting } from '../../components/watercolor/figure'
+import {
+  BLEU,
+  BLEU_CLAIR,
+  ENCRE_SOMBRE,
+  OCRE,
+  PAPIER,
+  PIERRE_CHAUDE,
+  PIERRE_PALE,
+  SABLE,
+  TURQUOISE,
+  VERT,
+  VIOLET,
+  VIOLET_BRUME,
+  VIOLET_PROFOND,
+} from '../../components/watercolor/palette'
 import { litFromLeft } from '../../components/watercolor/light'
 import type { LightPlan } from '../../components/watercolor/light'
 
@@ -22,19 +37,6 @@ import type { LightPlan } from '../../components/watercolor/light'
  * le bleu ardoise et portée par les violets qui font les ombres.
  */
 
-const BLEU = '#5a7fa0'
-const BLEU_CLAIR = '#8fb0c9'
-const TURQUOISE = '#4f9a92'
-const VIOLET = '#8d6aa8'
-const VIOLET_BRUME = '#c3b0d4'
-const VIOLET_PROFOND = '#5d4574'
-const OCRE = '#c1663f'
-const SABLE = '#d9a35f'
-const VERT = '#7a9455'
-const PAPIER = '#f7f2e7'
-const ENCRE_SOMBRE = '#241d2b'
-const PIERRE_CHAUDE = '#d8bd96'
-const PIERRE_PALE = '#e6d9c4'
 
 /**
  * La lumière unique des deux tableaux : elle vient de la gauche, chaude, et

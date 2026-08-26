@@ -29,6 +29,15 @@ export interface BuildingOptions {
   floors?: number
   /** Fenêtres par rangée. */
   bays?: number
+  /**
+   * Irrégularité de la silhouette et du bord. Les valeurs par défaut sont
+   * volontairement très basses — une façade est maçonnée, elle doit rester
+   * plus nette qu'un feuillage. Mais sur un mur très large elles rendent un
+   * rectangle vectoriel : plus la masse est grande, plus il faut monter,
+   * sinon le bord se lit comme un tracé au ruban adhésif.
+   */
+  spread?: number
+  jitter?: number
 }
 
 /**
@@ -94,7 +103,7 @@ export function facade(
   plan: LightPlan,
   options: BuildingOptions,
 ): void {
-  const { stone, shade, distance = 0, floors = 4, bays = 2 } = options
+  const { stone, shade, distance = 0, floors = 4, bays = 2, spread = 0.025, jitter = 0.03 } = options
   const x0 = x - width / 2
   const x1 = x + width / 2
   const lit = litFromLeft(plan)
@@ -108,8 +117,8 @@ export function facade(
     color: stone,
     layers: 24,
     alpha: attenue(VALEUR.MOYEN, distance) / 24,
-    spread: 0.025,
-    jitter: 0.03,
+    spread,
+    jitter,
   })
 
   // La face au soleil se réchauffe. Une masse d'une seule teinte reste
@@ -126,8 +135,12 @@ export function facade(
     color: plan.warm,
     layers: 8,
     alpha: attenue(VALEUR.CLAIR, distance) / 8,
-    spread: 0.03,
-    jitter: 0.05,
+    // Les facteurs (1.2 et 5/3) reproduisent EXACTEMENT les anciennes
+    // constantes en écrit (0.03 et 0.05) quand `spread`/`jitter` gardent
+    // leurs valeurs par défaut : rendre ces réglages paramétrables ne
+    // devait rien changer aux tableaux déjà validés.
+    spread: spread * 1.2,
+    jitter: (jitter * 5) / 3,
   })
 
   // Le côté opposé à la lumière prend l'ombre — toujours du même côté pour
@@ -143,8 +156,8 @@ export function facade(
     color: shade,
     layers: 12,
     alpha: attenue(VALEUR.OMBRE, distance) / 12,
-    spread: 0.03,
-    jitter: 0.04,
+    spread: spread * 1.2,
+    jitter: (jitter * 4) / 3,
   })
 
   windows(ctx, x0, yTop, x1, yBase, floors, bays, rng, plan, distance)
@@ -668,5 +681,320 @@ export function stoneTexture(
     layers: 1,
     length: ry * 0.7,
     width: rx * 0.09,
+  })
+}
+
+/**
+ * Une balustrade couronnée de statues : la ligne de toit d'un palais
+ * classique.
+ *
+ * C'est le repère qui oppose un palais à un château fort, et il est
+ * étonnamment sûr à cette échelle. Un château fort se lit à ses tours,
+ * c'est-à-dire à des VERTICALES qui cassent la silhouette ; un palais du
+ * Grand Siècle se lit à l'inverse, à une ligne de toit presque
+ * parfaitement HORIZONTALE, hérissée d'une frise de petits points
+ * réguliers — les balustres — et ponctuée de quelques statues. Deux
+ * dizaines de pixels de haut suffisent : c'est le rythme qui informe, pas
+ * le détail de la pierre.
+ *
+ * `y` est l'assise, c'est-à-dire le sommet du mur qu'elle couronne : la
+ * balustrade se construit AU-DESSUS, vers les valeurs de `y` décroissantes.
+ */
+export function balustrade(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  y: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number; statues?: number },
+): void {
+  const { stone, shade, distance = 0, statues = 0 } = options
+  const yTop = y - height
+
+  // Les deux lisses, haute et basse. La haute est le seul trait vraiment
+  // franc : c'est elle qui donne l'horizontale tendue du bâtiment, et une
+  // horizontale nette vaut plus, à cette taille, que tous les balustres
+  // réunis.
+  dryStroke(ctx, [[x0, y], [x1, y + (rng() - 0.5) * height * 0.15]], Math.max(0.8, height * 0.16), rng, {
+    color: shade,
+    alpha: attenue(0.3, distance),
+    layers: 2,
+  })
+  dryStroke(ctx, [[x0, yTop], [x1, yTop + (rng() - 0.5) * height * 0.12]], Math.max(0.8, height * 0.14), rng, {
+    color: plan.accent,
+    alpha: attenue(0.34, distance),
+    layers: 2,
+  })
+
+  // Les balustres : de petits fûts serrés entre les deux lisses. Leur
+  // largeur est celle du vide qui les sépare, sinon la frise vire soit au
+  // pointillé maigre, soit au bandeau plein.
+  const pitch = Math.max(2.2, height * 0.85)
+  const count = Math.max(3, Math.round((x1 - x0) / pitch))
+  const step = (x1 - x0) / count
+  for (let i = 0; i < count; i += 1) {
+    const bx = x0 + step * (i + 0.5) + (rng() - 0.5) * step * 0.14
+    dryStroke(ctx, [[bx, y - height * 0.12], [bx, yTop + height * 0.12]], step * 0.42, rng, {
+      color: stone,
+      alpha: attenue(0.34, distance),
+      layers: 2,
+      jitter: 0.08,
+    })
+  }
+
+  // Les statues : quelques silhouettes debout sur la lisse, à intervalle
+  // régulier. Volontairement sans bras ni tête distincts — à cette
+  // échelle, une masse étroite deux fois plus haute que la balustrade
+  // suffit à faire « statue », et tenter mieux ne produirait que du bruit.
+  for (let s = 0; s < statues; s += 1) {
+    const sx = x0 + ((x1 - x0) * (s + 0.5)) / statues
+    // Trapue plutôt qu'élancée : une silhouette étroite et haute sort en
+    // aiguille — une antenne sur le toit, pas une statue. Un vase ou un
+    // trophée de couronnement est large d'au moins un tiers de sa hauteur.
+    const sh = height * (1.2 + rng() * 0.4)
+    wash(ctx, [
+      [sx - height * 0.3, yTop],
+      [sx - height * 0.26, yTop - sh * 0.55],
+      [sx, yTop - sh],
+      [sx + height * 0.26, yTop - sh * 0.55],
+      [sx + height * 0.3, yTop],
+    ], rng, {
+      color: shade,
+      layers: 10,
+      alpha: attenue(0.52, distance) / 10,
+      spread: 0.12,
+      jitter: 0.16,
+    })
+  }
+}
+
+/**
+ * Un crénelage : la rangée de merlons qui couronne un mur ou une tour.
+ *
+ * C'est LE signe du château fort, et le contrepoint exact de
+ * `balustrade()` : les deux couronnent un mur, mais l'une hérisse une
+ * ligne de toit de petites verticales pleines et régulières (défendre),
+ * l'autre l'ajoure de petits vides (paraître). À l'échelle d'une vignette,
+ * c'est cette différence de dentelure — pleine contre ajourée — qui décide
+ * si le bâtiment se lit comme une forteresse ou comme un palais, bien
+ * avant la couleur de sa pierre.
+ *
+ * `y` est le chemin de ronde, c'est-à-dire le haut du mur : les merlons se
+ * construisent AU-DESSUS, vers les `y` décroissants.
+ */
+export function battlement(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  y: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; distance?: number },
+): void {
+  const { stone, shade, distance = 0 } = options
+  const lit = litFromLeft(plan)
+  // Le pas : un merlon plein pour un vide d'à peu près la même largeur.
+  // Serrer davantage donne un peigne illisible, espacer donne une rangée
+  // de bornes.
+  const pas = Math.max(2.4, height * 1.5)
+  const count = Math.max(2, Math.round((x1 - x0) / pas))
+  const step = (x1 - x0) / count
+
+  for (let i = 0; i < count; i += 1) {
+    const mx0 = x0 + step * (i + 0.1)
+    const mx1 = x0 + step * (i + 0.68)
+    wash(ctx, [
+      [mx0, y],
+      [mx0, y - height],
+      [mx1, y - height],
+      [mx1, y],
+    ], rng, {
+      color: stone,
+      layers: 12,
+      alpha: attenue(0.55, distance) / 12,
+      spread: 0.05,
+      jitter: 0.09,
+    })
+    // Le flanc à l'ombre de chaque merlon : sans lui, la rangée est un
+    // aplat découpé, et les créneaux disparaissent dès que le mur derrière
+    // eux a la même valeur.
+    const ox0 = lit ? mx1 - (mx1 - mx0) * 0.4 : mx0
+    const ox1 = lit ? mx1 : mx0 + (mx1 - mx0) * 0.4
+    wash(ctx, [
+      [ox0, y],
+      [ox0, y - height],
+      [ox1, y - height],
+      [ox1, y],
+    ], rng, {
+      color: shade,
+      layers: 8,
+      alpha: attenue(0.4, distance) / 8,
+      spread: 0.06,
+      jitter: 0.1,
+    })
+  }
+
+  // Le chemin de ronde : la seule horizontale franche de l'ensemble, celle
+  // qui pose les merlons sur un mur au lieu de les laisser flotter.
+  dryStroke(ctx, [[x0, y], [x1, y + (rng() - 0.5) * height * 0.12]], Math.max(0.8, height * 0.16), rng, {
+    color: plan.accent,
+    alpha: attenue(0.36, distance),
+    layers: 2,
+  })
+}
+
+/**
+ * Une tour ronde, couronnée soit de créneaux, soit d'un toit en poivrière.
+ *
+ * Ce qui fait « ronde » à cette échelle n'est pas la silhouette — de face,
+ * un cylindre est un rectangle — mais **le modelé** : une bande d'ombre
+ * qui court sur toute la hauteur du côté opposé à la lumière, et qui
+ * s'arrête avant le bord. Sans elle, la tour est un pilier carré ; avec
+ * elle, l'œil la fait tourner tout seul.
+ *
+ * Les meurtrières remplacent les fenêtres : hautes, étroites, rarissimes.
+ * Une tour percée d'une grille de fenêtres n'est plus défensive.
+ */
+export function roundTower(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yTop: number,
+  yBase: number,
+  radius: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: {
+    stone: string
+    shade: string
+    /** Toit de la tour. `poivriere` = le cône pointu ; `creneaux` = plate-forme crénelée. */
+    roof: 'poivriere' | 'creneaux'
+    /** Couleur des ardoises, pour une poivrière. */
+    roofColor?: string
+    distance?: number
+    slits?: number
+  },
+): void {
+  const { stone, shade, roof, roofColor = shade, distance = 0, slits = 2 } = options
+  const lit = litFromLeft(plan)
+  const x0 = x - radius
+  const x1 = x + radius
+
+  wash(ctx, [[x0, yBase], [x0, yTop], [x1, yTop], [x1, yBase]], rng, {
+    color: stone,
+    layers: 22,
+    alpha: attenue(VALEUR.MOYEN, distance) / 22,
+    spread: 0.03,
+    jitter: 0.07,
+  })
+
+  // Le modelé cylindrique : l'ombre ne touche pas le bord de la tour, elle
+  // s'arrête à ~90 % — c'est ce liseré clair rattrapé sur l'arête qui fait
+  // le tournant du volume. Une ombre poussée jusqu'au bord aplatit tout.
+  const sFrom = lit ? x + radius * 0.15 : x - radius * 0.9
+  const sTo = lit ? x + radius * 0.9 : x - radius * 0.15
+  wash(ctx, [[sFrom, yBase], [sFrom, yTop], [sTo, yTop], [sTo, yBase]], rng, {
+    color: shade,
+    layers: 14,
+    alpha: attenue(VALEUR.OMBRE, distance) / 14,
+    spread: 0.04,
+    jitter: 0.1,
+  })
+
+  for (let i = 0; i < slits; i += 1) {
+    const sy = yTop + (yBase - yTop) * (0.34 + i * 0.26)
+    dryStroke(ctx, [[x - radius * 0.1, sy], [x - radius * 0.1, sy + (yBase - yTop) * 0.13]], radius * 0.22, rng, {
+      color: plan.accent,
+      alpha: attenue(0.55, distance),
+      layers: 2,
+      jitter: 0.06,
+    })
+  }
+
+  if (roof === 'creneaux') {
+    battlement(ctx, x0 - radius * 0.12, x1 + radius * 0.12, yTop, radius * 0.75, rng, plan, {
+      stone,
+      shade,
+      distance,
+    })
+    return
+  }
+
+  // La poivrière : un cône franc, et son débord. Le débord compte autant
+  // que la pointe — un cône posé pile sur le diamètre de la tour se lit
+  // comme un capuchon collé, alors qu'un toit médiéval déborde toujours.
+  const debord = radius * 0.34
+  const hauteur = radius * 1.9
+  wash(ctx, [
+    [x0 - debord, yTop],
+    [x, yTop - hauteur],
+    [x1 + debord, yTop],
+  ], rng, {
+    color: roofColor,
+    layers: 20,
+    alpha: attenue(0.7, distance) / 20,
+    spread: 0.055,
+    jitter: 0.13,
+  })
+  // Le versant à l'ombre, découpé DANS le triangle et jamais à côté : en
+  // `multiply`, un aplat qui dépasse du toit reste visible dans le ciel.
+  const versant: Point[] = lit
+    ? [[x, yTop - hauteur], [x1 + debord, yTop], [x, yTop]]
+    : [[x, yTop - hauteur], [x0 - debord, yTop], [x, yTop]]
+  wash(ctx, versant, rng, {
+    color: shade,
+    layers: 10,
+    alpha: attenue(0.34, distance) / 10,
+    spread: 0.05,
+    jitter: 0.1,
+  })
+  dryStroke(ctx, [[x0 - debord, yTop], [x1 + debord, yTop]], Math.max(0.7, radius * 0.14), rng, {
+    color: plan.accent,
+    alpha: attenue(0.34, distance),
+    layers: 2,
+  })
+}
+
+/**
+ * Une bannière au bout d'une hampe : le mât, et un fanion triangulaire qui
+ * flotte du côté opposé à la lumière.
+ *
+ * Minuscule, et pourtant l'élément le plus rentable d'un château fort. Une
+ * silhouette de forteresse reste ambiguë (une prison ? un silo ?) jusqu'à
+ * ce qu'un fanion la date. C'est aussi la seule tache franchement colorée
+ * qu'on s'autorise dans une masse de pierre : elle attire l'œil au sommet
+ * du donjon, c'est-à-dire exactement où il faut.
+ */
+export function banner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yBase: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { cloth: string; distance?: number },
+): void {
+  const { cloth, distance = 0 } = options
+  const sens = litFromLeft(plan) ? 1 : -1
+  const yTop = yBase - height
+  dryStroke(ctx, [[x, yBase], [x, yTop]], Math.max(0.6, height * 0.06), rng, {
+    color: plan.accent,
+    alpha: attenue(0.5, distance),
+    layers: 2,
+  })
+  wash(ctx, [
+    [x, yTop],
+    [x + sens * height * 0.62, yTop + height * 0.16],
+    [x + sens * height * 0.44, yTop + height * 0.2],
+    [x + sens * height * 0.6, yTop + height * 0.36],
+    [x, yTop + height * 0.34],
+  ], rng, {
+    color: cloth,
+    layers: 14,
+    alpha: attenue(0.62, distance) / 14,
+    spread: 0.07,
+    jitter: 0.12,
   })
 }

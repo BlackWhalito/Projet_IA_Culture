@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import type { GradeId, GameTypeId } from '../../types/content'
 import { getNotionById } from '../../content/notions'
 import { GameShell } from '../../games/GameShell'
+import { WatercolorScene } from '../../components/watercolor/WatercolorScene'
+import { LEVEL_BACKDROP } from './backdrops'
 import type { NotionResult } from '../../types/game'
 import { readBestScore, useProgressStore } from '../../state/progressStore'
 import { computeSessionScore, computeStarRating } from '../../engine/scoring'
@@ -25,6 +27,25 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
 
   const current = queue[index]
   const isDone = index >= queue.length
+  const backdrop = LEVEL_BACKDROP[levelId]
+
+  /**
+   * L'œuvre de fond du niveau, s'il en a une.
+   *
+   * Purement décorative : aucun `alt`, elle ne se décrit pas. Ce qu'elle
+   * représente n'apporte rien à qui ne la voit pas, et l'annoncer à chaque
+   * question serait une nuisance.
+   *
+   * Rendue une seule fois par session et non par question : `WatercolorScene`
+   * repeint à chaque changement de `paint`, et une paroi de grotte coûte
+   * une centaine de millisecondes. Elle est donc montée au-dessus du
+   * branchement `isDone`, hors du flux qui change à chaque écran.
+   */
+  const fond = backdrop ? (
+    <div className={styles.backdrop} aria-hidden="true">
+      <WatercolorScene paint={backdrop.paint} width={420} height={860} seed={backdrop.seed} fit="remplir" />
+    </div>
+  ) : null
 
   function handleContinue(result: NotionResult) {
     const nextResults = [...results, result]
@@ -42,6 +63,7 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
     const isRecord = previousBest > 0 && sessionScore > previousBest
     return (
       <div className={styles.session}>
+        {fond}
         <h1>{title}</h1>
         <div className={styles.results}>
           <p className={styles.stars} aria-label={`${starRating} étoiles sur 3`}>
@@ -73,6 +95,7 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
 
   return (
     <div className={styles.session}>
+      {fond}
       <h1>{title}</h1>
       <p className={styles.progress}>
         {index + 1} / {queue.length}

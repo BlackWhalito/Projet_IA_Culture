@@ -130,6 +130,16 @@ Contemplatif veut dire **lent et rare**, pas immobile.
 - Le retour au tap est immédiat (< 100 ms) et net : c'est de l'interface, il échappe aux règles douces.
 - Respecter `prefers-reduced-motion` : tout le mouvement d'ambiance disparaît.
 
+## Une œuvre en fond d'écran de jeu
+
+Un niveau peut recevoir une **œuvre** en fond de ses jeux (`src/screens/GameSessionScreen/backdrops/`). La règle de choix : ce n'est pas une seconde illustration du niveau, c'est quelque chose que son époque ou son sujet a réellement produit — Lascaux derrière les jeux de la Préhistoire. C'est ce qui lui donne quelque chose à transmettre sans demander qu'on la lise.
+
+Trois réglages la rendent inoffensive, et il faut les trois :
+
+- **`opacity` sous 0,22.** Le texte de jeu ne se pose que sur du papier nu ou sur un lavis très pâle — la règle ci-dessus vaut aussi pour un décor peint.
+- **Un masque radial qui la creuse en son centre**, là où passe la colonne de contenu. Elle n'est pleinement visible que sur les marges — c'est bien ce qu'on veut d'un décor : qu'on le voie sans jamais le regarder.
+- **`position: fixed` et `pointer-events: none`.** Un décor qui défile avec le contenu attire l'œil à chaque scroll ; un décor qui intercepte les taps est un bug.
+
 ## Coût de rendu
 
 `feTurbulence` est cher. Sur mobile, il fait chuter le framerate s'il est recalculé en continu.

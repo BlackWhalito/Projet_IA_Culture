@@ -1,4 +1,6 @@
 import { dryStroke, polygon, wash } from './engine'
+import { chevalDeProfil } from './animal'
+import type { Point } from './engine'
 import { litFromLeft } from './light'
 import type { LightPlan } from './light'
 
@@ -439,4 +441,107 @@ export function adultReading(
     [headX - shoulderW * 0.28, headY + headR * 1.3],
     [headX + shoulderW * 0.28, headY + headR * 1.25],
   ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
+}
+
+export interface KnightOptions {
+  /** La robe du cheval, et la masse principale de la silhouette. */
+  horse: string
+  /** L'armure du cavalier — plus froide que le cheval, sinon les deux fusionnent. */
+  armour: string
+  /** Le fanion de la lance : la seule tache franchement colorée. */
+  pennon: string
+  accent: string
+  distance?: number
+  /** Sens de la marche : -1 vers la gauche, 1 vers la droite. */
+  facing?: -1 | 1
+}
+
+/**
+ * Un chevalier à cheval, de profil.
+ *
+ * Trois formes décident de tout, et il n'en faut pas une quatrième :
+ *
+ * 1. **La ligne de dos du cheval** — longue, presque horizontale, remontant
+ *    à l'encolure. C'est elle qui dit « cheval » avant les pattes.
+ * 2. **Le cavalier assis droit**, une masse compacte posée haut sur cette
+ *    ligne. Un cavalier penché ou couché se lit comme un bagage.
+ * 3. **La lance en oblique**, et son fanion. C'est le seul élément qui dise
+ *    « chevalier » plutôt que « cavalier », et il est bon marché : deux
+ *    traits. Sans lui, la silhouette pourrait être n'importe quel cavalier
+ *    de n'importe quel siècle.
+ *
+ * Aucun visage, aucune main, aucun harnais : à cette échelle ils ne
+ * produiraient que du bruit, et le risque d'un visage raté est le plus
+ * élevé du moteur (voir l'en-tête de ce fichier). `height` est la hauteur
+ * au garrot, du sol au dos.
+ */
+export function knightOnHorse(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yGround: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: KnightOptions,
+): void {
+  const { horse, armour, pennon, accent, distance = 0, facing = -1 } = options
+  const f = facing
+  const att = 1 - distance * 0.6
+  const H = height
+  const yDos = yGround - H
+
+  // Le cheval est peint par `chevalDeProfil()`, dans `animal.ts` : c'est
+  // un animal, pas une figure humaine, et la même silhouette sert aux
+  // chevaux peints sur les parois de Lascaux. Cette fonction-ci ne garde
+  // que ce qui fait le CHEVALIER — le cavalier et sa lance.
+  chevalDeProfil(ctx, x, yGround, H, rng, plan, {
+    coat: horse,
+    shade: armour,
+    accent,
+    distance,
+    facing,
+  })
+
+  // Le cavalier : un tronc compact assis droit, et un heaume rond. En
+  // teinte d'armure, plus froide que la robe — deux masses de même valeur
+  // l'une sur l'autre ne font qu'une seule tache.
+  const yEpaules = yDos - H * 0.56
+  wash(ctx, [
+    [x - f * H * 0.15, yDos + H * 0.06],
+    [x - f * H * 0.11, yEpaules],
+    [x + f * H * 0.13, yEpaules],
+    [x + f * H * 0.17, yDos + H * 0.06],
+  ], rng, { color: armour, layers: 18, alpha: (1.3 * att) / 18, spread: 0.05, jitter: 0.09 })
+  wash(ctx, polygon(x + f * H * 0.02, yEpaules - H * 0.15, H * 0.14, H * 0.15, 10, 0, rng), rng, {
+    color: armour,
+    layers: 14,
+    alpha: (1.35 * att) / 14,
+    spread: 0.05,
+    jitter: 0.08,
+  })
+  // La jambe du cavalier, le long du flanc : sans elle, le tronc a l'air
+  // posé sur le dos plutôt qu'à califourchon.
+  dryStroke(ctx, [
+    [x + f * H * 0.06, yDos + H * 0.02],
+    [x + f * H * 0.18, yDos + H * 0.26],
+  ], H * 0.09 * att, rng, { color: armour, alpha: 0.62 * att, layers: 2 })
+
+  // La lance : l'oblique franche qui dit « chevalier » plutôt que
+  // « cavalier ». C'est le seul trait vraiment long de la figure, donc
+  // celui qu'on lit en premier — et le seul endroit où l'on s'autorise
+  // une couleur vive, sur le fanion.
+  const bas: Point = [x - f * H * 0.42, yDos + H * 0.16]
+  const haut: Point = [x + f * H * 0.5, yDos - H * 1.15]
+  dryStroke(ctx, [bas, haut], Math.max(0.6, H * 0.05 * att), rng, {
+    color: accent,
+    alpha: 0.62 * att,
+    layers: 2,
+    jitter: 0.03,
+  })
+  wash(ctx, [
+    [haut[0], haut[1] + H * 0.05],
+    [haut[0] - f * H * 0.34, haut[1] + H * 0.16],
+    [haut[0] - f * H * 0.22, haut[1] + H * 0.22],
+    [haut[0] - f * H * 0.02, haut[1] + H * 0.24],
+  ], rng, { color: pennon, layers: 12, alpha: (0.72 * att) / 12, spread: 0.08, jitter: 0.13 })
 }

@@ -106,9 +106,10 @@ Sujet à arrêter une fois les notions figées — le tableau doit évoquer le n
 **Contrainte décisive** : la vignette fera ~240 × 110 px. Le piège n° 1 documenté du moteur est de juger une image à sa résolution interne et de la découvrir illisible à sa taille réelle. Concevoir en **silhouettes larges et contrastées**, pas en scène détaillée réduite.
 *Vérifié quand* : **tu l'as vue à sa taille réelle.** Sans navigateur dans la session, cette tâche est bloquée — un tableau ne se juge pas sans être vu.
 
-**T8 · Intégrer la vignette à la carte des niveaux · S**
-Registre `src/screens/LevelMapScreen/levelArt.ts` : un `Record<string, PaintScene>` indexé par `level.id`, sur le modèle de `GRADE_ART`. **Ne pas mettre le décoratif dans `src/content/`** ni étendre `LevelDef`. La scène doit être une **constante de module** (`WatercolorScene` a `paint` dans ses dépendances d'effet). Niveau verrouillé : tableau voilé sous le cadenas.
-*Vérifié quand* : `LevelMapScreen.test.tsx` (aucun test n'existe) couvre déverrouillé et verrouillé. `WatercolorScene` garde déjà contre un contexte 2D absent — **vérifié**, jsdom ne cassera pas.
+**T8 · Intégrer la vignette à la carte des niveaux · S — ✅ fait**
+`src/screens/LevelMapScreen/levelArt.ts` existe : un `Record<string, LevelArt>` indexé par `level.id`, hors de `src/content/` et sans toucher à `LevelDef`. Un niveau absent du registre s'affiche simplement sans tableau, donc **il ne reste plus rien à faire côté écran** pour le Niveau 1 : peindre sa scène dans `LevelMapScreen/scenes.ts` et l'inscrire dans le registre suffit. Niveau verrouillé : tableau voilé, et sa description disparaît pour les lecteurs d'écran. `LevelMapScreen.test.tsx` couvre déverrouillé, verrouillé, et le cas sans tableau.
+
+**Les huit niveaux du CP ont leur tableau.** Chaque sujet est tiré d'une notion réellement jouée dans son niveau — c'est la seule règle de choix, et elle n'est pas décorative : un joueur qui reconnaît sur la carte ce qu'il vient d'apprendre relie les deux tout seul. Les scènes vivent dans `LevelMapScreen/scenes/`, un fichier par tableau, toutes sous la même lumière (`scenes/lumiere.ts`) et la même palette. Elles ont coûté une soixantaine d'itérations au total ; les leçons transférables sont dans `references/peinture-generative.md` de la skill `aquarelle`, et il faut les lire avant d'en peindre une neuvième.
 
 ## Vérification de bout en bout
 

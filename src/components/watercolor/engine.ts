@@ -369,3 +369,51 @@ export function grain(ctx: CanvasRenderingContext2D, width: number, height: numb
   ctx.drawImage(scratch, 0, 0)
   ctx.restore()
 }
+
+/**
+ * Un contour « perdu et retrouvé » : la ligne n'apparaît que par
+ * tronçons, séparés de vides.
+ *
+ * C'est ce qui sépare une illustration d'un coloriage. Une masse peinte
+ * sans aucun trait reste molle, quelle que soit la justesse de sa forme —
+ * c'est le défaut qui fait dire « dessin d'enfant ». Mais une masse
+ * entièrement cernée bascule dans l'autre excès, la vignette de bande
+ * dessinée. Un peintre pose le trait là où la forme tourne ou se pose —
+ * une arête, un appui au sol, le dessous d'un volume — et le laisse
+ * disparaître partout ailleurs, là où la lumière mange le bord.
+ *
+ * `coverage` est la fraction de la longueur du chemin réellement tracée.
+ * Autour de 0.4 à 0.55 : en dessous le trait ne se lit plus comme un
+ * contour, au-dessus il redevient un cerne.
+ */
+export function contour(
+  ctx: CanvasRenderingContext2D,
+  path: Point[],
+  rng: () => number,
+  options: StrokeOptions & { width?: number; coverage?: number; runs?: number },
+): void {
+  const { width = 1, coverage = 0.48, runs = 3, ...strokeOptions } = options
+  if (path.length < 2) return
+  // Le chemin est ré-échantillonné finement d'abord : les tronçons se
+  // découpent alors n'importe où, et pas seulement sur les sommets
+  // d'origine — sinon un contour à cinq points ne peut casser qu'à cinq
+  // endroits, ce qui se voit.
+  const fin = resample(path, Math.max(24, path.length * 3))
+  const parRun = Math.max(2, Math.floor((fin.length * coverage) / runs))
+  const libre = fin.length - parRun * runs
+  let curseur = 0
+  for (let r = 0; r < runs; r += 1) {
+    // Le vide avant chaque tronçon est tiré au sort, mais on garde de quoi
+    // en placer un dernier : sans cette réserve, le hasard peut consommer
+    // tout le chemin et le dernier tronçon disparaît.
+    curseur += Math.floor((rng() * libre) / (runs + 1))
+    const fin0 = Math.min(curseur + parRun, fin.length - 1)
+    if (fin0 - curseur >= 2) {
+      dryStroke(ctx, fin.slice(curseur, fin0 + 1), width, rng, {
+        jitter: 0.03,
+        ...strokeOptions,
+      })
+    }
+    curseur = fin0
+  }
+}
