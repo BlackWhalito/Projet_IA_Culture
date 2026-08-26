@@ -157,6 +157,32 @@ Et l'espèce se joue sur une proportion, pas sur du détail : la tête d'un chev
 
 Deux détails qui ont chacun coûté un aller-retour : les membres se peignent **avant** le tronc (posés dessus, leur jointure reste visible en `multiply`), et leur tracé doit descendre **sous** la ligne de sol, sinon l'effilement de `dryStroke` termine chaque jambe en pointe d'aiguille au lieu d'un sabot.
 
+## `wash()` n'arrondit pas un polygone à peu de sommets
+
+Une aile de papillon dessinée à six sommets sort en cerf-volant facetté, et **aucun réglage de `spread`/`jitter` ne la rattrape** : `deform()` déplace chaque point d'une fraction de la longueur de son arête, donc six longues arêtes restent six longues arêtes légèrement ondulées. Deux essais l'ont vérifié.
+
+**La règle** : une forme qui doit être ronde se construit avec **14 sommets ou plus**, ou directement avec `polygon()`. Une forme anguleuse (mur, toit, coque) se contente de peu. Le nombre de sommets décide de la rondeur, pas les réglages de bord.
+
+## Un solide plus large à un bout ne peut pas être un `dryStroke`
+
+`dryStroke` effile ses DEUX extrémités. Un tronc d'arbre, un mât, une patte de cheval tracés avec lui sortent en fuseau — aussi fins au pied qu'à la cime, une aubergine plantée dans le sol. Un tronc s'évase au pied ; une patte finit sur un sabot.
+
+**La règle** : dès qu'une forme doit être dissymétrique en épaisseur, c'est un polygone passé à `wash()`. `dryStroke` reste pour ce qui est vraiment effilé aux deux bouts — une brindille, une ride, une arête.
+
+Corollaire déjà vu sur les jambes du cheval : quand un `dryStroke` doit se terminer NET (un sabot sur le sol), il faut prolonger le tracé au-delà du point d'arrivée pour que l'effilement se produise hors champ.
+
+## Un arbre est récursif, une fourche ne l'est pas
+
+Trois branches droites partant du même point donnent une fourche à foin — visible immédiatement sur un arbre nu. Un arbre se dessine par **bifurcations successives** : une branche, deux sous-branches, deux ramilles, avec un angle et une longueur qui décroissent à chaque niveau. Une fonction récursive de six lignes suffit, et c'est la seule façon d'obtenir une silhouette d'arbre plutôt qu'un symbole.
+
+Sous un houppier, ces branches doivent en plus être peintes **à opacité réduite** : à pleine densité elles transparaissent au travers du feuillage et se lisent comme des lames plantées dedans.
+
+## Un noir ne se voit que dans une masse plus claire que lui
+
+Corollaire inversé de la règle des petits noirs, et il a coûté trois versions de la même image : l'ouverture d'une grotte creusée dans une falaise **peinte en sombre** est invisible, et la même ouverture dans une falaise peinte en clair devient une porte de grange. Une masse qui doit contenir un trou doit rester dans une valeur MOYENNE.
+
+Et quand un sujet refuse de se lire de l'extérieur, essayer de **s'en servir comme cadre**. La grotte préhistorique, montrée de l'extérieur, restait un caillou à 200 px ; vue de l'intérieur, la paroi devient une bordure sombre qui n'a plus à être reconnue — seulement à encadrer — et la scène raconte davantage. Un sujet difficile à représenter est parfois un excellent point de vue.
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
