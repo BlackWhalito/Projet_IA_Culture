@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { LevelMapScreen } from './LevelMapScreen'
 import { LEVEL_ART } from './levelArt'
+import { getLevelsByGrade } from '../../content/levels'
 import { useProgressStore } from '../../state/progressStore'
 
 /**
@@ -84,9 +85,26 @@ describe('LevelMapScreen', () => {
     expect(ART_NIVEAU_2.paint).not.toBe(ART_NIVEAU_4.paint)
   })
 
-  it("n'exige pas de tableau : un niveau absent du registre s'affiche quand même", () => {
-    expect(LEVEL_ART['cp-level-3']).toBeUndefined()
+  it('donne un tableau distinct à chaque niveau du CP', () => {
+    const levels = getLevelsByGrade('cp')
+    expect(levels.length).toBeGreaterThan(0)
+    for (const level of levels) {
+      expect(LEVEL_ART[level.id], `${level.id} n'a pas de tableau`).toBeDefined()
+    }
+    // Deux niveaux qui partagent une peinture, une graine ou une
+    // description passeraient tous les autres tests sans qu'on le voie :
+    // la carte afficherait simplement deux fois la même image.
+    for (const champ of ['paint', 'seed', 'alt'] as const) {
+      const valeurs = levels.map((level) => LEVEL_ART[level.id][champ])
+      expect(new Set(valeurs).size, `deux niveaux partagent le même ${champ}`).toBe(levels.length)
+    }
+  })
+
+  it("n'exige pas de tableau : un niveau absent du registre reste jouable", () => {
+    // Le registre est volontairement facultatif — un niveau scolaire neuf
+    // doit pouvoir arriver sans qu'on ait peint quoi que ce soit.
+    expect(LEVEL_ART['ce1-level-1']).toBeUndefined()
     renderCarte()
-    expect(screen.getByLabelText('Niveau 3 (verrouillé)')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Niveau 1/ })).toBeInTheDocument()
   })
 })
