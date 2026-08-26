@@ -126,6 +126,37 @@ Corollaire : place d'abord la zone claire dans la composition, peins le voile en
 
 Le quart de tableau vide entre le palais et les parterres a résisté à trois lavis de sol successifs — chacun le grisait sans le remplir. Ce qui a marché : y mettre **ce qui s'y trouve réellement**, le Parterre d'Eau et ses deux miroirs. C'est le piège fondateur de ce fichier sous un autre angle : quand une zone paraît vide, il lui manque un sujet, pas du pigment.
 
+## Deux masses pleines ne se chevauchent jamais
+
+Le corollaire architectural de la règle `multiply` ci-dessus, et il coûte cher parce qu'il est contre-intuitif : superposer une tour à une courtine ne met pas la tour DEVANT le mur, ça double le pigment sur leur intersection. Le rectangle de la tour ressort alors comme une boîte translucide collée sur le mur — un château fort entier s'est lu comme un empilement de calques avant que le problème soit nommé.
+
+**La règle** : les volumes d'un même bâtiment se JOIGNENT bord à bord, ils ne se recouvrent pas. Les pans de courtine courent entre les tours ; un donjon qui s'élève derrière une muraille ne se dessine qu'au-dessus du chemin de ronde. Quand un recouvrement est inévitable, il faut qu'il soit voulu et lu comme une ombre portée, jamais comme une silhouette.
+
+## Un bâtiment posé sur une horizontale parfaite est un carton
+
+Toutes les bases de murs et de tours alignées sur un même `y` : le château se lit comme une découpe posée sur une étagère, quelle que soit la qualité de son dessin.
+
+**Le correctif tient en un appel** : repeindre le terrain PAR-DESSUS le pied du bâtiment, avec une crête irrégulière qui mord les bases à des hauteurs différentes. L'édifice sort alors de son sol au lieu d'y être posé. C'est le même geste qu'un rocher de premier plan qui mord le bord bas du cadre.
+
+## La précision d'une architecture vient de ses traits, pas de la netteté de ses lavis
+
+Verdict reçu sur le palais de Versailles : « pas assez précis ». Le réflexe — baisser `spread`/`jitter` pour durcir les bords — est le mauvais : il rend la masse vectorielle sans rien ajouter de lisible.
+
+Ce qui a marché, et qui vaut pour toute architecture régulière :
+
+- **Une seule trame partagée.** Une fonction `travee(i)` dont dérivent les arcades du bas, les fenêtres du haut et les ressauts. C'est l'alignement vertical entre les trois registres qui produit la précision, bien avant le détail de chacun.
+- **Des horizontales franches.** Entablement, bandeau d'étage, socle : trois `dryStroke` sombres et droits font plus qu'un modelé de pierre.
+- **Une symétrie exacte.** Avec un nombre impair de travées, l'axe tombe entre deux : les paires symétriques ne sont pas celles qu'on écrit spontanément. Une demi-travée d'erreur se voit immédiatement sur un bâtiment dont la symétrie est tout le sujet.
+- **Attention à `windows()`** : elle décale chaque ouverture au hasard et en supprime une sur six, exprès — c'est juste pour un palazzo en ruine, et faux pour une façade classique, dont la régularité EST le sujet. `floors: 0` et une grille tracée à la main.
+
+## Un animal se peint d'un seul contour fermé
+
+Un tronc, un trait d'encolure et une boule de tête assemblés donnent une table à pattes surmontée d'un ballon — vérifié deux fois. Ce qui fait reconnaître un animal, ce sont les PASSAGES : garrot vers encolure, courbe de la croupe, attache de la tête. Aucun n'existe si chaque partie est peinte séparément. Corps, encolure et tête vont donc dans un seul polygone ; seuls les membres, la queue et le cavalier se posent à part.
+
+Et l'espèce se joue sur une proportion, pas sur du détail : la tête d'un cheval est **longue** (0,4 fois la hauteur au garrot, deux fois plus longue que haute) et nettement détachée de l'encolure. Courte et ronde au sommet d'une encolure épaisse, la même silhouette donne un lama. Aucun réglage de couleur ne rattrape une proportion fausse.
+
+Deux détails qui ont chacun coûté un aller-retour : les membres se peignent **avant** le tronc (posés dessus, leur jointure reste visible en `multiply`), et leur tracé doit descendre **sous** la ligne de sol, sinon l'effilement de `dryStroke` termine chaque jambe en pointe d'aiguille au lieu d'un sabot.
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
