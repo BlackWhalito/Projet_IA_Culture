@@ -183,6 +183,26 @@ Corollaire inversé de la règle des petits noirs, et il a coûté trois version
 
 Et quand un sujet refuse de se lire de l'extérieur, essayer de **s'en servir comme cadre**. La grotte préhistorique, montrée de l'extérieur, restait un caillou à 200 px ; vue de l'intérieur, la paroi devient une bordure sombre qui n'a plus à être reconnue — seulement à encadrer — et la scène raconte davantage. Un sujet difficile à représenter est parfois un excellent point de vue.
 
+## Sans trait, une image reste un coloriage
+
+Le verdict « on dirait un dessin d'enfant » ne vise ni les couleurs ni les formes : il vise **l'absence de trait**. Une masse peinte sans aucun bord tracé reste molle, aussi juste soit sa silhouette.
+
+Mais une masse entièrement cernée bascule dans l'autre excès, la vignette de bande dessinée. Un peintre pose le trait là où la forme **tourne ou se pose** — une arête, un appui au sol, le dessous d'un volume — et le laisse disparaître partout ailleurs, là où la lumière mange le bord.
+
+`contour()` fait exactement ça : il ne trace que des tronçons du chemin qu'on lui donne, séparés de vides. `coverage` autour de 0.45-0.55 ; en dessous le trait ne se lit plus, au-dessus il redevient un cerne. Le mettre dans les PRIMITIVES plutôt que dans les scènes : arbre, animaux, rocher, if taillé, coque — huit tableaux se redressent alors d'un seul correctif.
+
+## Un ciel n'est pas plus clair « en bas », il est plus clair autour du soleil
+
+Un dégradé purement vertical se lit comme une bande de papier peint, quel que soit le nombre d'arrêts. Ce qui lui manque n'est pas de la couleur, c'est **une source**.
+
+`vignette()` referme le ciel dans les angles et le laisse ouvert autour d'un point. C'est un `createRadialGradient` — que ce fichier déconseille ailleurs — et l'exception est justifiée : la règle vise les touches LOCALES, qui s'assombrissent en tache. Une nappe qui couvre tout le ciel et ne varie que très lentement n'offre nulle part de discontinuité où l'œil s'accroche. Et le sens est le bon : en `multiply` on ne peut pas éclaircir un centre, mais foncer les bords revient au même à l'œil.
+
+## `flecks()` dimensionne ses taches sur la zone qu'on lui donne
+
+Piège d'échelle, invisible à la lecture du code : le rayon de chaque tache vaut une fraction du PLUS PETIT des deux rayons de la zone. Sur une vignette, ça donne du grain ; sur un fond plein écran, ça donne des taches de trente pixels — une paroi de grotte est sortie en motif de camouflage avant qu'on le voie.
+
+**La règle** : pour du grain sur une grande surface, semer soi-même des taches de taille ABSOLUE. `flecks()` ne convient qu'aux zones petites devant l'image.
+
 ## Voir avant de livrer
 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
