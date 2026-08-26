@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
-import { dryStroke, polygon, wash } from '../../../components/watercolor/engine'
+import { contour, dryStroke, polygon, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
-import { gradedWash, ripples } from '../../../components/watercolor/atmosphere'
+import { gradedWash, ripples, vignette } from '../../../components/watercolor/atmosphere'
 import {
   BLEU,
   BLEU_CLAIR,
@@ -105,7 +105,15 @@ function caravelle(
   dryStroke(ctx, [
     [x - L * 0.5, yFlottaison - L * 0.2],
     [x + L * 0.48, yFlottaison - L * 0.16],
-  ], L * 0.045, rng, { color: accent, alpha: 0.5, layers: 2 })
+  ], L * 0.045, rng, { color: accent, alpha: 0.62, layers: 2 })
+  contour(ctx, [
+    [x - L * 0.52, yFlottaison - L * 0.24],
+    [x - L * 0.34, yFlottaison + L * 0.02],
+    [x - L * 0.12, yFlottaison + L * 0.09],
+    [x + L * 0.24, yFlottaison + L * 0.08],
+    [x + L * 0.44, yFlottaison - L * 0.02],
+    [x + L * 0.5, yFlottaison - L * 0.16],
+  ], rng, { color: accent, width: L * 0.035, alpha: 0.42, layers: 2, coverage: 0.62, runs: 2 })
 
   // Les trois mâts, et les vergues qui portent les voiles carrées.
   const mats: Array<[number, number]> = [
@@ -137,7 +145,7 @@ function caravelle(
       [mx + L * larg * 0.5, yv],
       [mx + L * larg * 0.44, yv + L * hautVoile],
       [mx - L * larg * 0.44, yv + L * hautVoile],
-    ], rng, { color: sail, layers: 18, alpha: 0.95 / 18, spread: 0.05, jitter: 0.12 })
+    ], rng, { color: sail, layers: 18, alpha: 1.35 / 18, spread: 0.05, jitter: 0.12 })
     // Le creux de la voile, côté sous le vent : sans lui, une voile est un
     // rectangle de papier, pas une toile gonflée.
     wash(ctx, [
@@ -146,11 +154,19 @@ function caravelle(
       [mx + L * larg * 0.44, yv + L * hautVoile],
       [mx + L * larg * 0.12, yv + L * hautVoile],
     ], rng, { color: shade, layers: 10, alpha: 0.4 / 10, spread: 0.07, jitter: 0.14 })
-    dryStroke(ctx, [[mx - L * larg * 0.52, yv], [mx + L * larg * 0.52, yv]], L * 0.03, rng, {
+    dryStroke(ctx, [[mx - L * larg * 0.52, yv], [mx + L * larg * 0.52, yv]], L * 0.036, rng, {
       color: accent,
-      alpha: 0.5,
+      alpha: 0.68,
       layers: 2,
     })
+    // Le bord inférieur de la voile, tracé par tronçons : c'est lui qui
+    // donne à la toile son poids, et à l'ensemble son air dessiné plutôt
+    // que découpé.
+    contour(ctx, [
+      [mx - L * larg * 0.44, yv + L * hautVoile],
+      [mx, yv + L * hautVoile * 1.1],
+      [mx + L * larg * 0.44, yv + L * hautVoile],
+    ], rng, { color: accent, width: L * 0.022, alpha: 0.34, layers: 1, coverage: 0.6, runs: 2 })
   }
   // La voile latine du mât d'artimon, triangulaire — la marque de la
   // caravelle, justement.
@@ -158,7 +174,7 @@ function caravelle(
     [x + L * 0.4, yFlottaison - L * 0.68],
     [x + L * 0.62, yFlottaison - L * 0.2],
     [x + L * 0.3, yFlottaison - L * 0.24],
-  ], rng, { color: sail, layers: 16, alpha: 0.9 / 16, spread: 0.05, jitter: 0.12 })
+  ], rng, { color: sail, layers: 16, alpha: 1.3 / 16, spread: 0.05, jitter: 0.12 })
 
   // Le pavillon en tête de grand mât : la seule couleur vive du tableau.
   wash(ctx, [
@@ -193,6 +209,16 @@ export const caravelleScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.86, color: OCRE, alpha: 0.12 },
     { at: 1, color: SABLE, alpha: 0.04 },
   ])
+
+  // L'aube se concentre au ras de l'horizon, à gauche : c'est le
+  // vignetage qui la met là plutôt que de l'étaler sur toute la largeur.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, horizon + h * 0.01, {
+    cx: w * 0.32,
+    cy: horizon * 0.94,
+    color: VIOLET_PROFOND,
+    alpha: 0.34,
+    creux: 0.2,
+  })
 
   // La rose des vents, très pâle, comme imprimée sur le ciel. Elle doit
   // rester une indication, pas un objet : trop dense, elle se lirait comme

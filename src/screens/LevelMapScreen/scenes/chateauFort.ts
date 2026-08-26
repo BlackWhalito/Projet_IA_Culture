@@ -7,7 +7,7 @@ import {
   facade,
   roundTower,
 } from '../../../components/watercolor/architecture'
-import { gradedWash, cloud, reflection, ripples } from '../../../components/watercolor/atmosphere'
+import { cloud, gradedWash, reflection, ripples, vignette } from '../../../components/watercolor/atmosphere'
 import { knightOnHorse } from '../../../components/watercolor/figure'
 import { roche } from '../../../components/watercolor/terrain'
 import {
@@ -63,6 +63,17 @@ export const chateauFortScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.84, color: OCRE, alpha: 0.12 },
     { at: 1, color: SABLE, alpha: 0.05 },
   ])
+  // Le vignetage referme les angles du ciel autour de la lueur basse :
+  // c'est lui qui concentre le contre-jour derrière la forteresse au lieu
+  // de l'étaler sur toute la largeur.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, yCrete + h * 0.02, {
+    cx: w * 0.34,
+    cy: yCrete * 0.94,
+    color: VIOLET_PROFOND,
+    alpha: 0.34,
+    creux: 0.2,
+  })
+
   cloud(ctx, w * 0.24, h * 0.12, w * 0.6, h * 0.024, rng, LUMIERE, {
     light: VIOLET_BRUME,
     shade: VIOLET,

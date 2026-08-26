@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { GameSessionScreen } from './GameSessionScreen'
 import { getNotionById } from '../../content/notions'
 import { useProgressStore } from '../../state/progressStore'
+import { LEVEL_BACKDROP } from './backdrops'
 
 const NOTION_ID = 'cp-histoire-prehistoire'
 
@@ -28,6 +29,44 @@ describe('GameSessionScreen', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  /**
+   * L'œuvre de fond est décorative et le reste : elle ne doit jamais
+   * arriver dans l'arbre d'accessibilité. Si elle s'y annonçait, un
+   * lecteur d'écran lirait une description de paroi ornée avant chaque
+   * question — une nuisance, pour une image qui n'apporte rien à qui ne la
+   * voit pas.
+   */
+  it('pose le fond du niveau sans jamais l\'annoncer, et seulement là où il existe', () => {
+    expect(LEVEL_BACKDROP['cp-level-1']).toBeDefined()
+    expect(LEVEL_BACKDROP['cp-level-2']).toBeUndefined()
+
+    const { container, unmount } = render(
+      <MemoryRouter>
+        <GameSessionScreen
+          gradeId="cp"
+          levelId="cp-level-1"
+          title="Niveau 1"
+          queue={[{ notionId: NOTION_ID }]}
+        />
+      </MemoryRouter>,
+    )
+    expect(container.querySelectorAll('canvas')).toHaveLength(1)
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    unmount()
+
+    const sansFond = render(
+      <MemoryRouter>
+        <GameSessionScreen
+          gradeId="cp"
+          levelId="cp-level-2"
+          title="Niveau 2"
+          queue={[{ notionId: NOTION_ID }]}
+        />
+      </MemoryRouter>,
+    )
+    expect(sansFond.container.querySelectorAll('canvas')).toHaveLength(0)
   })
 
   /**

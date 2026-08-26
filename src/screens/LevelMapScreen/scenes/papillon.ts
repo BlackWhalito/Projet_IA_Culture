@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
-import { dryStroke, polygon, wash } from '../../../components/watercolor/engine'
+import { contour, dryStroke, polygon, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
-import { gradedWash } from '../../../components/watercolor/atmosphere'
+import { gradedWash, vignette } from '../../../components/watercolor/atmosphere'
 import { collines } from '../../../components/watercolor/terrain'
 import {
   ENCRE_SOMBRE,
@@ -63,6 +63,22 @@ function papillon(
     // centrée, elle, faisait un ocelle géant au milieu de l'aile. Le bout
     // assombri est à la fois plus juste (beaucoup d'espèces l'ont) et le
     // seul qui reste confiné là où on le veut.
+    // Le bord de l'aile, par tronçons : sans lui, deux ellipses de
+    // couleur restent deux pétales. C'est le trait qui fait l'aile.
+    const bord: Point[] = []
+    for (let i = 0; i <= 14; i += 1) {
+      const a = (i / 14) * Math.PI * 2
+      const p0 = place((cx + Math.cos(a + rot * cote) * rx * 0.98) * cote, cy + Math.sin(a + rot * cote) * ry * 0.98)
+      bord.push(p0)
+    }
+    contour(ctx, bord, rng, {
+      color: edge,
+      width: envergure * 0.014,
+      alpha: 0.34 * weight,
+      layers: 1,
+      coverage: 0.46,
+      runs: 3,
+    })
     const b = place((cx + 0.34) * cote, cy - 0.04)
     wash(ctx, polygon(b[0], b[1], demi * rx * 0.4, demi * ry * 0.5, 14, rot * cote + tilt, rng), rng, {
       color: edge,
@@ -234,6 +250,14 @@ export const papillonScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.5, color: SABLE, alpha: 0.14 },
     { at: 1, color: SABLE, alpha: 0.04 },
   ])
+  vignette(ctx, -w * 0.05, 0, w * 1.05, horizon + h * 0.02, {
+    cx: w * 0.28,
+    cy: horizon * 0.8,
+    color: VIOLET,
+    alpha: 0.24,
+    creux: 0.26,
+  })
+
   collines(ctx, -w * 0.05, w * 1.05, horizon - h * 0.05, horizon + h * 0.05, rng, {
     green: VERT,
     shade: VIOLET,

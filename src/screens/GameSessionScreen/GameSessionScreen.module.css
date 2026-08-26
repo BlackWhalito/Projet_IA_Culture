@@ -1,8 +1,46 @@
 .session {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-4);
+}
+
+/*
+ * L'œuvre de fond du niveau.
+ *
+ * Trois réglages la rendent inoffensive, et il faut les trois :
+ *
+ * 1. `opacity` très basse. La règle de la skill `aquarelle` est nette —
+ *    le texte de jeu ne se pose que sur du papier nu ou sur un lavis à
+ *    moins de 15 % d'opacité.
+ * 2. Un masque radial qui la CREUSE en son centre, exactement là où passe
+ *    la colonne de contenu. Elle n'est donc pleinement visible que sur les
+ *    marges, qui sont vides sur grand écran et étroites sur téléphone.
+ * 3. `pointer-events: none`. Sans quoi elle intercepterait les taps.
+ *
+ * `position: fixed` plutôt qu'absolute : la session défile quand une
+ * question est longue, et un décor qui défile avec elle attire l'œil à
+ * chaque scroll — ce qu'un décor ne doit jamais faire.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.22;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 42% 34% at 50% 46%, transparent 0%, black 76%);
+  -webkit-mask-image: radial-gradient(ellipse 42% 34% at 50% 46%, transparent 0%, black 76%);
+}
+
+/*
+ * Tout ce qui n'est pas le décor passe devant lui. Sans cette règle, le
+ * fond en `position: fixed` se poserait par-dessus le contenu au lieu de
+ * passer dessous.
+ */
+.session > *:not(.backdrop) {
+  position: relative;
+  z-index: 1;
 }
 
 .session h1 {

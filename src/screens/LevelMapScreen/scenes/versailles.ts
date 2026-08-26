@@ -2,7 +2,7 @@ import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
 import { dryStroke, flecks, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
 import { arcade, balustrade, facade } from '../../../components/watercolor/architecture'
-import { cloud, gradedWash, reflection } from '../../../components/watercolor/atmosphere'
+import { cloud, gradedWash, reflection, vignette } from '../../../components/watercolor/atmosphere'
 import { bassin, jetDeau, parterre, topiaire } from '../../../components/watercolor/jardin'
 import type { Quad } from '../../../components/watercolor/jardin'
 import {
@@ -88,6 +88,18 @@ export const versaillesScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.58, color: SABLE, alpha: 0.03 },
     { at: 1, color: SABLE, alpha: 0 },
   ])
+  // Le vignetage : le ciel se referme dans les angles et s'ouvre vers le
+  // soleil, à gauche. Un dégradé purement vertical se lit comme une bande
+  // de papier peint ; c'est ce second gradient, très lent, qui lui donne
+  // une source lumineuse et donc une profondeur.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, yTerrasse, {
+    cx: w * 0.16,
+    cy: h * 0.3,
+    color: VIOLET,
+    alpha: 0.26,
+    creux: 0.24,
+  })
+
   // Deux nuages volontairement très plats : ils redoublent l'horizontale
   // du bâtiment au lieu de la contrarier.
   cloud(ctx, w * 0.3, h * 0.07, w * 0.66, h * 0.022, rng, LUMIERE, {

@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
 import { dryStroke, flecks, polygon, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
-import { gradedWash } from '../../../components/watercolor/atmosphere'
+import { gradedWash, vignette } from '../../../components/watercolor/atmosphere'
 import { oiseauPerche, renardAssis } from '../../../components/watercolor/animal'
 import { arbre } from '../../../components/watercolor/terrain'
 import {
@@ -41,6 +41,17 @@ export const fableScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.7, color: SABLE, alpha: 0.14 },
     { at: 1, color: PIERRE_CHAUDE, alpha: 0.1 },
   ])
+
+  // La clarté qui perce entre les fûts se concentre à gauche : dans un
+  // bois, la lumière arrive toujours par une trouée, jamais par tout le
+  // fond à la fois.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, ySol + h * 0.02, {
+    cx: w * 0.24,
+    cy: h * 0.44,
+    color: VIOLET_PROFOND,
+    alpha: 0.34,
+    creux: 0.16,
+  })
 
   // Les fûts du fond, pâles et verticaux : ils font la profondeur du bois
   // sans rien coûter. Espacés irrégulièrement — à intervalle égal, ils

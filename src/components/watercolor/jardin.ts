@@ -1,4 +1,4 @@
-import { dryStroke, flecks, polygon, wash } from './engine'
+import { contour, dryStroke, flecks, polygon, wash } from './engine'
 import type { Point } from './engine'
 import { attenue, litFromLeft } from './light'
 import type { LightPlan } from './light'
@@ -249,6 +249,17 @@ export function topiaire(
     spread: 0.12,
     jitter: 0.3,
   })
+  // Le bord à l'ombre, tracé par tronçons : un if taillé a une arête, et
+  // c'est justement ce qui le distingue d'un buisson.
+  contour(ctx, dark, rng, {
+    color: plan.accent,
+    width: Math.max(0.6, radius * 0.14),
+    alpha: attenue(0.3, distance) * weight,
+    layers: 2,
+    coverage: 0.55,
+    runs: 2,
+  })
+
   // Le feuillage : quelques dépôts de pigment plus drus dans la masse.
   // C'est ce qui distingue un if taillé d'un cône de signalisation.
   flecks(ctx, x, yBase - height * 0.45, radius * 0.7, height * 0.3, 5, rng, {

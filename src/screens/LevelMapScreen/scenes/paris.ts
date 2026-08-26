@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
 import { dryStroke, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
-import { gradedWash, reflection, ripples } from '../../../components/watercolor/atmosphere'
+import { gradedWash, reflection, ripples, vignette } from '../../../components/watercolor/atmosphere'
 import { arcade, cornice, facade, pitchedRoof } from '../../../components/watercolor/architecture'
 import { arbre } from '../../../components/watercolor/terrain'
 import {
@@ -162,6 +162,17 @@ export const parisScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.8, color: OCRE, alpha: 0.14 },
     { at: 1, color: SABLE, alpha: 0.05 },
   ])
+
+  // Le crépuscule se concentre derrière la rive gauche : le ciel se
+  // referme dans les angles, et la tour se découpe sur la seule partie
+  // claire. Un dégradé vertical seul lui aurait donné un fond uniforme.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, yQuai + h * 0.01, {
+    cx: w * 0.34,
+    cy: yQuai * 0.86,
+    color: VIOLET_PROFOND,
+    alpha: 0.36,
+    creux: 0.2,
+  })
 
   // La rive : un front d'immeubles haussmanniens, bas et régulier. Il
   // donne l'échelle de la tour — sans bâti autour, elle pourrait mesurer

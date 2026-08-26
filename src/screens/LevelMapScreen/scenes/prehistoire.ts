@@ -1,7 +1,7 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, wash } from '../../../components/watercolor/engine'
 import type { Point } from '../../../components/watercolor/engine'
-import { gradedWash } from '../../../components/watercolor/atmosphere'
+import { gradedWash, vignette } from '../../../components/watercolor/atmosphere'
 import { mammouth } from '../../../components/watercolor/animal'
 import { collines } from '../../../components/watercolor/terrain'
 import {
@@ -149,6 +149,17 @@ export const prehistoireScene: PaintScene = (ctx, w, h, rng) => {
     { at: 0.84, color: OCRE, alpha: 0.16 },
     { at: 1, color: SABLE, alpha: 0.06 },
   ])
+
+  // Le couchant est concentré à gauche par le vignetage, du côté d'où
+  // vient la lumière de toute la série. Sans lui, le ciel s'éclaircissait
+  // uniformément sur toute la largeur — un dégradé, pas un soleil.
+  vignette(ctx, -w * 0.05, 0, w * 1.05, horizon + h * 0.02, {
+    cx: w * 0.3,
+    cy: horizon * 0.92,
+    color: VIOLET_PROFOND,
+    alpha: 0.38,
+    creux: 0.18,
+  })
 
   collines(ctx, -w * 0.05, w * 1.05, horizon - h * 0.07, horizon + h * 0.06, rng, {
     green: VIOLET,

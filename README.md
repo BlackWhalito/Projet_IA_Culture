@@ -42,6 +42,7 @@ src/
   state/            # progressStore (zustand + persist)
   screens/          # HomeScreen, LevelMapScreen, GameSessionScreen
   components/       # cartes SVG, moteur de peinture aquarelle
+                    # (architecture, terrain, jardin, animal, figure, atmosphere)
 ```
 
 **Les dépendances descendent, jamais l'inverse.** L'échelle réelle, du bas vers le haut :

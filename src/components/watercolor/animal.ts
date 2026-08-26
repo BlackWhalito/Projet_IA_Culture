@@ -1,4 +1,4 @@
-import { dryStroke, polygon, wash } from './engine'
+import { contour, dryStroke, polygon, wash } from './engine'
 import type { Point } from './engine'
 import { attenue, litFromLeft } from './light'
 import type { LightPlan } from './light'
@@ -167,6 +167,18 @@ export function mammouth(
     })
   }
 
+  // Le contour, par tronçons : dos, croupe, ligne du ventre. C'est ce
+  // trait, et lui seul, qui fait qu'une silhouette pleine se lit comme
+  // dessinée plutôt que découpée dans du papier.
+  contour(ctx, corps, rng, {
+    color: accent,
+    width: Math.max(0.6, H * 0.028),
+    alpha: attenue(0.4, distance) * weight,
+    layers: 2,
+    coverage: 0.46,
+    runs: 3,
+  })
+
   // L'œil : un seul petit noir, et le mammouth regarde.
   dryStroke(ctx, [
     [x + f * H * 0.63, yDos - H * 0.02],
@@ -238,6 +250,15 @@ export function oiseauPerche(
     alpha: (attenue(0.34, distance) * weight) / 12,
     spread: 0.16,
     jitter: 0.26,
+  })
+
+  contour(ctx, corps, rng, {
+    color: accent,
+    width: Math.max(0.5, H * 0.05),
+    alpha: attenue(0.4, distance) * weight,
+    layers: 2,
+    coverage: 0.42,
+    runs: 2,
   })
 
   // Le bec, court et pointu, et l'œil juste derrière.
@@ -337,6 +358,17 @@ export function renardAssis(
     jitter: 0.2,
   })
 
+  // Le contour : le dos et l'oreille surtout, là où la fourrure découpe
+  // le fond. Le ventre et l'appui au sol restent perdus dans l'ombre.
+  contour(ctx, corps, rng, {
+    color: accent,
+    width: Math.max(0.5, H * 0.026),
+    alpha: attenue(0.36, distance) * weight,
+    layers: 2,
+    coverage: 0.5,
+    runs: 3,
+  })
+
   // L'œil, un seul petit noir.
   dryStroke(ctx, [
     [x + f * H * 0.24, yGround - H * 0.83],
@@ -350,4 +382,204 @@ export function renardAssis(
     spread: 0.16,
     jitter: 0.22,
   })
+}
+
+/**
+ * Un cheval de profil : corps, membres, queue.
+ *
+ * Extrait de `knightOnHorse()` le jour où une fresque pariétale a eu
+ * besoin du même animal sans cavalier dessus. Les proportions valent
+ * qu'on les redise, parce qu'elles ont coûté trois versions : la tête est
+ * **longue** — 0,4 fois la hauteur au garrot, deux fois plus longue que
+ * haute — et nettement détachée de l'encolure. Courte et ronde au sommet
+ * d'une encolure épaisse, la même silhouette donne un lama.
+ */
+export function chevalDeProfil(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yGround: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: AnimalOptions,
+): void {
+  const { coat, accent, distance = 0, weight = 1, facing = -1 } = options
+  const f = facing
+  const att = (1 - distance * 0.6) * weight
+  const H = height
+  const yDos = yGround - H
+
+  // L'ombre au sol d'abord, sous le ventre : posée après, elle se
+  // superposerait aux jambes et les épaissirait.
+  wash(ctx, polygon(x, yGround + H * 0.02, H * 0.6, H * 0.07, 9, 0, rng), rng, {
+    color: plan.cool,
+    layers: 8,
+    alpha: (0.34 * att) / 8,
+    spread: 0.14,
+    jitter: 0.2,
+  })
+
+  // Quatre jambes fines et COUDÉES : un membre droit d'un bout à l'autre
+  // donne un pied de table. C'est l'angle du genou (ou du jarret) à
+  // mi-hauteur, et l'écart entre la paire avant et la paire arrière, qui
+  // font qu'un cheval marche au lieu d'être posé. Peintes AVANT le tronc :
+  // par-dessus, leur jointure resterait visible en `multiply`.
+  for (const [px, coude, pied] of [
+    [0.36, 0.42, 0.5],
+    [0.26, 0.3, 0.36],
+    [-0.3, -0.36, -0.42],
+    [-0.4, -0.48, -0.58],
+  ] as Array<[number, number, number]>) {
+    dryStroke(ctx, [
+      [x + f * H * px, yDos + H * 0.26],
+      [x + f * H * coude, yDos + H * 0.62],
+      [x + f * H * pied, yGround - H * 0.01],
+      // Le tracé descend SOUS le sol : `dryStroke` effile ses deux bouts,
+      // donc une jambe qui s'arrête pile sur la ligne de sol se termine en
+      // pointe d'aiguille au lieu d'un sabot.
+      [x + f * H * pied, yGround + H * 0.04],
+    ], H * 0.09 * att, rng, { color: coat, alpha: 0.4 * att, layers: 2, jitter: 0.09 })
+  }
+
+  const corps: Point[] = ([
+    // poitrail et ventre
+    [0.44, 0.3], [0.4, 0.4], [0.18, 0.46], [-0.06, 0.47], [-0.26, 0.44],
+    // arrière-main, la masse la plus lourde de l'animal
+    [-0.46, 0.38], [-0.6, 0.26], [-0.64, 0.1], [-0.56, -0.02], [-0.4, -0.05],
+    // dos, creusé au rein puis relevé au garrot
+    [-0.1, 0.01], [0.16, -0.02], [0.3, -0.06],
+    // encolure et chanfrein
+    [0.44, -0.22], [0.58, -0.38], [0.72, -0.44], [0.9, -0.34], [0.98, -0.24],
+    // ganache, gorge, retour au poitrail
+    [0.86, -0.18], [0.7, -0.2], [0.6, -0.1], [0.52, 0.06], [0.5, 0.18],
+  ] as Array<[number, number]>).map(([dx, dy]) => [x + f * H * dx, yDos + H * dy] as Point)
+  wash(ctx, corps, rng, {
+    color: coat,
+    layers: 24,
+    alpha: (1.1 * att) / 24,
+    spread: 0.025,
+    jitter: 0.06,
+  })
+
+  contour(ctx, corps, rng, {
+    color: accent,
+    width: Math.max(0.5, H * 0.03),
+    alpha: 0.4 * att,
+    layers: 2,
+    coverage: 0.46,
+    runs: 3,
+  })
+
+  // La queue : elle part de la croupe et tombe — elle ferme la silhouette
+  // à l'arrière, là où le corps s'arrêterait net.
+  dryStroke(ctx, [
+    [x - f * H * 0.6, yDos + H * 0.04],
+    [x - f * H * 0.7, yDos + H * 0.26],
+    [x - f * H * 0.72, yDos + H * 0.46],
+  ], H * 0.1 * att, rng, { color: coat, alpha: 0.6 * att, layers: 2, jitter: 0.14 })
+}
+
+/**
+ * Un aurochs, de profil : l'animal des parois de Lascaux.
+ *
+ * Trois traits le séparent d'une vache, et il les faut tous les trois :
+ * **le garrot bossu** très en avant, **la ligne de dos qui plonge** vers
+ * une croupe basse, et surtout **les cornes en lyre**, longues, projetées
+ * vers l'avant puis relevées. Des cornes courtes et latérales donnent un
+ * bovin de ferme, quelle que soit la justesse du corps.
+ */
+export function aurochs(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yGround: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: AnimalOptions,
+): void {
+  const { coat, shade, accent, distance = 0, weight = 1, facing = -1 } = options
+  const f = facing
+  const att = (1 - distance * 0.6) * weight
+  const H = height
+  const yDos = yGround - H
+
+  wash(ctx, polygon(x, yGround + H * 0.02, H * 0.6, H * 0.07, 9, 0, rng), rng, {
+    color: plan.cool,
+    layers: 8,
+    alpha: (0.3 * att) / 8,
+    spread: 0.14,
+    jitter: 0.2,
+  })
+
+  for (const [px, pied] of [[0.34, 0.46], [0.24, 0.32], [-0.3, -0.36], [-0.42, -0.54]] as Array<[number, number]>) {
+    dryStroke(ctx, [
+      [x + f * H * px, yDos + H * 0.3],
+      [x + f * H * ((px + pied) / 2), yDos + H * 0.64],
+      [x + f * H * pied, yGround - H * 0.01],
+      [x + f * H * pied, yGround + H * 0.05],
+    ], H * 0.075 * att, rng, { color: coat, alpha: 0.42 * att, layers: 2, jitter: 0.1 })
+  }
+
+  const corps: Point[] = ([
+    // poitrail profond et ventre
+    [0.46, 0.28], [0.42, 0.44], [0.16, 0.5], [-0.12, 0.48], [-0.34, 0.44],
+    // croupe basse et fuyante — l'inverse d'un cheval
+    [-0.54, 0.34], [-0.62, 0.18], [-0.56, 0.06],
+    // le dos qui remonte en pente vers la bosse du garrot
+    [-0.3, 0.02], [0.02, -0.06], [0.24, -0.2],
+    // la bosse, très en avant
+    [0.4, -0.28], [0.54, -0.24],
+    // le mufle, court et bas
+    [0.72, -0.16], [0.8, -0.02], [0.7, 0.06],
+    [0.56, 0.04], [0.5, 0.16],
+  ] as Array<[number, number]>).map(([dx, dy]) => [x + f * H * dx, yDos + H * dy] as Point)
+  wash(ctx, corps, rng, {
+    color: coat,
+    layers: 24,
+    alpha: (1.05 * att) / 24,
+    spread: 0.03,
+    jitter: 0.07,
+  })
+  // Le dessous du corps, plus sombre : sur une paroi, c'est ce simple
+  // dégradé qui donne du volume à une silhouette par ailleurs plate.
+  wash(ctx, [
+    [x + f * H * 0.44, yDos + H * 0.3],
+    [x + f * H * 0.16, yDos + H * 0.5],
+    [x - f * H * 0.12, yDos + H * 0.48],
+    [x - f * H * 0.34, yDos + H * 0.44],
+    [x - f * H * 0.3, yDos + H * 0.26],
+    [x + f * H * 0.2, yDos + H * 0.24],
+  ], rng, { color: shade, layers: 12, alpha: (0.4 * att) / 12, spread: 0.08, jitter: 0.18 })
+
+  contour(ctx, corps, rng, {
+    color: accent,
+    width: Math.max(0.6, H * 0.03),
+    alpha: 0.46 * att,
+    layers: 2,
+    coverage: 0.5,
+    runs: 3,
+  })
+
+  // Les cornes en lyre : elles partent du haut du crâne, filent vers
+  // l'avant, puis se relèvent. C'est le seul trait vraiment long de la
+  // bête, et celui qui la date.
+  for (const decalage of [0, -0.05]) {
+    dryStroke(ctx, [
+      [x + f * H * (0.6 + decalage), yDos - H * 0.2],
+      [x + f * H * (0.82 + decalage), yDos - H * 0.3],
+      [x + f * H * (1.0 + decalage), yDos - H * 0.22],
+      [x + f * H * (1.02 + decalage), yDos - H * 0.02],
+    ], H * 0.045 * att, rng, { color: accent, alpha: 0.55 * att, layers: 2, jitter: 0.08 })
+  }
+  // La queue, fine et longue, terminée par un flot.
+  dryStroke(ctx, [
+    [x - f * H * 0.58, yDos + H * 0.1],
+    [x - f * H * 0.66, yDos + H * 0.4],
+    [x - f * H * 0.62, yDos + H * 0.62],
+  ], H * 0.04 * att, rng, { color: coat, alpha: 0.5 * att, layers: 2, jitter: 0.16 })
+  // L'œil : un seul petit noir.
+  dryStroke(ctx, [
+    [x + f * H * 0.6, yDos - H * 0.14],
+    [x + f * H * 0.63, yDos - H * 0.13],
+  ], H * 0.05 * att, rng, { color: accent, alpha: 0.7 * att, layers: 2 })
 }

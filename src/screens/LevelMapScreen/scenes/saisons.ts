@@ -1,6 +1,6 @@
 import type { PaintScene } from '../../../components/watercolor/WatercolorScene'
 import { dryStroke } from '../../../components/watercolor/engine'
-import { gradedWash } from '../../../components/watercolor/atmosphere'
+import { gradedWash, vignette } from '../../../components/watercolor/atmosphere'
 import { arbre, collines } from '../../../components/watercolor/terrain'
 import {
   BLEU_CLAIR,
@@ -121,6 +121,17 @@ export const saisonsScene: PaintScene = (ctx, w, h, rng) => {
       { at: 0.62, color: s.cielHaut, alpha: s.cielHautAlpha * 0.42 },
       { at: 1, color: s.cielBas, alpha: s.cielBasAlpha },
     ])
+
+    // Un vignetage par panneau, tous centrés au même endroit : les
+    // quatre ciels reçoivent alors la même lumière, ce qui aide à les
+    // lire comme le même lieu à quatre moments.
+    vignette(ctx, x0, 0, x1, horizon + h * 0.01, {
+      cx: cx - (x1 - x0) * 0.2,
+      cy: horizon * 0.82,
+      color: VIOLET_PROFOND,
+      alpha: 0.24,
+      creux: 0.2,
+    })
 
     collines(ctx, x0, x1, horizon - h * 0.05, horizon + h * 0.04, rng, {
       green: s.coteau,

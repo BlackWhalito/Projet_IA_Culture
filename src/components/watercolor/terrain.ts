@@ -1,4 +1,4 @@
-import { dryStroke, flecks, polygon, wash } from './engine'
+import { contour, dryStroke, flecks, polygon, wash } from './engine'
 import type { Point } from './engine'
 import { attenue, litFromLeft } from './light'
 import type { LightPlan } from './light'
@@ -57,6 +57,19 @@ export function roche(
     spread: 0.07,
     jitter: 0.13,
   })
+  // Le trait sur la crête : posé par tronçons, jamais en cerne continu.
+  // C'est lui qui fait basculer une masse molle en arête de pierre — sans
+  // aucun trait, un rocher reste une tache, quelle que soit la justesse de
+  // sa silhouette.
+  contour(ctx, crete, rng, {
+    color: plan.accent,
+    width: Math.max(0.7, (x1 - x0) * 0.004),
+    alpha: 0.28 * weight,
+    layers: 2,
+    coverage: 0.44,
+    runs: 3,
+  })
+
   // Les fissures : quelques obliques sombres qui suivent la pente. C'est
   // le seul « détail » d'un rocher qui se lise à petite taille.
   for (let i = 0; i < 5; i += 1) {
@@ -111,6 +124,18 @@ export function collines(
     spread: 0.05,
     jitter: 0.14,
   })
+  // Un trait ténu sur la ligne de crête : sur un lointain, il ne doit pas
+  // se lire comme un trait, seulement empêcher la colline de se dissoudre
+  // dans le ciel.
+  contour(ctx, points, rng, {
+    color: shade,
+    width: 0.8,
+    alpha: attenue(0.3, distance) * (1 - distance),
+    layers: 1,
+    coverage: 0.4,
+    runs: 2,
+  })
+
   // Le creux entre deux bosses reçoit l'ombre : sans elle, une suite de
   // dômes reste un aplat au contour ondulé, pas un relief.
   const creux: Point[] = points.map(([px, py]) => [px, py + (yBas - py) * 0.55])
@@ -188,7 +213,7 @@ export function arbre(
   ], rng, {
     color: wood,
     layers: 18,
-    alpha: (attenue(0.95, distance) * weight) / 18,
+    alpha: (attenue(1.35, distance) * weight) / 18,
     spread: 0.05,
     jitter: 0.1,
   })
@@ -270,6 +295,39 @@ export function arbre(
     spread: 0.2,
     jitter: 0.36,
   })
+  // Le dessous du houppier, tracé par tronçons : c'est le seul endroit
+  // d'un arbre où le bord se voit vraiment, là où la masse se referme sur
+  // son ombre. Le sommet, lui, reste perdu dans la lumière.
+  const sousBois: Point[] = []
+  for (let i = 0; i <= 10; i += 1) {
+    const a = Math.PI * (0.08 + (i / 10) * 0.84)
+    sousBois.push([
+      x + penche + Math.cos(a) * largeur * 0.62,
+      yCentre + Math.sin(a) * height * 0.36,
+    ])
+  }
+  contour(ctx, sousBois, rng, {
+    color: shade,
+    width: Math.max(0.7, height * 0.016),
+    alpha: attenue(0.5, distance) * weight,
+    layers: 2,
+    coverage: 0.5,
+    runs: 3,
+  })
+  // Et le flanc du tronc à l'ombre, une seule fois : deux traits en
+  // feraient une planche.
+  contour(ctx, [
+    [x + (lit ? pied * 0.8 : -pied * 0.8), yBase],
+    [x + (lit ? col * 0.8 : -col * 0.8) + penche, yFourche],
+  ], rng, {
+    color: plan.accent,
+    width: Math.max(0.6, height * 0.012),
+    alpha: attenue(0.34, distance) * weight,
+    layers: 2,
+    coverage: 0.62,
+    runs: 2,
+  })
+
   if (speck) {
     flecks(ctx, x + penche, yCentre, largeur * 0.4, height * 0.2, 7, rng, {
       color: speck,
