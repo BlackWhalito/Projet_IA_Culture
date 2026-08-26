@@ -1,4 +1,5 @@
 import { dryStroke, polygon, wash } from './engine'
+import type { Point } from './engine'
 import { litFromLeft } from './light'
 import type { LightPlan } from './light'
 
@@ -439,4 +440,177 @@ export function adultReading(
     [headX - shoulderW * 0.28, headY + headR * 1.3],
     [headX + shoulderW * 0.28, headY + headR * 1.25],
   ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
+}
+
+export interface KnightOptions {
+  /** La robe du cheval, et la masse principale de la silhouette. */
+  horse: string
+  /** L'armure du cavalier — plus froide que le cheval, sinon les deux fusionnent. */
+  armour: string
+  /** Le fanion de la lance : la seule tache franchement colorée. */
+  pennon: string
+  accent: string
+  distance?: number
+  /** Sens de la marche : -1 vers la gauche, 1 vers la droite. */
+  facing?: -1 | 1
+}
+
+/**
+ * Un chevalier à cheval, de profil.
+ *
+ * Trois formes décident de tout, et il n'en faut pas une quatrième :
+ *
+ * 1. **La ligne de dos du cheval** — longue, presque horizontale, remontant
+ *    à l'encolure. C'est elle qui dit « cheval » avant les pattes.
+ * 2. **Le cavalier assis droit**, une masse compacte posée haut sur cette
+ *    ligne. Un cavalier penché ou couché se lit comme un bagage.
+ * 3. **La lance en oblique**, et son fanion. C'est le seul élément qui dise
+ *    « chevalier » plutôt que « cavalier », et il est bon marché : deux
+ *    traits. Sans lui, la silhouette pourrait être n'importe quel cavalier
+ *    de n'importe quel siècle.
+ *
+ * Aucun visage, aucune main, aucun harnais : à cette échelle ils ne
+ * produiraient que du bruit, et le risque d'un visage raté est le plus
+ * élevé du moteur (voir l'en-tête de ce fichier). `height` est la hauteur
+ * au garrot, du sol au dos.
+ */
+export function knightOnHorse(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  yGround: number,
+  height: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: KnightOptions,
+): void {
+  const { horse, armour, pennon, accent, distance = 0, facing = -1 } = options
+  const f = facing
+  const att = 1 - distance * 0.6
+  const H = height
+  const yDos = yGround - H
+
+  // L'ombre au sol d'abord, sous le ventre : posée après, elle se
+  // superposerait aux jambes et les épaissirait.
+  wash(ctx, polygon(x, yGround + H * 0.02, H * 0.6, H * 0.07, 9, 0, rng), rng, {
+    color: plan.cool,
+    layers: 8,
+    alpha: (0.34 * att) / 8,
+    spread: 0.14,
+    jitter: 0.2,
+  })
+
+  // Les quatre jambes AVANT le corps : un membre peint par-dessus le
+  // tronc laisse voir sa jointure en `multiply`, alors que sous le tronc
+  // il en sort proprement.
+  // Quatre jambes fines et COUDÉES : un membre droit d'un bout à l'autre
+  // donne un pied de table. C'est l'angle du genou (ou du jarret) à mi-
+  // hauteur, et l'écart entre la paire avant et la paire arrière, qui font
+  // qu'un cheval marche au lieu d'être posé.
+  for (const [px, coude, pied] of [
+    [0.36, 0.42, 0.5],
+    [0.26, 0.3, 0.36],
+    [-0.3, -0.36, -0.42],
+    [-0.4, -0.48, -0.58],
+  ] as Array<[number, number, number]>) {
+    dryStroke(ctx, [
+      [x + f * H * px, yDos + H * 0.26],
+      [x + f * H * coude, yDos + H * 0.62],
+      [x + f * H * pied, yGround - H * 0.01],
+      // Le tracé descend SOUS le sol : `dryStroke` effile ses deux bouts,
+      // donc une jambe qui s'arrête pile sur la ligne de sol se termine en
+      // pointe d'aiguille au lieu d'un sabot.
+      [x + f * H * pied, yGround + H * 0.04],
+    ], H * 0.09 * att, rng, { color: horse, alpha: 0.4 * att, layers: 2, jitter: 0.09 })
+  }
+
+  // Le corps, l'encolure et la tête en UNE SEULE silhouette fermée.
+  //
+  // Ce qui sépare un cheval d'un lama, à 30 px de haut, tient à UNE
+  // proportion : la tête. Longue (0,4 fois la hauteur au garrot, soit
+  // deux fois plus longue que haute) et nettement détachée de l'encolure,
+  // le chanfrein filant vers l'avant et vers le bas. Deux essais l'ont
+  // rendue courte et ronde, posée au sommet d'une encolure épaisse : les
+  // deux ont donné un camélidé. Aucun réglage de couleur ne rattrape ça.
+  //
+  // C'est la leçon la plus chère de cette figure : assemblés en morceaux
+  // (un tronc, un trait d'encolure, une boule de tête), les trois sortaient
+  // en table à pattes surmontée d'un ballon. Un animal se reconnaît à son
+  // contour continu — le passage du garrot à l'encolure, la courbe de la
+  // croupe — et aucun de ces passages n'existe si chaque partie est peinte
+  // séparément.
+  //
+  // Les proportions ne s'inventent pas non plus : corps aussi long que le
+  // garrot est haut, ventre à mi-hauteur, encolure oblique à 45°, tête
+  // ALLONGÉE et non ronde. Une tête ronde donne un poney de manège ; c'est
+  // le chanfrein long qui fait le cheval.
+  const cheval: Point[] = ([
+    // poitrail et ventre
+    [0.44, 0.3], [0.4, 0.4], [0.18, 0.46], [-0.06, 0.47], [-0.26, 0.44],
+    // arrière-main, la masse la plus lourde de l'animal
+    [-0.46, 0.38], [-0.6, 0.26], [-0.64, 0.1], [-0.56, -0.02], [-0.4, -0.05],
+    // dos, creusé au rein puis relevé au garrot
+    [-0.1, 0.01], [0.16, -0.02], [0.3, -0.06],
+    // encolure et chanfrein
+    [0.44, -0.22], [0.58, -0.38], [0.72, -0.44], [0.9, -0.34], [0.98, -0.24],
+    // ganache, gorge, retour au poitrail
+    [0.86, -0.18], [0.7, -0.2], [0.6, -0.1], [0.52, 0.06], [0.5, 0.18],
+  ] as Array<[number, number]>).map(([dx, dy]) => [x + f * H * dx, yDos + H * dy] as Point)
+  wash(ctx, cheval, rng, {
+    color: horse,
+    layers: 24,
+    alpha: (1.1 * att) / 24,
+    spread: 0.025,
+    jitter: 0.06,
+  })
+
+  // La queue : elle part de la croupe et tombe — elle ferme la silhouette
+  // à l'arrière, là où le corps s'arrêterait net.
+  dryStroke(ctx, [
+    [x - f * H * 0.6, yDos + H * 0.04],
+    [x - f * H * 0.7, yDos + H * 0.26],
+    [x - f * H * 0.72, yDos + H * 0.46],
+  ], H * 0.1 * att, rng, { color: horse, alpha: 0.6 * att, layers: 2, jitter: 0.14 })
+
+  // Le cavalier : un tronc compact assis droit, et un heaume rond. En
+  // teinte d'armure, plus froide que la robe — deux masses de même valeur
+  // l'une sur l'autre ne font qu'une seule tache.
+  const yEpaules = yDos - H * 0.56
+  wash(ctx, [
+    [x - f * H * 0.15, yDos + H * 0.06],
+    [x - f * H * 0.11, yEpaules],
+    [x + f * H * 0.13, yEpaules],
+    [x + f * H * 0.17, yDos + H * 0.06],
+  ], rng, { color: armour, layers: 18, alpha: (1.3 * att) / 18, spread: 0.05, jitter: 0.09 })
+  wash(ctx, polygon(x + f * H * 0.02, yEpaules - H * 0.15, H * 0.14, H * 0.15, 10, 0, rng), rng, {
+    color: armour,
+    layers: 14,
+    alpha: (1.35 * att) / 14,
+    spread: 0.05,
+    jitter: 0.08,
+  })
+  // La jambe du cavalier, le long du flanc : sans elle, le tronc a l'air
+  // posé sur le dos plutôt qu'à califourchon.
+  dryStroke(ctx, [
+    [x + f * H * 0.06, yDos + H * 0.02],
+    [x + f * H * 0.18, yDos + H * 0.26],
+  ], H * 0.09 * att, rng, { color: armour, alpha: 0.62 * att, layers: 2 })
+
+  // La lance : l'oblique franche qui dit « chevalier » plutôt que
+  // « cavalier ». C'est le seul trait vraiment long de la figure, donc
+  // celui qu'on lit en premier — et le seul endroit où l'on s'autorise
+  // une couleur vive, sur le fanion.
+  const bas: Point = [x - f * H * 0.42, yDos + H * 0.16]
+  const haut: Point = [x + f * H * 0.5, yDos - H * 1.15]
+  dryStroke(ctx, [bas, haut], Math.max(0.6, H * 0.05 * att), rng, {
+    color: accent,
+    alpha: 0.62 * att,
+    layers: 2,
+    jitter: 0.03,
+  })
+  wash(ctx, [
+    [haut[0], haut[1] + H * 0.05],
+    [haut[0] - f * H * 0.34, haut[1] + H * 0.16],
+    [haut[0] - f * H * 0.22, haut[1] + H * 0.22],
+    [haut[0] - f * H * 0.02, haut[1] + H * 0.24],
+  ], rng, { color: pennon, layers: 12, alpha: (0.72 * att) / 12, spread: 0.08, jitter: 0.13 })
 }

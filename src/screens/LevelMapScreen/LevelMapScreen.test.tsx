@@ -26,6 +26,7 @@ function renderCarte() {
 }
 
 const ART_NIVEAU_2 = LEVEL_ART['cp-level-2']
+const ART_NIVEAU_4 = LEVEL_ART['cp-level-4']
 
 describe('LevelMapScreen', () => {
   beforeEach(() => {
@@ -58,6 +59,29 @@ describe('LevelMapScreen', () => {
     renderCarte()
     expect(screen.getByRole('link', { name: /Niveau 2/ })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: ART_NIVEAU_2.alt })).toBeInTheDocument()
+  })
+
+  it('rend chaque tableau du registre, y compris plus loin dans la carte', () => {
+    useProgressStore.setState({
+      levels: Object.fromEntries(
+        ['cp-level-1', 'cp-level-2', 'cp-level-3'].map((levelId) => [
+          levelId,
+          {
+            levelId,
+            completed: true,
+            bestScore: 3,
+            starRating: 3,
+            lastPlayedAt: new Date(0).toISOString(),
+          },
+        ]),
+      ),
+    })
+    renderCarte()
+    expect(screen.getByRole('img', { name: ART_NIVEAU_2.alt })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: ART_NIVEAU_4.alt })).toBeInTheDocument()
+    // Les deux tableaux sont bien distincts : le fort au Niveau 2, le
+    // palais au Niveau 4. Les intervertir passerait tous les autres tests.
+    expect(ART_NIVEAU_2.paint).not.toBe(ART_NIVEAU_4.paint)
   })
 
   it("n'exige pas de tableau : un niveau absent du registre s'affiche quand même", () => {

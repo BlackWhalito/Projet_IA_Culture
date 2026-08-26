@@ -1,13 +1,22 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, flecks, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
-import { arcade, balustrade, facade } from '../../components/watercolor/architecture'
-import { cloud, gradedWash, reflection } from '../../components/watercolor/atmosphere'
+import {
+  arcade,
+  balustrade,
+  banner,
+  battlement,
+  facade,
+  roundTower,
+} from '../../components/watercolor/architecture'
+import { cloud, gradedWash, reflection, ripples } from '../../components/watercolor/atmosphere'
+import { knightOnHorse } from '../../components/watercolor/figure'
 import { bassin, jetDeau, parterre, topiaire } from '../../components/watercolor/jardin'
 import type { Quad } from '../../components/watercolor/jardin'
 import {
   BLEU,
   ENCRE_SOMBRE,
+  OCRE,
   PIERRE_CHAUDE,
   PIERRE_PALE,
   SABLE,
@@ -16,6 +25,7 @@ import {
   VIOLET_BRUME,
   VIOLET_PROFOND,
 } from '../../components/watercolor/palette'
+import { litFromLeft } from '../../components/watercolor/light'
 import type { LightPlan } from '../../components/watercolor/light'
 
 /**
@@ -86,7 +96,8 @@ export const versaillesScene: PaintScene = (ctx, w, h, rng) => {
   const yFaite = h * 0.225
   const ySol = h * 0.4
   const yTerrasse = h * 0.525
-  const corpsW = w * 0.22
+  const travees = 17
+  const corpsW = (w * 0.84 * 5) / travees
 
   const jardinHaut = yTerrasse + h * 0.012
   const jardinBas = h * 1.02
@@ -150,10 +161,18 @@ export const versaillesScene: PaintScene = (ctx, w, h, rng) => {
     stone: PIERRE_PALE,
     shade: PIERRE_CHAUDE,
     distance: 0.42,
-    floors: 1,
-    bays: 15,
-    spread: 0.045,
-    jitter: 0.11,
+    // `floors: 0` : la façade ne pose que sa masse, jamais ses fenêtres.
+    // `windows()` décale chaque ouverture au hasard et en supprime une sur
+    // six, exprès — « une grille parfaitement remplie se lit comme une
+    // texture régulière ». C'est juste pour un palazzo en ruine, et faux
+    // ici : la façade de Versailles EST une grille parfaitement remplie,
+    // sa régularité est le sujet. Le désordre, si léger soit-il, la rendait
+    // approximative. Les travées sont donc tracées à la main, plus bas, et
+    // rigoureusement alignées avec les arcades du rez-de-chaussée.
+    floors: 0,
+    bays: 0,
+    spread: 0.04,
+    jitter: 0.08,
   })
   // Le soleil sur le tiers gauche du mur, du côté d'où vient la lumière.
   // `facade()` n'en pose qu'un voile, calibré pour des bâtiments étroits ;
@@ -177,47 +196,125 @@ export const versaillesScene: PaintScene = (ctx, w, h, rng) => {
     spread: 0.3,
     jitter: 0.26,
   })
-  // Le rez-de-chaussée en arcades : la rangée de petits noirs qui fait
-  // basculer une masse claire en bâtiment habité. Bande volontairement
-  // basse, et les ouvertures nombreuses donc étroites — larges et grises,
-  // elles se lisaient comme les piles d'un viaduc ; hautes, elles
-  // deviennent une jupe noire sous le palais.
-  arcade(ctx, axis - palaisW / 2, axis + palaisW / 2, ySol - (ySol - yFaite) * 0.3, ySol, 27, rng, LUMIERE, 0.42)
-  // Le bandeau qui sépare les deux niveaux, et le socle. Deux horizontales
-  // franches valent, ici, tous les modelés de pierre.
-  dryStroke(ctx, [[axis - palaisW / 2, ySol - (ySol - yFaite) * 0.44], [axis + palaisW / 2, ySol - (ySol - yFaite) * 0.42]], 1, rng, {
-    color: VIOLET_PROFOND,
-    alpha: 0.22,
-    layers: 2,
-  })
-  dryStroke(ctx, [[axis - palaisW / 2, ySol], [axis + palaisW / 2, ySol]], 1.2, rng, {
-    color: ENCRE_SOMBRE,
-    alpha: 0.34,
-    layers: 2,
-  })
 
-  // L'ombre portée de la corniche sur le haut du mur : le trait qui donne
-  // son relief à une architecture classique. Sans elle, la façade reste
-  // une découpe de papier posée sur le ciel.
+  // ------------------------------------------------- l'ordre de la façade
+  //
+  // Ce qui fait qu'une architecture classique se lit comme DESSINÉE et non
+  // comme esquissée, ce ne sont ni la couleur de sa pierre ni la finesse
+  // de ses bords : ce sont quelques traits sombres, droits et exactement
+  // alignés. Une masse en lavage, aussi juste soit-elle, reste vague sans
+  // eux.
+  //
+  // Tout ce bloc part donc d'une seule trame — `travee(i)` — que les
+  // arcades du bas, les fenêtres du haut et les ressauts partagent. C'est
+  // l'alignement vertical entre les trois qui produit l'impression de
+  // précision, bien plus que le détail de chacun.
+  const murX0 = axis - palaisW / 2
+  const murX1 = axis + palaisW / 2
+  const murH = ySol - yFaite
+  const portee = palaisW / travees
+  const travee = (i: number) => murX0 + portee * (i + 0.5)
+
+  const yEntablement = yFaite + murH * 0.16
+  const yFenetreHaut = yFaite + murH * 0.24
+  const yFenetreBas = yFaite + murH * 0.58
+  const yBandeau = yFaite + murH * 0.63
+  const yArcade = yFaite + murH * 0.66
+
+  // Le rez-de-chaussée en arcades : la rangée de petits noirs qui fait
+  // basculer une masse claire en bâtiment habité. `arcade()` répartit ses
+  // ouvertures sur exactement la même portée que `travee()`, donc chaque
+  // arche tombe sous sa fenêtre.
+  arcade(ctx, murX0, murX1, yArcade, ySol, travees, rng, LUMIERE, 0.42)
+
+  // L'étage : une fenêtre cintrée par travée, tracée à la main pour rester
+  // à sa place au pixel près. Le cintre compte autant que l'alignement —
+  // un rectangle se lit comme une meurtrière, une ouverture arrondie
+  // comme une croisée.
+  const fenetreL = portee * 0.23
+  for (let i = 0; i < travees; i += 1) {
+    const fx = travee(i)
+    const naissance = yFenetreHaut + fenetreL * 0.5
+    const croisee: Point[] = [[fx - fenetreL / 2, yFenetreBas], [fx - fenetreL / 2, naissance]]
+    for (let a = 0; a <= 6; a += 1) {
+      const t = Math.PI - (a / 6) * Math.PI
+      croisee.push([fx + Math.cos(t) * fenetreL * 0.5, naissance - Math.sin(t) * fenetreL * 0.5])
+    }
+    croisee.push([fx + fenetreL / 2, yFenetreBas])
+    wash(ctx, croisee, rng, {
+      color: VIOLET,
+      layers: 8,
+      alpha: 0.5 / 8,
+      spread: 0.02,
+      jitter: 0.04,
+    })
+  }
+
+  // Les ressauts : les verticales qui marquent l'avant-corps central et
+  // les deux pavillons d'extrémité. Quatre traits, pas une colonnade —
+  // une verticale par travée donnerait un peigne, et un peigne à 5 px
+  // d'intervalle redevient une texture.
+  const yAttique = h * 0.16
+  for (const i of [3, 6, 11, 14]) {
+    const rx = murX0 + portee * i
+    // Celles de l'avant-corps (6 et 11) montent jusqu'au sommet de
+    // l'attique, celles des pavillons s'arrêtent à la ligne de toit. Une
+    // verticale qui court d'un bout à l'autre du volume qu'elle marque,
+    // c'est ce qui distingue un ressaut d'un trait posé sur un mur.
+    const haut = i === 6 || i === 11 ? yAttique : yFaite
+    dryStroke(ctx, [[rx, haut], [rx, ySol]], 0.9, rng, {
+      color: VIOLET_PROFOND,
+      alpha: 0.26,
+      layers: 2,
+      jitter: 0.03,
+    })
+  }
+
+  // Les trois horizontales de l'ordre : entablement, bandeau d'étage,
+  // socle. Ce sont les traits les plus francs du tableau après le
+  // premier plan — c'est d'eux que vient la rigueur.
+  for (const [y, epaisseur, couleur, alpha] of [
+    [yEntablement, 1.1, VIOLET_PROFOND, 0.3],
+    [yBandeau, 0.9, VIOLET_PROFOND, 0.24],
+    [ySol, 1.3, ENCRE_SOMBRE, 0.36],
+  ] as Array<[number, number, string, number]>) {
+    dryStroke(ctx, [[murX0, y], [murX1, y]], epaisseur, rng, {
+      color: couleur,
+      alpha,
+      layers: 2,
+      jitter: 0.02,
+    })
+  }
+
+  // L'ombre portée de la corniche, entre la ligne de toit et
+  // l'entablement : c'est elle qui donne son épaisseur à la pierre. Sans
+  // elle, la façade reste une découpe de papier posée sur le ciel.
   wash(ctx, [
-    [axis - palaisW / 2, yFaite],
-    [axis + palaisW / 2, yFaite],
-    [axis + palaisW / 2, yFaite + h * 0.018],
-    [axis - palaisW / 2, yFaite + h * 0.018],
-  ], rng, { color: VIOLET_BRUME, layers: 10, alpha: 0.34 / 10, spread: 0.04, jitter: 0.18 })
+    [murX0, yFaite],
+    [murX1, yFaite],
+    [murX1, yFaite + murH * 0.1],
+    [murX0, yFaite + murH * 0.1],
+  ], rng, { color: VIOLET, layers: 10, alpha: 0.22 / 10, spread: 0.03, jitter: 0.1 })
 
   // L'attique central : le seul décrochement de toute la silhouette. Il
   // monte de très peu — c'est justement ce qui distingue un palais d'un
   // château fort, dont la moindre tour dépasse de plusieurs étages.
-  const yAttique = h * 0.16
-  facade(ctx, axis, yAttique, yFaite, corpsW, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: PIERRE_PALE,
-    distance: 0.7,
-    floors: 0,
-    bays: 0,
-    spread: 0.05,
-    jitter: 0.12,
+  //
+  // Peint à la main plutôt qu'avec `facade()` : celle-ci ne trace son
+  // arête franche que du côté éclairé, et sur un bâtiment dont la symétrie
+  // EST le sujet, cette verticale unique se lisait comme une erreur. Les
+  // deux ressauts tracés plus haut la remplacent, des deux côtés à la fois.
+  wash(ctx, [
+    [axis - corpsW / 2, yFaite],
+    [axis - corpsW / 2, yAttique],
+    [axis + corpsW / 2, yAttique],
+    [axis + corpsW / 2, yFaite],
+  ], rng, { color: PIERRE_PALE, layers: 16, alpha: 0.2 / 16, spread: 0.035, jitter: 0.09 })
+  dryStroke(ctx, [[axis - corpsW / 2, yAttique + (yFaite - yAttique) * 0.32], [axis + corpsW / 2, yAttique + (yFaite - yAttique) * 0.32]], 0.8, rng, {
+    color: VIOLET_PROFOND,
+    alpha: 0.2,
+    layers: 1,
+    jitter: 0.02,
   })
 
   // Les balustrades : sur les ailes d'abord, sur l'attique ensuite, plus
@@ -416,5 +513,345 @@ export const versaillesScene: PaintScene = (ctx, w, h, rng) => {
     shade: OMBRE_FEUILLAGE,
     distance: 0,
     weight: 1.95,
+  })
+}
+
+/**
+ * Une masse rocheuse : la crête irrégulière d'abord, la pierre ensuite.
+ *
+ * Vit ici et non dans `architecture.ts` parce que ce n'est justement pas
+ * de l'architecture — aucun angle droit, aucune répétition. La règle des
+ * contours brisés en plateaux (celle de `ruinFacade`) ne s'applique PAS :
+ * elle existe pour qu'un mur cassé ne se lise pas comme une montagne. Ici
+ * on veut précisément une montagne, donc des pentes.
+ */
+function roche(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  yCrete: number,
+  yBas: number,
+  rng: () => number,
+  plan: LightPlan,
+  options: { stone: string; shade: string; relief?: number; weight?: number },
+): void {
+  const { stone, shade, relief = 1, weight = 1 } = options
+  const lit = litFromLeft(plan)
+  const pas = 7
+  const crete: Point[] = []
+  for (let i = 0; i <= pas; i += 1) {
+    const t = i / pas
+    // Le profil général monte au centre et retombe aux bords : sans ce
+    // gabarit, le tirage seul rend une ligne de dents toutes pareilles.
+    const gabarit = 0.35 + Math.sin(t * Math.PI) ** 0.7 * 0.65
+    crete.push([x0 + (x1 - x0) * t, yCrete + (yBas - yCrete) * (1 - gabarit * relief) * (0.6 + rng() * 0.5)])
+  }
+  wash(ctx, [[x0, yBas], ...crete, [x1, yBas]], rng, {
+    color: stone,
+    layers: 24,
+    alpha: (0.6 * weight) / 24,
+    spread: 0.06,
+    jitter: 0.12,
+  })
+  const milieu = Math.floor(crete.length / 2)
+  const pan = lit ? crete.slice(milieu) : crete.slice(0, milieu + 1)
+  wash(ctx, [[pan[0][0], yBas], ...pan, [pan[pan.length - 1][0], yBas]], rng, {
+    color: shade,
+    layers: 14,
+    alpha: (0.42 * weight) / 14,
+    spread: 0.07,
+    jitter: 0.13,
+  })
+  // Les fissures : quelques obliques sombres qui suivent la pente. C'est
+  // le seul « détail » d'un rocher qui se lise à petite taille.
+  for (let i = 0; i < 5; i += 1) {
+    const fx = x0 + (x1 - x0) * (0.15 + rng() * 0.7)
+    const fy = yCrete + (yBas - yCrete) * (0.25 + rng() * 0.3)
+    dryStroke(ctx, [
+      [fx, fy],
+      [fx + (rng() - 0.5) * (x1 - x0) * 0.05, fy + (yBas - fy) * 0.55],
+    ], Math.max(0.6, (x1 - x0) * 0.006), rng, {
+      color: plan.accent,
+      alpha: 0.2,
+      layers: 1,
+      jitter: 0.14,
+    })
+  }
+}
+
+/**
+ * Un château fort, sa douve et deux chevaliers qui montent vers le pont.
+ *
+ * Écrit en miroir de `versaillesScene`, et c'est délibéré : les deux
+ * tableaux racontent le même mot — « château » — et doivent se lire comme
+ * deux choses opposées, sans que le joueur ait à lire une légende.
+ *
+ * | | Château fort | Versailles |
+ * |---|---|---|
+ * | Silhouette | verticales : donjon, tours | une horizontale, sans rupture |
+ * | Couronnement | créneaux **pleins** | balustrade **ajourée** |
+ * | Ouvertures | meurtrières, rarissimes | grille régulière de croisées |
+ * | Ce qu'il y a devant | une douve, un pont-levis | un jardin dessiné |
+ * | Lumière | contre-jour chaud de fin de jour | plein jour froid |
+ *
+ * Les chevaliers sont au premier plan, et pas seulement pour dater la
+ * scène : sans un objet de taille connue, une forteresse sur son rocher
+ * n'a aucune échelle et pourrait aussi bien être une maquette.
+ */
+export const chateauFortScene: PaintScene = (ctx, w, h, rng) => {
+  const yCrete = h * 0.58
+  const yPied = h * 0.615
+  const yDouve = h * 0.68
+  const yBerge = h * 0.83
+
+  // ---------------------------------------------------------------- ciel
+  // Contre-jour : le ciel s'ÉCLAIRE vers l'horizon, à l'inverse de celui
+  // de Versailles qui s'y éteint. La forteresse se découpe alors en sombre
+  // sur un fond clair — c'est la lecture la plus sûre d'une silhouette
+  // compliquée, et la plus dramatique.
+  gradedWash(ctx, -w * 0.05, 0, w * 1.05, yCrete + h * 0.02, [
+    // Le contre-jour vit de l'écart entre un haut de ciel profond et une
+    // lueur basse serrée : étalée, la lueur éclaircit toute l'image et la
+    // forteresse n'a plus rien contre quoi se découper.
+    { at: 0, color: VIOLET_PROFOND, alpha: 0.56 },
+    { at: 0.22, color: VIOLET, alpha: 0.4 },
+    { at: 0.46, color: VIOLET, alpha: 0.26 },
+    { at: 0.66, color: VIOLET_BRUME, alpha: 0.16 },
+    { at: 0.84, color: OCRE, alpha: 0.12 },
+    { at: 1, color: SABLE, alpha: 0.05 },
+  ])
+  cloud(ctx, w * 0.24, h * 0.12, w * 0.6, h * 0.024, rng, LUMIERE, {
+    light: VIOLET_BRUME,
+    shade: VIOLET,
+    alpha: 0.16,
+  })
+  cloud(ctx, w * 0.72, h * 0.22, w * 0.52, h * 0.016, rng, LUMIERE, {
+    light: OCRE,
+    shade: VIOLET_BRUME,
+    alpha: 0.1,
+  })
+
+  // ------------------------------------------------------------- rocher
+  // Le château est bâti SUR quelque chose. Posé sur une ligne d'horizon
+  // plate, il aurait l'air déposé là ; c'est l'escarpement qui explique
+  // pourquoi on l'a construit à cet endroit.
+  roche(ctx, -w * 0.08, w * 1.08, yCrete - h * 0.07, yDouve + h * 0.015, rng, LUMIERE, {
+    stone: VIOLET,
+    shade: VIOLET_PROFOND,
+    relief: 0.7,
+  })
+
+  // ------------------------------------------------------------ château
+  //
+  // Rien ne se chevauche, et c'est la règle qui gouverne tout ce bloc.
+  // Tout se peint en `multiply` : une tour posée par-dessus la courtine
+  // double le pigment sur toute leur intersection, et cette intersection
+  // se lit comme une boîte translucide collée sur le mur — pas comme une
+  // tour devant lui. Les pans de courtine courent donc ENTRE les tours,
+  // et le donjon ne commence qu'au-dessus du chemin de ronde, comme il
+  // s'élève réellement derrière la muraille.
+  const yChemin = h * 0.4
+  const tourG = { x: w * 0.245, r: w * 0.044 }
+  const tourD = { x: w * 0.875, r: w * 0.038 }
+  const porteG = { x: w * 0.4, r: w * 0.026 }
+  const porteD = { x: w * 0.5, r: w * 0.026 }
+  const donjonX = w * 0.685
+  const donjonL = w * 0.13
+  const yDonjon = h * 0.135
+
+  const pans: Array<[number, number]> = [
+    [tourG.x + tourG.r * 0.7, porteG.x - porteG.r * 0.7],
+    [porteG.x + porteG.r * 0.7, porteD.x - porteD.r * 0.7],
+    [porteD.x + porteD.r * 0.7, tourD.x - tourD.r * 0.7],
+  ]
+  for (const [x0, x1] of pans) {
+    facade(ctx, (x0 + x1) / 2, yChemin, yPied, x1 - x0, rng, LUMIERE, {
+      stone: PIERRE_CHAUDE,
+      shade: VIOLET_PROFOND,
+      distance: 0.2,
+      floors: 0,
+      bays: 0,
+      spread: 0.04,
+      jitter: 0.09,
+    })
+    // Seconde charge. `facade()` plafonne à `VALEUR.MOYEN`, calibré pour
+    // une pierre au soleil ; une muraille en contre-jour doit être bien
+    // plus dense que ça, sinon elle reste un carton beige que le ciel
+    // clair traverse.
+    wash(ctx, [[x0, yPied], [x0, yChemin], [x1, yChemin], [x1, yPied]], rng, {
+      color: VIOLET_BRUME,
+      layers: 16,
+      alpha: 0.52 / 16,
+      spread: 0.03,
+      jitter: 0.08,
+    })
+    battlement(ctx, x0, x1, yChemin, h * 0.028, rng, LUMIERE, {
+      stone: PIERRE_CHAUDE,
+      shade: VIOLET_PROFOND,
+      distance: 0.2,
+    })
+  }
+
+  // La porte : une seule arche sombre au pied du mur, entre les deux
+  // tours qui l'encadrent. C'est le seul vrai noir de la muraille, et
+  // l'œil y va tout droit — ce qui tombe bien, c'est là qu'arrivent les
+  // chevaliers.
+  arcade(ctx, w * 0.418, w * 0.482, yPied - h * 0.08, yPied, 1, rng, LUMIERE, 0.15)
+
+  // Les tours de la porte, crénelées et courtes : une porte percée dans un
+  // mur nu ne se lit pas comme une porte, elle se lit comme un trou.
+  for (const t of [porteG, porteD]) {
+    roundTower(ctx, t.x, h * 0.345, yPied, t.r, rng, LUMIERE, {
+      stone: PIERRE_CHAUDE,
+      shade: VIOLET_PROFOND,
+      roof: 'creneaux',
+      distance: 0.18,
+      slits: 1,
+    })
+  }
+
+  // Les deux grosses tours d'angle, coiffées de poivrières. Le cône est le
+  // deuxième repère du château fort après le créneau, et le seul qui
+  // survive quand la silhouette devient minuscule.
+  roundTower(ctx, tourG.x, h * 0.3, yPied + h * 0.01, tourG.r, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    roof: 'poivriere',
+    roofColor: BLEU,
+    distance: 0.16,
+    slits: 2,
+  })
+  roundTower(ctx, tourD.x, h * 0.335, yPied + h * 0.01, tourD.r, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    roof: 'poivriere',
+    roofColor: BLEU,
+    distance: 0.2,
+    slits: 2,
+  })
+
+  // Le donjon : la verticale dominante, celle qui dit « fort » avant tout
+  // le reste. Décalé de l'axe — une forteresse épouse son rocher, elle ne
+  // se compose pas. C'est aussi ce qui l'oppose le plus nettement à
+  // Versailles, dont la symétrie est toute la démonstration.
+  const yPiedDonjon = yChemin - h * 0.016
+  facade(ctx, donjonX, yDonjon, yPiedDonjon, donjonL, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.12,
+    floors: 0,
+    bays: 0,
+    spread: 0.04,
+    jitter: 0.08,
+  })
+  wash(ctx, [
+    [donjonX - donjonL / 2, yPiedDonjon],
+    [donjonX - donjonL / 2, yDonjon],
+    [donjonX + donjonL / 2, yDonjon],
+    [donjonX + donjonL / 2, yPiedDonjon],
+  ], rng, { color: VIOLET_BRUME, layers: 16, alpha: 0.46 / 16, spread: 0.03, jitter: 0.07 })
+  for (let i = 0; i < 2; i += 1) {
+    const sy = yDonjon + (yPiedDonjon - yDonjon) * (0.3 + i * 0.3)
+    dryStroke(ctx, [[donjonX - donjonL * 0.08, sy], [donjonX - donjonL * 0.08, sy + h * 0.024]], w * 0.008, rng, {
+      color: ENCRE_SOMBRE,
+      alpha: 0.55,
+      layers: 2,
+    })
+  }
+  battlement(ctx, donjonX - donjonL / 2 - w * 0.008, donjonX + donjonL / 2 + w * 0.008, yDonjon, h * 0.03, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.12,
+  })
+  banner(ctx, donjonX + donjonL * 0.24, yDonjon - h * 0.032, h * 0.075, rng, LUMIERE, {
+    cloth: OCRE,
+    distance: 0.1,
+  })
+
+  // Le rocher revient PAR-DESSUS le pied des murs, et c'est ce qui change
+  // le plus la lecture de l'ensemble. Sans lui, toutes les bases de tours
+  // et de courtines s'alignaient sur une horizontale parfaite, et le
+  // château se lisait comme une découpe de carton posée sur une étagère.
+  // Une crête irrégulière qui mord les bases à des hauteurs différentes le
+  // fait sortir de son rocher au lieu d'être posé dessus.
+  roche(ctx, -w * 0.08, w * 1.08, yPied - h * 0.025, yDouve + h * 0.02, rng, LUMIERE, {
+    stone: VIOLET_PROFOND,
+    shade: ENCRE_SOMBRE,
+    relief: 0.5,
+    weight: 1.5,
+  })
+
+  // ------------------------------------------------- douve et pont-levis
+  gradedWash(ctx, -w * 0.05, yDouve, w * 1.05, yBerge + h * 0.02, [
+    { at: 0, color: BLEU, alpha: 0.3 },
+    { at: 0.5, color: BLEU, alpha: 0.52 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.6 },
+  ])
+  // Le reflet du château, tiré vers le bas puis cassé par les rides. Il
+  // ne peut être que SOMBRE : en `multiply`, une pierre claire ne peut pas
+  // s'y refléter en clair.
+  for (const [cx, largeur] of [[0.245, 0.1], [0.45, 0.12], [0.685, 0.15], [0.875, 0.09]] as Array<[number, number]>) {
+    reflection(ctx, w * cx, w * largeur, yDouve, (yBerge - yDouve) * 0.8, VIOLET_PROFOND, rng, 3)
+  }
+  ripples(ctx, 0, w, yDouve + h * 0.01, yBerge, 18, rng, { color: BLEU, accent: VIOLET_PROFOND })
+
+  // Le pont-levis : abaissé, il relie la porte à la berge et donne à la
+  // scène son mouvement — un pont relevé fermerait le récit au lieu de
+  // l'ouvrir. Il s'élargit vers le spectateur, comme toute fuyante.
+  wash(ctx, [
+    [w * 0.42, yPied],
+    [w * 0.48, yPied],
+    [w * 0.505, yBerge],
+    [w * 0.395, yBerge],
+  ], rng, { color: SABLE, layers: 18, alpha: 0.45 / 18, spread: 0.03, jitter: 0.07 })
+  for (const cote of [-1, 1]) {
+    dryStroke(ctx, [
+      [w * (0.45 + cote * 0.03), yPied],
+      [w * (0.45 + cote * 0.055), yBerge],
+    ], 0.9, rng, { color: ENCRE_SOMBRE, alpha: 0.4, layers: 2 })
+  }
+  // Les chaînes, qui remontent vers la porte : deux obliques qui disent
+  // « pont-levis » plutôt que « planche ».
+  for (const cote of [-1, 1]) {
+    dryStroke(ctx, [
+      [w * (0.45 + cote * 0.032), yPied - h * 0.002],
+      [w * (0.45 + cote * 0.05), yPied - h * 0.06],
+    ], 0.7, rng, { color: ENCRE_SOMBRE, alpha: 0.32, layers: 1 })
+  }
+
+  // -------------------------------------------------------- premier plan
+  gradedWash(ctx, -w * 0.05, yBerge, w * 1.05, h * 1.02, [
+    { at: 0, color: SABLE, alpha: 0.2 },
+    { at: 0.45, color: OCRE, alpha: 0.3 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.56 },
+  ])
+
+  // Les deux chevaliers, en route vers le pont. Le plus proche est aussi
+  // le plus sombre et le plus grand : c'est le repoussoir du tableau, le
+  // même rôle que les ifs de premier plan à Versailles.
+  knightOnHorse(ctx, w * 0.36, h * 0.92, h * 0.15, rng, LUMIERE, {
+    horse: VIOLET_PROFOND,
+    armour: BLEU,
+    pennon: OCRE,
+    accent: ENCRE_SOMBRE,
+    distance: 0.3,
+    facing: 1,
+  })
+  knightOnHorse(ctx, w * 0.14, h * 1.0, h * 0.21, rng, LUMIERE, {
+    horse: ENCRE_SOMBRE,
+    armour: BLEU,
+    pennon: OCRE,
+    accent: ENCRE_SOMBRE,
+    distance: 0,
+    facing: 1,
+  })
+
+  // Un éperon rocheux au coin bas droit : il referme la composition du
+  // côté où il n'y a pas de chevalier, et empêche le regard de sortir.
+  roche(ctx, w * 0.7, w * 1.1, h * 0.9, h * 1.06, rng, LUMIERE, {
+    stone: VIOLET_PROFOND,
+    shade: ENCRE_SOMBRE,
+    relief: 0.8,
+    weight: 1.7,
   })
 }

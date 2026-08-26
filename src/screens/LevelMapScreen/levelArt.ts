@@ -1,5 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { versaillesScene } from './scenes'
+import { chateauFortScene, versaillesScene } from './scenes'
 
 /**
  * Le tableau qui illustre un niveau, indexé par `level.id`.
@@ -21,10 +21,17 @@ export interface LevelArt {
 }
 
 export const LEVEL_ART: Record<string, LevelArt> = {
-  // 1682 : l'année où la cour s'installe à Versailles.
+  // Le Niveau 2 porte la notion des châteaux forts et des chevaliers.
   'cp-level-2': {
-    paint: versaillesScene,
+    seed: 1214,
+    paint: chateauFortScene,
+    alt: "Un château fort peint à l'aquarelle, dressé sur son rocher au-dessus d'une douve : donjon crénelé, tours à toits pointus, pont-levis abaissé, et deux chevaliers en armure qui s'en approchent au premier plan.",
+  },
+  // Le Niveau 4 porte la notion de Louis XIV. 1682 : l'année où la cour
+  // s'installe à Versailles.
+  'cp-level-4': {
     seed: 1682,
+    paint: versaillesScene,
     alt: "Le château de Versailles peint à l'aquarelle, vu depuis son jardin à la française : la longue façade et ses statues, les parterres qui se resserrent vers elle, un bassin et son jet d'eau au premier plan.",
   },
 }

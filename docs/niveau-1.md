@@ -109,7 +109,7 @@ Sujet à arrêter une fois les notions figées — le tableau doit évoquer le n
 **T8 · Intégrer la vignette à la carte des niveaux · S — ✅ fait**
 `src/screens/LevelMapScreen/levelArt.ts` existe : un `Record<string, LevelArt>` indexé par `level.id`, hors de `src/content/` et sans toucher à `LevelDef`. Un niveau absent du registre s'affiche simplement sans tableau, donc **il ne reste plus rien à faire côté écran** pour le Niveau 1 : peindre sa scène dans `LevelMapScreen/scenes.ts` et l'inscrire dans le registre suffit. Niveau verrouillé : tableau voilé, et sa description disparaît pour les lecteurs d'écran. `LevelMapScreen.test.tsx` couvre déverrouillé, verrouillé, et le cas sans tableau.
 
-Le premier tableau peint avec ce dispositif est **Versailles, pour le Niveau 2** — à lire avant d'en peindre un autre, il a coûté une quinzaine d'itérations dont les leçons sont dans `references/peinture-generative.md` de la skill `aquarelle`.
+Deux tableaux existent : le **château fort du Niveau 2** (sa notion d'histoire porte sur les châteaux forts et les chevaliers) et **Versailles au Niveau 4** (celle de Louis XIV). Les lire tous les deux avant d'en peindre un troisième — ils ont coûté une vingtaine d'itérations dont les leçons sont dans `references/peinture-generative.md` de la skill `aquarelle`. Ils sont aussi écrits en miroir l'un de l'autre : une comparaison ligne à ligne des deux commentaires d'en-tête montre comment deux tableaux du même moteur peuvent se lire comme deux mondes.
 
 ## Vérification de bout en bout
 
