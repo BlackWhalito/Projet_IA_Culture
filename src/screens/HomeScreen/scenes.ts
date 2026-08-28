@@ -2,7 +2,6 @@ import type { PaintScene } from '../../components/watercolor/WatercolorScene'
 import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import {
-  arcade,
   column,
   dome,
   facade,
@@ -333,7 +332,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // qui fusionnait avec le rocher plutôt que de s'en détacher. `shade`
   // garde ENCRE_SOMBRE pour l'ombre portée, mais la face éclairée reste
   // assez claire pour qu'une figure posée dessus s'en distingue encore.
-  const rockTop = rocher(ctx, w * 0.76, h * 1.02, w * 0.5, h * 0.15, rng, LUMIERE, {
+  const rockTop = rocher(ctx, w * 0.64, h * 1.0, w * 0.72, h * 0.2, rng, LUMIERE, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
   })
@@ -341,7 +340,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // dans la masse du rocher, la silhouette (torse, genoux) se fondait dans
   // sa teinte la plus sombre. Contre le ciel, elle reste nette quelle que
   // soit la face du rocher sur laquelle tombe le sommet.
-  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.003, h * 0.05, rng, LUMIERE, {
+  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.004, h * 0.085, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: OCRE,
@@ -406,105 +405,73 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     highlight: PAPIER,
   })
 
-  // Le fond : deux silhouettes très pâles, sans aucun détail, qui creusent
-  // l'espace derrière la ville. `floors: 0, bays: 0` — pas une fenêtre.
-  facade(ctx, w * 0.12, h * 0.44, quai, w * 0.2, rng, LUMIERE, {
-    stone: VIOLET_BRUME,
-    shade: VIOLET,
-    distance: 0.9,
-    floors: 0,
-    bays: 0,
-  })
-  facade(ctx, w * 0.92, h * 0.47, quai, w * 0.22, rng, LUMIERE, {
-    stone: VIOLET_BRUME,
-    shade: VIOLET,
-    distance: 0.88,
-    floors: 0,
-    bays: 0,
-  })
+  // Peu d'éléments, bien séparés. Les versions précédentes empilaient façades
+  // lointaines, arcades isolées et éclats de pierre : sans mur derrière elles,
+  // les arches se lisaient comme des pierres tombales, et l'ensemble redevenait
+  // un amas de petits blocs pâles — le défaut même qu'on cherchait à quitter.
+  // Ici : un temple, un dôme, deux gisants. Rien d'autre.
 
-  // Le dôme, à droite : le seul volume encore intact, et le contrepoint rond
-  // d'une silhouette sinon toute en verticales. Son tambour, lui, a vieilli.
-  dome(ctx, w * 0.78, h * 0.38, w * 0.155, rng, LUMIERE, {
+  // Le dôme, posé sur un socle bas et large plutôt que sur une tour. Un
+  // rectangle vertical sous une coupole redonne un bâtiment coiffé.
+  dome(ctx, w * 0.82, h * 0.47, w * 0.15, rng, LUMIERE, {
     stone: PIERRE_PALE,
     shade: VIOLET,
-    distance: 0.4,
+    distance: 0.45,
   })
-  ruinFacade(ctx, w * 0.78, h * 0.38, quai, w * 0.26, rng, LUMIERE, {
+  ruinFacade(ctx, w * 0.82, h * 0.57, quai, w * 0.19, rng, LUMIERE, {
     stone: PIERRE_PALE,
     shade: VIOLET_PROFOND,
     moss: VERT,
-    distance: 0.4,
-    floors: 1,
-    bays: 1,
-    decay: 0.28,
+    distance: 0.45,
+    floors: 0,
+    bays: 0,
+    decay: 0.75,
   })
 
-  // La masse sombre de gauche : celle qui porte le contraste du tableau, au
-  // sommet rongé. Une seule ouverture par étage, pas une grille.
-  ruinFacade(ctx, w * 0.1, h * 0.33, quai, w * 0.28, rng, LUMIERE, {
-    stone: VIOLET,
-    shade: VIOLET_PROFOND,
-    moss: VERT,
-    distance: 0.12,
-    floors: 3,
-    bays: 1,
-    decay: 0.62,
-  })
-
-  // Deux colonnes brisées entre la masse de gauche et le temple : le rythme
-  // cassé d'une colonnade dont il ne reste rien. Rayons volontairement gros —
-  // sous ~0.04 * w elles retombent sous le seuil de lisibilité une fois le
-  // canvas réduit à sa largeur CSS, piège déjà payé une fois.
-  column(ctx, w * 0.32, quai, h * 0.095, w * 0.062, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.28,
-    broken: true,
-  })
-
-  // Trois fûts plutôt que deux : c'est le rythme répété d'une colonnade qui
-  // fait lire « temple ». Deux colonnes épaisses sous un large triangle
-  // donnaient un kiosque de jardin — vérifié à l'écran, pas supposé.
+  // LE TEMPLE — le sujet, et le seul.
   //
-  // Proportions surveillées : un fût antique tient autour de 6 à 8 fois son
-  // rayon en hauteur. Plus élancé, il redevient un mât coiffé d'un chapeau
-  // pointu — l'erreur exacte d'une tentative précédente. Ici h*0.165 pour un
-  // rayon de w*0.058, soit environ 8:1 sur un canvas 340x990.
-  const futH = h * 0.19
-  const futR = w * 0.058
-  for (const fx of [0.44, 0.6, 0.76]) {
-    column(ctx, w * fx, quai, futH, futR, rng, LUMIERE, {
-      stone: PIERRE_CHAUDE,
+  // Le verdict était « ça fait juste des immeubles » : c'est qu'une ruine
+  // antique ne se lit pas à ses murs mais à ses COLONNES. Quatre fûts très
+  // espacés — deux encore debout sous leur fronton, deux rompus de part et
+  // d'autre. C'est l'inégalité des hauteurs, et le ciel visible ENTRE les
+  // fûts, qui font la ruine ; serrés, ils fusionnent en un bloc rayé.
+  const futR = w * 0.045
+  const colonnade: Array<[number, number, boolean]> = [
+    [0.12, 0.12, true],
+    [0.32, 0.25, false],
+    [0.54, 0.25, false],
+    [0.72, 0.165, true],
+  ]
+  for (const [fx, fh, cassee] of colonnade) {
+    column(ctx, w * fx, quai, h * fh, futR, rng, LUMIERE, {
+      stone: cassee ? PIERRE_CHAUDE : PIERRE_PALE,
       shade: VIOLET_PROFOND,
-      distance: 0.06,
-      broken: false,
+      distance: 0.08,
+      broken: cassee,
     })
   }
-  // Un fronton antique est PLAT : sa flèche vaut environ un cinquième de sa
-  // portée. Plus haut, il devient une tente. `yBase` remonte du rayon du
-  // chapiteau, pas du fût nu, sinon il coiffe les colonnes en les coupant.
-  pediment(ctx, w * 0.6, quai - futH - futR * 0.55, w * 0.46, h * 0.026, rng, LUMIERE, {
+
+  // Le fronton ne coiffe QUE les deux fûts entiers : un temple dont la moitié
+  // s'est effondrée. Complet, il dirait « monument intact », l'inverse du sujet.
+  pediment(ctx, w * 0.43, quai - h * 0.25 - futR * 1.05, w * 0.34, h * 0.03, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.08,
+  })
+
+  // Les tambours couchés : une colonne qui tombe se brise à ses jointures,
+  // elle ne reste jamais entière. C'est le sol jonché qui achève de dire la
+  // ruine — mais deux gisants suffisent, au-delà on refait un amas.
+  fallenColumn(ctx, w * 0.24, quai - h * 0.006, w * 0.2, w * 0.028, rng, LUMIERE, {
     stone: PIERRE_CHAUDE,
     shade: VIOLET_PROFOND,
     distance: 0.06,
   })
-
-  // Un tambour effondré à demi submergé, au bord de l'eau : la colonne qui
-  // n'a pas tenu, contrepoint de celles qui tiennent encore.
-  fallenColumn(ctx, w * 0.24, quai - h * 0.004, w * 0.2, w * 0.028, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
+  fallenColumn(ctx, w * 0.64, quai - h * 0.014, w * 0.14, w * 0.02, rng, LUMIERE, {
+    stone: PIERRE_PALE,
     shade: VIOLET_PROFOND,
-    distance: 0.1,
+    distance: 0.2,
   })
-
-  // Les percements : des arches en plein cintre, jamais des rectangles. La
-  // version d'avant posait des rectangles sombres régulièrement espacés —
-  // c'est exactement le motif qui faisait lire « immeuble de bureaux » quelle
-  // que soit la couleur autour. Une arche part du sol : montant, naissance de
-  // la courbe, demi-cercle, montant, sol ; `arcade()` s'en charge.
-  arcade(ctx, w * 0.04, w * 0.24, h * 0.56, quai, 2, rng, LUMIERE, 0.12, 0.3)
-  arcade(ctx, w * 0.68, w * 0.9, h * 0.58, quai, 2, rng, LUMIERE, 0.35, 0.22)
 
   // Les reflets : tirés vers le bas puis cassés par des rides. Un reflet qui
   // ne serait qu'une copie délavée reste une tache ; ce sont les cassures qui
@@ -606,14 +573,14 @@ export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
   // `verificateur` : la lecture ne se lisait plus, seul le contour du
   // livre restait visible. `girlWriting`, juste à côté, pose le même
   // `PAPIER` sur `VIOLET` (nettement plus saturé) sans ce problème.
-  adultReading(ctx, w * 0.14, h * 0.74, h * 0.24, rng, LUMIERE, {
+  adultReading(ctx, w * 0.15, h * 0.76, h * 0.21, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: VIOLET,
     paper: PAPIER,
     accent: ENCRE_SOMBRE,
   })
-  adultReading(ctx, w * 0.32, h * 0.74, h * 0.22, rng, LUMIERE, {
+  adultReading(ctx, w * 0.31, h * 0.76, h * 0.19, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: BLEU,
@@ -621,7 +588,7 @@ export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
     accent: ENCRE_SOMBRE,
   })
 
-  girlWriting(ctx, w * 0.74, h * 0.7, h * 0.27, rng, LUMIERE, {
+  girlWriting(ctx, w * 0.74, h * 0.72, h * 0.235, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     dress: VIOLET,

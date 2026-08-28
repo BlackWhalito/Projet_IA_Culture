@@ -21,8 +21,8 @@ function trait(
   color: string,
   alpha = 0.4,
 ): void {
-  dryStroke(ctx, points, largeur, rng, { color, alpha, layers: 2 })
-  dryStroke(ctx, points, largeur * 0.5, rng, { color, alpha: alpha * 0.7, layers: 1 })
+  dryStroke(ctx, points, largeur * 0.8, rng, { color, alpha, layers: 2 })
+  dryStroke(ctx, points, largeur * 0.4, rng, { color, alpha: alpha * 0.7, layers: 1 })
 }
 
 /**
@@ -55,7 +55,7 @@ function membre(
   remplissage: string,
   encre: string,
 ): void {
-  dryStroke(ctx, axe, rayon * 2, rng, { color: remplissage, alpha: 0.34, layers: 2 })
+  dryStroke(ctx, axe, rayon * 2, rng, { color: remplissage, alpha: 0.16, layers: 2 })
   trait(ctx, decale(axe, rayon), rayon * 0.42, rng, encre, 0.38)
   trait(ctx, decale(axe, -rayon), rayon * 0.42, rng, encre, 0.38)
 }
@@ -116,8 +116,8 @@ export function girlWriting(
 
   // Le bureau : un plateau et un panneau avant, juste assez pour poser la
   // scène — ce n'est pas le sujet, il ne doit pas rivaliser avec elle.
-  const deskW = scale * 2.6
-  const deskH = scale * 0.85
+  const deskW = scale * 2.3
+  const deskH = scale * 0.7
   wash(ctx, [
     [cx - deskW / 2, yDesk + deskH],
     [cx - deskW / 2, yDesk],
@@ -165,7 +165,7 @@ export function girlWriting(
   // Le torse : une robe simple, plus large aux épaules, qui plonge sous le
   // plateau du bureau — on ne dessine jamais ce que le bureau cache.
   const shoulderY = yDesk - scale * 0.95
-  const torsoW = scale * 1.1
+  const torsoW = scale * 0.86
   wash(ctx, [
     [cx - torsoW * 0.55, yDesk + scale * 0.15],
     [cx - torsoW * 0.5, shoulderY],
@@ -191,11 +191,11 @@ export function girlWriting(
     [cx + writingSide * torsoW * 0.45, shoulderY + scale * 0.12],
     [cx + writingSide * torsoW * 0.74, yDesk - scale * 0.34],
     [handX, handY],
-  ], scale * 0.085, rng, dress, accent)
+  ], scale * 0.065, rng, dress, accent)
   membre(ctx, [
     [cx - writingSide * torsoW * 0.44, shoulderY + scale * 0.16],
     [cx - writingSide * torsoW * 0.6, yDesk + scale * 0.06],
-  ], scale * 0.08, rng, dress, accent)
+  ], scale * 0.062, rng, dress, accent)
 
   // La main qui écrit : un petit accent rond, juste assez pour ancrer le
   // stylo à un poignet plutôt qu'à un trait qui flotte.
@@ -214,8 +214,8 @@ export function girlWriting(
   ], scale * 0.035, rng, { color: accent, alpha: 0.65, layers: 2 })
 
   // La tête : ronde, centrée au-dessus des épaules.
-  const headR = scale * 0.4
-  const headY = shoulderY - headR * 0.85
+  const headR = scale * 0.35
+  const headY = shoulderY - headR * 0.9
   const visage = polygon(cx, headY, headR, headR * 1.05, 14, 0, rng)
   wash(ctx, visage, rng, {
     color: skin,
@@ -430,9 +430,9 @@ export function adultReading(
   // Le vêtement : une silhouette longue et simple, plus large aux épaules
   // qu'à l'ourlet — une robe d'enfant s'arrête au bureau, celle-ci descend
   // jusqu'aux pieds, c'est ce qui fait « adulte debout » avant même la tête.
-  const shoulderY = yGround - scale * 1.55
-  const hipW = scale * 0.42
-  const shoulderW = scale * 0.62
+  const shoulderY = yGround - scale * 1.68
+  const hipW = scale * 0.3
+  const shoulderW = scale * 0.46
   wash(ctx, [
     [cx - hipW / 2, yGround],
     [cx - shoulderW / 2, shoulderY],
@@ -445,8 +445,8 @@ export function adultReading(
   // le papier clair se fond dans un vêtement de teinte proche et disparaît.
   const bookY = shoulderY + scale * 0.5
   const bookX = cx + side * scale * 0.06
-  const bookW = scale * 0.5
-  const bookH = scale * 0.36
+  const bookW = scale * 0.42
+  const bookH = scale * 0.3
   wash(ctx, [
     [bookX - bookW / 2, bookY + bookH / 2],
     [bookX - bookW / 2, bookY - bookH / 2],
@@ -493,8 +493,8 @@ export function adultReading(
     [cx + shoulderW * 0.58, shoulderY + scale * 0.34],
     [bookX + bookW * 0.52, bookY + scale * 0.04],
   ]
-  membre(ctx, brasG, scale * 0.082, rng, clothes, accent)
-  membre(ctx, brasD, scale * 0.082, rng, clothes, accent)
+  membre(ctx, brasG, scale * 0.062, rng, clothes, accent)
+  membre(ctx, brasD, scale * 0.062, rng, clothes, accent)
 
   // Les mains : deux petits accents de peau posés SUR le livre. Là, et là
   // seulement, la peau se voit — le papier du livre est clair, un ton chair
@@ -526,8 +526,8 @@ export function adultReading(
   // La tête, penchée vers le livre : décalée vers le bas et de son côté
   // plutôt que centrée sur les épaules — c'est cette inclinaison qui dit
   // « absorbé dans sa lecture », pas seulement « debout ».
-  const headR = scale * 0.26
-  const headX = cx + side * scale * 0.05
+  const headR = scale * 0.225
+  const headX = cx + side * scale * 0.04
   const headY = shoulderY - headR * 0.55
   const visage = polygon(headX, headY, headR, headR * 1.05, 14, 0, rng)
   wash(ctx, visage, rng, {

@@ -50,11 +50,15 @@
 .sideArtLeft {
   left: 0;
   justify-content: flex-start;
+  -webkit-mask-image: linear-gradient(to right, rgb(0 0 0) 55%, rgb(0 0 0 / 0) 100%);
+  mask-image: linear-gradient(to right, rgb(0 0 0) 55%, rgb(0 0 0 / 0) 100%);
 }
 
 .sideArtRight {
   right: 0;
   justify-content: flex-end;
+  -webkit-mask-image: linear-gradient(to left, rgb(0 0 0) 55%, rgb(0 0 0 / 0) 100%);
+  mask-image: linear-gradient(to left, rgb(0 0 0) 55%, rgb(0 0 0 / 0) 100%);
 }
 
 @media (min-width: 1200px) {
