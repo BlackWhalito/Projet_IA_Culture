@@ -87,3 +87,22 @@ Le risque est spécifique et plus élevé qu'ailleurs : un visage raté se voit 
 Ne juge jamais une itération sans l'avoir regardée. La méthode de capture (le navigateur poste l'image dans un fichier via un petit serveur local) est décrite dans la skill `pieges-du-projet`, section « Voir réellement ce qu'on dessine ». Une itération esthétique livrée en aveugle coûte systématiquement un aller-retour de plus qu'une capture.
 
 **Juge à la taille d'affichage réelle, pas seulement sur une capture zoomée.** Des colonnes ajoutées à `citeEngloutieScene` paraissaient nettes sur une capture agrandie (le canvas source, en résolution `devicePixelRatio`) mais étaient sous le seuil de lisibilité une fois réduites à la largeur CSS réellement affichée (170px, contre 220px de source — sans compter que la page peut encore la rétrécir sur un écran étroit). Avant de juger un détail petit ou fin, capture le canvas à sa taille CSS réelle (`getBoundingClientRect()`), pas sa résolution interne.
+
+## L'auréole (backrun) n'est pas reproductible en `multiply`
+
+Deux tentatives, deux échecs, une primitive écrite puis supprimée. À ne pas refaire.
+
+L'auréole — le « chou-fleur » qui signe une aquarelle — a un **cœur plus clair que son entourage**, cerné d'un liseré dense. Or tout le moteur compose en `mix-blend-mode: multiply`, qui ne sait qu'**assombrir**. Éclaircir un centre y est impossible.
+
+Le contournement paraît évident : ne peindre que le liseré, le cœur restant le lavis d'en dessous. Il ne marche pas. Un liseré fermé se lit comme un **contour tracé**, pas comme un dépôt de pigment :
+
+- contour peu déformé → une flaque cernée au feutre ;
+- contour très lobé (`deform` profondeur 4, spread 0.5) → un petit nuage dessiné posé sur l'eau.
+
+Les deux ont été jugés ratés à l'écran. Le défaut ne vient pas du réglage mais du fait qu'une auréole est un **gradient**, et qu'un trait ne peut pas en tenir lieu.
+
+**Ce qui marche à la place**, et qui donne bien plus de caractère aquarelle pour bien moins de risque :
+
+- `hardEdge()` — le bord de flaque. C'est l'**alternance** entre bords durs et bords fondus dans une même image qui distingue une aquarelle d'un aérographe, pas les accidents de pigment. Une ou deux lignes dures suffisent à réveiller tout un tableau ; en barre continue d'un bord à l'autre, en revanche, elles se lisent comme un trait de règle — les poser en fragments.
+- `granulation()` — le piqueté dur des pigments lourds, de densité croissante vers le bas. À ne pas confondre avec `flecks`, qui pose des taches molles.
+- **Et surtout l'échelle des valeurs.** Le vrai écart avec une aquarelle de peintre n'était ni la texture ni les accidents : c'était que tout le tableau vivait dans une bande de tons moyens, sans papier nu ni sombre franc. C'est l'écart entre les deux qui fait la lumière. Élargir cette échelle a plus changé l'image que n'importe quel effet de matière.

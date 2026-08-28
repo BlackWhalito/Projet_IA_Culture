@@ -377,3 +377,59 @@ export function grain(ctx: CanvasRenderingContext2D, width: number, height: numb
   ctx.drawImage(scratch, 0, 0)
   ctx.restore()
 }
+
+/**
+ * LE BORD DE FLAQUE. Quand une flaque de couleur sèche, le pigment migre vers
+ * sa limite et y laisse une ligne plus dense.
+ *
+ * C'est ce liseré — et surtout l'ALTERNANCE entre bords durs et bords fondus
+ * dans une même image — qui distingue une aquarelle d'un dégradé. Une image
+ * dont tous les bords sont mous ressemble à de l'aérographe, quelle que soit
+ * la qualité de ses couleurs.
+ */
+export function hardEdge(
+  ctx: CanvasRenderingContext2D,
+  path: Point[],
+  width: number,
+  rng: () => number,
+  options: { color: string; alpha?: number },
+): void {
+  const { color, alpha = 0.34 } = options
+  dryStroke(ctx, path, width, rng, { color, alpha: alpha * 0.45, layers: 2 })
+  dryStroke(ctx, path, width * 0.34, rng, { color, alpha, layers: 2 })
+}
+
+/**
+ * LA GRANULATION. Certains pigments — outremer, cæruleum, terres — ne se
+ * dissolvent pas complètement : leurs grains se déposent dans les creux du
+ * papier et y laissent un piqueté, d'autant plus dense que le lavis est
+ * profond.
+ *
+ * À ne pas confondre avec `flecks`, qui pose des taches molles de la taille
+ * d'un pouce : ici ce sont des points DURS et minuscules. Leur densité suit la
+ * profondeur du lavis (tirage biaisé vers le bas, là où le pigment tombe) —
+ * c'est ce gradient, pas le piqueté lui-même, qui rend l'effet crédible.
+ */
+export function granulation(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  count: number,
+  rng: () => number,
+  options: { color: string; alpha?: number },
+): void {
+  const { color, alpha = 0.22 } = options
+  ctx.save()
+  ctx.fillStyle = color
+  for (let i = 0; i < count; i += 1) {
+    const t = Math.sqrt(rng())
+    ctx.globalAlpha = alpha * (0.3 + t * 0.7) * (0.45 + rng() * 0.55)
+    const r = 0.55 + rng() * 1.05
+    ctx.beginPath()
+    ctx.ellipse(x + rng() * w, y + t * h, r, r * (0.7 + rng() * 0.6), rng() * 3, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+}

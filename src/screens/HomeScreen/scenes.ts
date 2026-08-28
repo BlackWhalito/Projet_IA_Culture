@@ -1,5 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, granulation, hardEdge, polygon, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import {
   column,
@@ -227,6 +227,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
     highlight: PAPIER,
   })
 
+
   // La rive lointaine : des silhouettes très pâles, à peine posées, avec un
   // campanile qui dépasse — assez pour que l'horizon soit un lieu.
   facade(ctx, w * 0.24, horizon - h * 0.045, horizon, w * 0.3, rng, LUMIERE, {
@@ -270,12 +271,27 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // opacité comparable : il ne passe qu'une fois. Les valeurs doivent donc
   // être nettement plus hautes qu'on ne l'attend.
   gradedWash(ctx, -w * 0.05, horizon, w * 1.05, h * 1.02, [
-    { at: 0, color: SABLE, alpha: 0.1 },
-    { at: 0.18, color: BLEU_CLAIR, alpha: 0.2 },
-    { at: 0.44, color: TURQUOISE, alpha: 0.3 },
-    { at: 0.68, color: BLEU, alpha: 0.4 },
-    { at: 1, color: VIOLET_PROFOND, alpha: 0.52 },
+    { at: 0, color: SABLE, alpha: 0.07 },
+    { at: 0.16, color: BLEU_CLAIR, alpha: 0.16 },
+    { at: 0.42, color: TURQUOISE, alpha: 0.34 },
+    { at: 0.7, color: BLEU, alpha: 0.54 },
+    { at: 0.88, color: VIOLET_PROFOND, alpha: 0.66 },
+    { at: 1, color: ENCRE_SOMBRE, alpha: 0.5 },
   ])
+
+  // Le bord de flaque à l'horizon : là où la flaque du ciel s'est arrêtée, le
+  // pigment a migré vers sa limite et y a laissé une ligne dense. Une seule
+  // ligne dure dans tout le haut du tableau suffit à réveiller l'ensemble.
+  hardEdge(ctx, [
+    [w * 0.02, horizon + h * 0.0015],
+    [w * 0.2, horizon - h * 0.0018],
+    [w * 0.46, horizon + h * 0.001],
+  ], 1.6, rng, { color: VIOLET, alpha: 0.22 })
+  hardEdge(ctx, [
+    [w * 0.62, horizon - h * 0.001],
+    [w * 0.86, horizon + h * 0.0016],
+    [w * 1.0, horizon],
+  ], 1.4, rng, { color: VIOLET, alpha: 0.18 })
 
   // Les reflets de la rive, tirés verticalement juste sous l'horizon.
   reflection(ctx, w * 0.24, w * 0.3, horizon, h * 0.045, VIOLET_BRUME, rng, 5)
@@ -301,12 +317,26 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
   glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
 
+  // La granulation de l'eau : les grains d'un pigment lourd se déposent dans
+  // les creux du papier, d'autant plus dru que le lavis est profond. C'est ce
+  // gradient de densité, plus que le piqueté lui-même, qui fait le pigment.
+  granulation(ctx, 0, horizon + h * 0.12, w, h * 0.85, 520, rng, {
+    color: VIOLET_PROFOND,
+    alpha: 0.2,
+  })
+
   // Une profondeur qui referme le bas du tableau.
-  wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.9, h * 0.14, 11, 0, rng), rng, {
+  wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.95, h * 0.2, 11, 0, rng), rng, {
     color: VIOLET_PROFOND,
     layers: 20,
-    alpha: 0.028,
+    alpha: 0.055,
     spread: 0.16,
+  })
+  wash(ctx, polygon(w * 0.5, h * 1.12, w * 0.8, h * 0.13, 9, 0, rng), rng, {
+    color: ENCRE_SOMBRE,
+    layers: 14,
+    alpha: 0.045,
+    spread: 0.2,
   })
 
   // Le rocher et l'enfant : premier plan qui ancre le regard, peint en
