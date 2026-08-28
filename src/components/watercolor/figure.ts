@@ -193,8 +193,8 @@ export function girlWriting(
     [handX, handY],
   ], scale * 0.085, rng, dress, accent)
   membre(ctx, [
-    [cx - writingSide * torsoW * 0.46, shoulderY + scale * 0.14],
-    [cx - writingSide * torsoW * 0.72, yDesk - scale * 0.06],
+    [cx - writingSide * torsoW * 0.44, shoulderY + scale * 0.16],
+    [cx - writingSide * torsoW * 0.6, yDesk + scale * 0.06],
   ], scale * 0.08, rng, dress, accent)
 
   // La main qui écrit : un petit accent rond, juste assez pour ancrer le

@@ -11,18 +11,33 @@
   position: fixed;
   top: 0;
   z-index: 0;
-  align-items: center;
-  width: 22vw;
-  min-width: 200px;
+  align-items: flex-end;
+  /*
+   * La largeur ne se contente pas d'un plafond : elle se calcule sur la place
+   * qui reste à côté de la colonne de contenu (720px + une gouttière de 60).
+   * Avec un simple `22vw`, entre 1100 et 1200px de large, le bord intérieur du
+   * tableau passait SOUS la grille de cartes et des fragments de bâtiments
+   * apparaissaient dans les gouttières.
+   */
+  width: min(22vw, calc((100vw - 780px) / 2));
   max-width: 320px;
   height: 100vh;
+  overflow: hidden;
   pointer-events: none;
 }
 
 /*
- * Les tableaux occupent toute la hauteur et débordent volontairement en haut
- * comme en bas. Plafonnés à 80vh, ils s'arrêtaient net au milieu du vide, ce
- * qui se lit comme une image coupée plutôt que comme une marge peinte.
+ * Les tableaux couvrent toute la hauteur de la fenêtre. `object-fit: cover`
+ * rogne ce qui dépasse plutôt que de déformer : latéralement sur une fenêtre
+ * haute, verticalement sur une fenêtre basse.
+ *
+ * Le rognage vertical se fait par le HAUT (`align-items: flex-end` plus haut,
+ * `overflow: hidden`) : sur une fenêtre de moins de ~925px de haut — un
+ * portable courant — un canvas ancré au centre sortait de 151px en haut ET en
+ * bas, et comme le conteneur est `fixed`, le défilement ne le rattrapait
+ * jamais. L'enfant sur son rocher et la barque de la cité, tous deux posés
+ * dans le bas du tableau, ne se voyaient alors jamais. Le ciel, lui, peut se
+ * faire rogner sans rien coûter.
  */
 .sideArt canvas {
   display: block;
@@ -42,7 +57,7 @@
   justify-content: flex-end;
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .sideArt {
     display: flex;
   }

@@ -363,6 +363,14 @@ export function grain(ctx: CanvasRenderingContext2D, width: number, height: numb
     data[i + 3] = 255
   }
   sctx.putImageData(image, 0, 0)
+  // Le grain ne doit exister QUE là où la scène a réellement peint. Sur un
+  // tableau couvert bord à bord ça ne change rien ; sur le bandeau, dont les
+  // trois quarts restent transparents, un grain appliqué à tout le rectangle
+  // dessine un rectangle gris franc sur le papier de la page — c'était devenu
+  // l'élément le plus visible du haut de l'accueil une fois le bandeau
+  // agrandi. `destination-in` découpe le bruit à la silhouette de la scène.
+  sctx.globalCompositeOperation = 'destination-in'
+  sctx.drawImage(ctx.canvas, 0, 0)
   ctx.save()
   ctx.globalCompositeOperation = 'multiply'
   ctx.globalAlpha = 0.5
