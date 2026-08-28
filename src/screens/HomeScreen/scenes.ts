@@ -206,30 +206,24 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // vidant vers l'horizon où le papier reste presque nu. C'est cette bande
   // claire juste au-dessus de l'eau qui donne la lumière du tableau.
   gradedWash(ctx, -w * 0.05, 0, w * 1.05, horizon, [
-    { at: 0, color: VIOLET, alpha: 0.5 },
-    { at: 0.45, color: VIOLET_BRUME, alpha: 0.32 },
-    { at: 0.8, color: SABLE, alpha: 0.16 },
-    { at: 1, color: SABLE, alpha: 0.05 },
+    { at: 0, color: VIOLET, alpha: 0.36 },
+    { at: 0.42, color: VIOLET_BRUME, alpha: 0.26 },
+    { at: 0.78, color: SABLE, alpha: 0.18 },
+    { at: 1, color: SABLE, alpha: 0.06 },
   ])
 
   // Trois nuages, décalés et de tailles franchement inégales — alignés ou
   // de même taille, ils redeviennent une frise décorative.
-  cloud(ctx, w * 0.3, h * 0.07, w * 0.92, h * 0.032, rng, LUMIERE, {
+  cloud(ctx, w * 0.34, h * 0.075, w * 0.52, h * 0.055, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET,
-    alpha: 0.18,
+    alpha: 0.17,
     highlight: PAPIER,
   })
-  cloud(ctx, w * 0.84, h * 0.15, w * 0.42, h * 0.012, rng, LUMIERE, {
+  cloud(ctx, w * 0.86, h * 0.18, w * 0.34, h * 0.03, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET_BRUME,
-    alpha: 0.13,
-    highlight: PAPIER,
-  })
-  cloud(ctx, w * 0.36, h * 0.24, w * 0.6, h * 0.009, rng, LUMIERE, {
-    light: VIOLET_BRUME,
-    shade: VIOLET,
-    alpha: 0.08,
+    alpha: 0.11,
     highlight: PAPIER,
   })
 
@@ -276,11 +270,11 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // opacité comparable : il ne passe qu'une fois. Les valeurs doivent donc
   // être nettement plus hautes qu'on ne l'attend.
   gradedWash(ctx, -w * 0.05, horizon, w * 1.05, h * 1.02, [
-    { at: 0, color: BLEU_CLAIR, alpha: 0.22 },
-    { at: 0.26, color: TURQUOISE, alpha: 0.42 },
-    { at: 0.56, color: BLEU, alpha: 0.56 },
-    { at: 0.8, color: VIOLET, alpha: 0.6 },
-    { at: 1, color: VIOLET_PROFOND, alpha: 0.72 },
+    { at: 0, color: SABLE, alpha: 0.1 },
+    { at: 0.18, color: BLEU_CLAIR, alpha: 0.2 },
+    { at: 0.44, color: TURQUOISE, alpha: 0.3 },
+    { at: 0.68, color: BLEU, alpha: 0.4 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.52 },
   ])
 
   // Les reflets de la rive, tirés verticalement juste sous l'horizon.
@@ -377,31 +371,25 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   // Confiné au ciel — en `multiply`, un lavis qui déborde sur la ville reste
   // visible À TRAVERS les façades et se lit comme une écharpe.
   gradedWash(ctx, -w * 0.05, 0, w * 1.05, h * 0.4, [
-    { at: 0, color: OCRE, alpha: 0.34 },
-    { at: 0.45, color: VIOLET_BRUME, alpha: 0.26 },
-    { at: 0.82, color: SABLE, alpha: 0.1 },
-    { at: 1, color: SABLE, alpha: 0.03 },
+    { at: 0, color: OCRE, alpha: 0.24 },
+    { at: 0.4, color: VIOLET_BRUME, alpha: 0.28 },
+    { at: 0.8, color: SABLE, alpha: 0.16 },
+    { at: 1, color: SABLE, alpha: 0.05 },
   ])
 
   // Trois nuages franchement inégaux, décalés, à des hauteurs différentes.
   // La version d'avant en alignait de même taille et de même hauteur : à
   // l'écran, une frise de festons identiques, le contraire d'un ciel.
-  cloud(ctx, w * 0.34, h * 0.06, w * 0.9, h * 0.028, rng, LUMIERE, {
+  cloud(ctx, w * 0.68, h * 0.08, w * 0.5, h * 0.052, rng, LUMIERE, {
     light: VIOLET_BRUME,
     shade: VIOLET,
-    alpha: 0.17,
+    alpha: 0.16,
     highlight: PAPIER,
   })
-  cloud(ctx, w * 0.82, h * 0.13, w * 0.44, h * 0.011, rng, LUMIERE, {
-    light: SABLE,
-    shade: VIOLET_BRUME,
+  cloud(ctx, w * 0.2, h * 0.2, w * 0.32, h * 0.028, rng, LUMIERE, {
+    light: VIOLET_BRUME,
+    shade: VIOLET,
     alpha: 0.1,
-    highlight: PAPIER,
-  })
-  cloud(ctx, w * 0.24, h * 0.19, w * 0.56, h * 0.012, rng, LUMIERE, {
-    light: VIOLET_BRUME,
-    shade: VIOLET,
-    alpha: 0.09,
     highlight: PAPIER,
   })
 
@@ -487,10 +475,11 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
 
   // L'eau, tenue sous la ligne de quai pour la même raison que le ciel.
   gradedWash(ctx, -w * 0.05, quai, w * 1.05, h * 1.02, [
-    { at: 0, color: BLEU_CLAIR, alpha: 0.24 },
-    { at: 0.32, color: TURQUOISE, alpha: 0.4 },
-    { at: 0.66, color: BLEU, alpha: 0.5 },
-    { at: 1, color: VIOLET_PROFOND, alpha: 0.62 },
+    { at: 0, color: SABLE, alpha: 0.1 },
+    { at: 0.2, color: BLEU_CLAIR, alpha: 0.2 },
+    { at: 0.46, color: TURQUOISE, alpha: 0.28 },
+    { at: 0.7, color: BLEU, alpha: 0.4 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.52 },
   ])
   // Les rides, en perspective : serrées près du quai, plus rares et plus
   // marquées au premier plan. C'est cette variation d'échelle qui couche le

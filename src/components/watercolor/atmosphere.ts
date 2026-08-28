@@ -118,45 +118,28 @@ export function cloud(
   const span = slots[slots.length - 1] || 1
   const lxs = slots.map((s) => cx - width / 2 + width * (s / span))
 
+  // Les lobes ne sont plus PEINTS un par un : on calcule seulement leur
+  // géométrie, puis on peint leur enveloppe en une seule fois.
+  //
+  // C'est la correction de fond du « feston ». Chaque lobe était jusqu'ici un
+  // demi-dôme lavé séparément ; comme tout se compose en `multiply`, chaque
+  // recouvrement fonçait et redessinait le contour de son voisin. L'agrégat se
+  // lisait donc comme une rangée d'arches — et aucun réglage du hasard ne
+  // pouvait le supprimer, parce que le défaut ne venait pas du tirage mais du
+  // NOMBRE DE COUPS DE PINCEAU. Un nuage est une masse, il se peint d'un seul
+  // geste ; ce sont ses bosses qui varient, pas le nombre de lavis.
+  const geo: Array<{ lx: number; ly: number; lw: number; lh: number }> = []
   let litLobe: { lx: number; ly: number; lw: number; lh: number } | undefined
   for (let i = 0; i < lobes; i += 1) {
     const t = slots[i] / span
     const lx = lxs[i]
-    // Le gabarit qui fait la silhouette AVANT toute couleur : un nuage se
-    // gonfle au centre et s'amenuise vers ses bords. Sans ce gabarit, seul
-    // le tirage aléatoire dessine le contour et rend parfois une rangée de
-    // bosses de taille comparable — exactement la « frise » observée.
-    // Plafonné à 1 au centre : un premier réglage plus haut (1.3) laissait
-    // le lobe central avaler tout le nuage en un seul dôme disproportionné,
-    // le défaut inverse de la frise — un agrégat a besoin de plusieurs
-    // bulbes du même ordre de grandeur, pas d'un géant et des miettes.
-    // Plancher relevé (0.55, pas 0.4) : un lobe d'extrémité trop rétréci
-    // reste fin même une fois élargi pour chevaucher son voisin (voir plus
-    // bas) — sa hauteur, elle, n'était pas corrigée, donc son dôme restait
-    // un aplat bas à côté de dômes bien plus hauts, toujours perçu comme
-    // séparé plutôt que comme un lobe du même agrégat.
     const taper = 0.62 + Math.sin(t * Math.PI) ** 0.7 * 0.38
     const scale = taper * (0.75 + rng() * 0.45)
     let lw = (width / lobes) * 1.6 * scale
     let lh = height * scale
-    // Chevauchement garanti avec le(s) voisin(s), quel que soit le tirage
-    // de `scale` : un lobe d'extrémité qui tire un petit `scale` ET ne
-    // recouvre pas son voisin se détache du reste et retombe dans le
-    // défaut visé par cette fonction — une tache isolée, à plus petite
-    // échelle. Vérifié en zoomant sur les nuages rendus (voir le rapport du
-    // `verificateur`) : le corps de chaque nuage était corrigé, ses
-    // extrémités les plus fines restaient fragiles.
-    //
-    // `lh` grandit dans la MÊME proportion que `lw`, pas seulement la
-    // largeur : élargir un lobe sans le rehausser produit un aplat large et
-    // bas, qui reste séparé du sommet bombé du voisin — c'est la forme, pas
-    // seulement la couleur, qui doit se souder à l'agrégat.
-    //
-    // Le pire des deux écarts, pas le meilleur : dimensionner sur le PLUS
-    // PETIT des deux voisins (une erreur du premier essai) ne garantit rien
-    // côté opposé — un lobe peut chevaucher sa gauche et rester détaché à
-    // droite. Dimensionner sur le plus GRAND couvre les deux côtés à la
-    // fois, l'autre étant alors chevauché plus largement que nécessaire.
+    // Chevauchement garanti avec le plus éloigné des deux voisins : un lobe
+    // qui ne recouvre pas le suivant laisse un creux dans l'enveloppe, et
+    // l'agrégat redevient une suite de bosses distinctes.
     const gapLeft = i > 0 ? lx - lxs[i - 1] : undefined
     const gapRight = i < lobes - 1 ? lxs[i + 1] - lx : undefined
     const neighborGap =
@@ -164,64 +147,60 @@ export function cloud(
     if (neighborGap !== undefined) {
       const neededLw = neighborGap * 1.7
       if (neededLw > lw) {
-        // Croissance plafonnée : sans plafond, un lobe tiré minuscule à côté
-        // d'un voisin très éloigné peut être multiplié par un facteur énorme
-        // et avaler tout le nuage — le défaut du dôme disproportionné,
-        // sous une autre forme. Mieux vaut un chevauchement encore un peu
-        // court qu'un lobe qui écrase les autres.
         const growth = Math.min(neededLw / lw, 1.8)
         lw *= growth
         lh *= growth
       }
     }
-    // La base reste PRESQUE plate — un nuage a un dessous plat, pas
-    // ondulé — mais un tout petit débattement (12 % de la hauteur du lobe)
-    // évite que tous les lobes s'alignent sur une règle, seconde source de
-    // l'effet « décoratif ».
+    // La base reste PRESQUE plate — un nuage a un dessous plat, pas ondulé.
     const ly = cy + (rng() - 0.5) * height * 0.12
-    const base: Point[] = []
-    for (let a = 0; a <= 12; a += 1) {
-      const ang = Math.PI + (a / 12) * Math.PI
-      base.push([lx + Math.cos(ang) * lw * 0.5, ly + Math.sin(ang) * lh])
-    }
-    base.push([lx + lw * 0.5, ly], [lx - lw * 0.5, ly])
-    wash(ctx, base, rng, {
-      color: light,
-      layers: 14,
-      alpha: alpha / 14,
-      spread: 0.11,
-      jitter: 0.13,
-    })
-    // Le lobe qui reçoit le sommet éclairé : le plus HAUT (`lh` max), pas le
-    // plus à gauche. Choisir par position pure s'est révélé être le vrai
-    // bug derrière la « tache dorée détachée » qui a survécu à plusieurs
-    // essais de chevauchement des lobes : le lobe le plus proche du bord
-    // lit (gauche) est, par construction du gabarit `taper`, aussi le plus
-    // PETIT — le blanc réservé, plus dense qu'un simple lavis de corps
-    // (`highlight()` empile 16 couches à alpha 0.09, contre 14 couches à
-    // `alpha/14` pour un lobe), rendait ce minuscule lobe bien plus visible
-    // et saturé que le reste de l'agrégat, détaché de la masse principale.
+    geo.push({ lx, ly, lw, lh })
+    // Le lobe qui recevra le sommet éclairé : le plus HAUT, jamais le plus à
+    // gauche — le lobe d'extrémité est par construction le plus petit, et un
+    // blanc réservé dessus se détachait de la masse comme une pastille.
     if (!litLobe || lh > litLobe.lh) litLobe = { lx, ly, lw, lh }
-
-    // L'ombre de CE lobe : un écho compressé du MÊME contour `base`, pas
-    // une nouvelle ellipse posée à côté. Une forme indépendante, même
-    // petite, peut atterrir décalée du lobe qui l'a produite et se lire
-    // comme un disque qui flotte tout seul sous les nuages — exactement le
-    // défaut que ce remplacement visait à corriger, sous une autre forme.
-    // En reprenant les points de `base` et en les resserrant vers le bas,
-    // l'ombre reste géométriquement à l'intérieur de la silhouette du lobe.
-    const shadeBase: Point[] = base.map(([px, py]) => [
-      lx + (px - lx) * 0.8,
-      ly + (py - ly) * 0.55 + lh * 0.22,
-    ])
-    wash(ctx, shadeBase, rng, {
-      color: shade,
-      layers: 9,
-      alpha: (alpha * 1.1) / 9,
-      spread: 0.14,
-      jitter: 0.16,
-    })
   }
+
+  // L'enveloppe supérieure : pour chaque abscisse, le point le plus haut de
+  // tous les dômes. Une seule forme fermée, donc un seul lavis, donc aucun
+  // contour interne.
+  const x0 = Math.min(...geo.map((g) => g.lx - g.lw / 2))
+  const x1 = Math.max(...geo.map((g) => g.lx + g.lw / 2))
+  const baseY = Math.max(...geo.map((g) => g.ly))
+  const contour: Point[] = []
+  const pas = 48
+  for (let i = 0; i <= pas; i += 1) {
+    const px = x0 + ((x1 - x0) * i) / pas
+    let top = baseY
+    for (const g of geo) {
+      const u = (px - g.lx) / (g.lw / 2)
+      if (Math.abs(u) < 1) {
+        const y = g.ly - g.lh * Math.sqrt(1 - u * u)
+        if (y < top) top = y
+      }
+    }
+    contour.push([px, top])
+  }
+  contour.push([x1, baseY], [x0, baseY])
+  wash(ctx, contour, rng, {
+    color: light,
+    layers: 16,
+    alpha: alpha / 16,
+    spread: 0.1,
+    jitter: 0.12,
+  })
+
+  // L'ombre : le MÊME contour, resserré vers le bas. Une forme dérivée partage
+  // la géométrie de son parent — recalculée à côté, même de peu, elle finit
+  // par se lire comme une tache qui flotte sous le nuage.
+  const cxTout = (x0 + x1) / 2
+  const hMax = baseY - Math.min(...contour.map((pt) => pt[1]))
+  wash(
+    ctx,
+    contour.map(([px, py]) => [cxTout + (px - cxTout) * 0.86, baseY + (py - baseY) * 0.5 + hMax * 0.16] as Point),
+    rng,
+    { color: shade, layers: 10, alpha: (alpha * 1.05) / 10, spread: 0.13, jitter: 0.15 },
+  )
 
   // Le sommet éclairé : un blanc réservé net sur le lobe côté lumière. Sans
   // ce clair franc, le nuage n'a qu'un dégradé mou entre deux tons voisins
