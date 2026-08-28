@@ -14,7 +14,7 @@ export function HomeScreen() {
       <SideArt side="left" />
       <SideArt side="right" />
       <div className={styles.hero}>
-        <WatercolorScene paint={bandeauScene} width={460} height={150} seed={904} />
+        <WatercolorScene paint={bandeauScene} width={920} height={300} seed={904} />
       </div>
 
       <h1 className={styles.title}>Jeu Culture</h1>

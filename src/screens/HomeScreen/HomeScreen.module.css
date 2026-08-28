@@ -12,18 +12,24 @@
   top: 0;
   z-index: 0;
   align-items: center;
-  width: 15vw;
-  min-width: 110px;
-  max-width: 170px;
+  width: 22vw;
+  min-width: 200px;
+  max-width: 320px;
   height: 100vh;
   pointer-events: none;
 }
 
+/*
+ * Les tableaux occupent toute la hauteur et débordent volontairement en haut
+ * comme en bas. Plafonnés à 80vh, ils s'arrêtaient net au milieu du vide, ce
+ * qui se lit comme une image coupée plutôt que comme une marge peinte.
+ */
 .sideArt canvas {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 80vh;
+  min-height: 100vh;
+  object-fit: cover;
 }
 
 .sideArtLeft {
@@ -45,7 +51,7 @@
 .hero {
   display: block;
   width: 100%;
-  max-width: 460px;
+  max-width: 720px;
   height: auto;
   margin: 0 auto calc(var(--space-4) * -1);
 }

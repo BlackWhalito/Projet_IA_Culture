@@ -1,6 +1,64 @@
+import type { Point } from './engine'
 import { dryStroke, polygon, wash } from './engine'
 import { litFromLeft } from './light'
 import type { LightPlan } from './light'
+
+/**
+ * Le trait d'encre : une ligne fine posée PAR-DESSUS le lavis, repassée deux
+ * fois à des épaisseurs et des opacités différentes (règle « Traits » de la
+ * skill `aquarelle` : deux traits superposés, jamais une ligne unique).
+ *
+ * C'est ce qui manquait entièrement à ces figures. Elles n'étaient que des
+ * masses de lavis, alors qu'une aquarelle illustrée est un lavis **plus** un
+ * dessin. Sans ligne, une silhouette reste une tache — c'est exactement le
+ * reproche fait au rendu : « des capsules arrondies ».
+ */
+function trait(
+  ctx: CanvasRenderingContext2D,
+  points: Point[],
+  largeur: number,
+  rng: () => number,
+  color: string,
+  alpha = 0.4,
+): void {
+  dryStroke(ctx, points, largeur, rng, { color, alpha, layers: 2 })
+  dryStroke(ctx, points, largeur * 0.5, rng, { color, alpha: alpha * 0.7, layers: 1 })
+}
+
+/**
+ * Décale une polyligne perpendiculairement à elle-même.
+ *
+ * Sert à dessiner les DEUX bords d'une manche à partir de son axe. Sans ça,
+ * un bras se peint en aplat de couleur de peau par-dessus le vêtement — et
+ * comme tout se compose en `multiply`, un ton chair clair posé sur un violet
+ * saturé ne le modifie presque pas : le bras devient invisible. C'était la
+ * cause exacte des « adultes sans bras ». Un bord tracé, lui, se voit sur
+ * n'importe quel fond.
+ */
+function decale(points: Point[], d: number): Point[] {
+  return points.map((p, i) => {
+    const a = points[Math.max(0, i - 1)]
+    const b = points[Math.min(points.length - 1, i + 1)]
+    const dx = b[0] - a[0]
+    const dy = b[1] - a[1]
+    const len = Math.hypot(dx, dy) || 1
+    return [p[0] - (dy / len) * d, p[1] + (dx / len) * d] as Point
+  })
+}
+
+/** Un membre dessiné : sa masse, puis ses deux bords tracés. */
+function membre(
+  ctx: CanvasRenderingContext2D,
+  axe: Point[],
+  rayon: number,
+  rng: () => number,
+  remplissage: string,
+  encre: string,
+): void {
+  dryStroke(ctx, axe, rayon * 2, rng, { color: remplissage, alpha: 0.34, layers: 2 })
+  trait(ctx, decale(axe, rayon), rayon * 0.42, rng, encre, 0.38)
+  trait(ctx, decale(axe, -rayon), rayon * 0.42, rng, encre, 0.38)
+}
 
 /**
  * La figure humaine.
@@ -66,11 +124,13 @@ export function girlWriting(
     [cx + deskW / 2, yDesk],
     [cx + deskW / 2, yDesk + deskH],
   ], rng, { color: wood, layers: 16, alpha: 0.4 / 16, spread: 0.04, jitter: 0.05 })
-  dryStroke(ctx, [[cx - deskW / 2, yDesk], [cx + deskW / 2, yDesk]], scale * 0.05, rng, {
-    color: accent,
-    alpha: 0.3,
-    layers: 2,
-  })
+  trait(ctx, [[cx - deskW / 2, yDesk], [cx + deskW / 2, yDesk]], scale * 0.04, rng, accent, 0.34)
+  trait(ctx, [
+    [cx - deskW / 2, yDesk],
+    [cx - deskW / 2, yDesk + deskH],
+    [cx + deskW / 2, yDesk + deskH],
+    [cx + deskW / 2, yDesk],
+  ], scale * 0.022, rng, accent, 0.22)
 
   // Le carnet et ses lignes d'écriture, à peine suggérées — jamais du texte
   // lisible, seulement le geste. Posé nettement AU-DESSUS du plateau (pas
@@ -113,19 +173,29 @@ export function girlWriting(
     [cx + torsoW * 0.55, yDesk + scale * 0.15],
   ], rng, { color: dress, layers: 18, alpha: 0.45 / 18, spread: 0.06, jitter: 0.08 })
 
-  // Les bras : deux traits qui plongent vers le bureau — celui qui écrit se
-  // penche jusqu'au carnet, l'autre repose simplement sur le bord.
+  // Le contour de la robe : la ligne qui fait passer la masse à la
+  // silhouette. Sans elle, le torse reste un rectangle de lavis.
+  trait(ctx, [
+    [cx - torsoW * 0.55, yDesk + scale * 0.15],
+    [cx - torsoW * 0.5, shoulderY],
+    [cx + torsoW * 0.5, shoulderY],
+    [cx + torsoW * 0.55, yDesk + scale * 0.15],
+  ], scale * 0.026, rng, accent, 0.3)
+
+  // Les bras : des manches cernées, comme celles des adultes. Peints en
+  // couleur de peau par-dessus la robe, ils étaient invisibles — un ton chair
+  // clair sur un violet saturé ne le modifie presque pas en `multiply`.
   const handX = bookX + writingSide * bookW * 0.1
   const handY = bookY + bookH * 0.32
-  dryStroke(ctx, [
-    [cx + writingSide * torsoW * 0.35, shoulderY + scale * 0.1],
-    [cx + writingSide * torsoW * 0.1, yDesk - scale * 0.15],
+  membre(ctx, [
+    [cx + writingSide * torsoW * 0.45, shoulderY + scale * 0.12],
+    [cx + writingSide * torsoW * 0.74, yDesk - scale * 0.34],
     [handX, handY],
-  ], scale * 0.15, rng, { color: skin, alpha: 0.5, layers: 3 })
-  dryStroke(ctx, [
-    [cx - writingSide * torsoW * 0.4, shoulderY + scale * 0.15],
-    [cx - writingSide * torsoW * 0.28, yDesk],
-  ], scale * 0.13, rng, { color: skin, alpha: 0.45, layers: 3 })
+  ], scale * 0.085, rng, dress, accent)
+  membre(ctx, [
+    [cx - writingSide * torsoW * 0.46, shoulderY + scale * 0.14],
+    [cx - writingSide * torsoW * 0.72, yDesk - scale * 0.06],
+  ], scale * 0.08, rng, dress, accent)
 
   // La main qui écrit : un petit accent rond, juste assez pour ancrer le
   // stylo à un poignet plutôt qu'à un trait qui flotte.
@@ -146,13 +216,17 @@ export function girlWriting(
   // La tête : ronde, centrée au-dessus des épaules.
   const headR = scale * 0.4
   const headY = shoulderY - headR * 0.85
-  wash(ctx, polygon(cx, headY, headR, headR * 1.05, 12, 0, rng), rng, {
+  const visage = polygon(cx, headY, headR, headR * 1.05, 14, 0, rng)
+  wash(ctx, visage, rng, {
     color: skin,
     layers: 20,
     alpha: 0.42 / 20,
     spread: 0.05,
     jitter: 0.06,
   })
+  // Le chemin se referme sur son premier point : sinon `dryStroke` effile ses
+  // deux extrémités et laisse une encoche visible sur le bord du visage.
+  trait(ctx, [...visage, visage[0]], scale * 0.02, rng, accent, 0.26)
 
   // Les cheveux : une masse derrière la tête avec deux couettes — le repère
   // le plus sûr pour lire « une enfant » d'un coup d'œil, bien plus fiable
@@ -185,6 +259,13 @@ export function girlWriting(
     spread: 0.08,
     jitter: 0.1,
   })
+
+  for (const t of [-0.5, 0.05, 0.55]) {
+    trait(ctx, [
+      [cx + headR * t * 0.9, headY - headR * 1.0],
+      [cx + headR * t * 1.15, headY - headR * 0.35],
+    ], scale * 0.013, rng, accent, 0.2)
+  }
 
   // Les yeux : deux tout petits accents sombres, la seule vraie touche de
   // détail qu'on s'autorise sur le visage. Ce sont eux, et eux seuls, qui
@@ -397,33 +478,73 @@ export function adultReading(
     layers: 1,
   })
 
-  // Les bras : deux traits qui plongent des épaules vers le livre, comme
-  // les bras de `girlWriting` vers son carnet.
-  dryStroke(ctx, [
-    [cx - shoulderW * 0.36, shoulderY + scale * 0.1],
-    [bookX - bookW * 0.28, bookY],
-  ], scale * 0.12, rng, { color: skin, alpha: 0.42, layers: 3 })
-  dryStroke(ctx, [
-    [cx + shoulderW * 0.36, shoulderY + scale * 0.1],
-    [bookX + bookW * 0.28, bookY],
-  ], scale * 0.12, rng, { color: skin, alpha: 0.42, layers: 3 })
+  // Les bras : des MANCHES dessinées, pas des aplats. Trois points — épaule,
+  // coude, main — plutôt que deux : un bras qui plie se lit comme un bras, un
+  // segment droit fait une barre. Peints dans la couleur du vêtement puis
+  // cernés, parce qu'un remplissage couleur peau posé sur un vêtement saturé
+  // ne se voit pas en `multiply` (voir `decale`).
+  const brasG: Point[] = [
+    [cx - shoulderW * 0.46, shoulderY + scale * 0.08],
+    [cx - shoulderW * 0.58, shoulderY + scale * 0.34],
+    [bookX - bookW * 0.52, bookY + scale * 0.04],
+  ]
+  const brasD: Point[] = [
+    [cx + shoulderW * 0.46, shoulderY + scale * 0.08],
+    [cx + shoulderW * 0.58, shoulderY + scale * 0.34],
+    [bookX + bookW * 0.52, bookY + scale * 0.04],
+  ]
+  membre(ctx, brasG, scale * 0.082, rng, clothes, accent)
+  membre(ctx, brasD, scale * 0.082, rng, clothes, accent)
 
-  // La tête, penchée vers le livre : décalée vers le bas et son côté
+  // Les mains : deux petits accents de peau posés SUR le livre. Là, et là
+  // seulement, la peau se voit — le papier du livre est clair, un ton chair
+  // l'assombrit visiblement, contrairement au vêtement.
+  for (const hx of [bookX - bookW * 0.52, bookX + bookW * 0.52]) {
+    wash(ctx, polygon(hx, bookY + scale * 0.04, scale * 0.065, scale * 0.055, 7, 0, rng), rng, {
+      color: skin,
+      layers: 10,
+      alpha: 0.5 / 10,
+      spread: 0.08,
+      jitter: 0.1,
+    })
+  }
+
+  // Le contour du vêtement : la ligne qui fait passer la masse à la
+  // silhouette. Plus un seul pli vertical — une ligne suffit à dire l'étoffe,
+  // deux commencent à faire un pyjama rayé.
+  trait(ctx, [
+    [cx - hipW / 2, yGround],
+    [cx - shoulderW / 2, shoulderY],
+    [cx + shoulderW / 2, shoulderY],
+    [cx + hipW / 2, yGround],
+  ], scale * 0.026, rng, accent, 0.3)
+  trait(ctx, [
+    [cx - scale * 0.05, shoulderY + scale * 0.75],
+    [cx - scale * 0.02, yGround - scale * 0.12],
+  ], scale * 0.018, rng, accent, 0.18)
+
+  // La tête, penchée vers le livre : décalée vers le bas et de son côté
   // plutôt que centrée sur les épaules — c'est cette inclinaison qui dit
   // « absorbé dans sa lecture », pas seulement « debout ».
   const headR = scale * 0.26
   const headX = cx + side * scale * 0.05
   const headY = shoulderY - headR * 0.55
-  wash(ctx, polygon(headX, headY, headR, headR * 1.05, 12, 0, rng), rng, {
+  const visage = polygon(headX, headY, headR, headR * 1.05, 14, 0, rng)
+  wash(ctx, visage, rng, {
     color: skin,
     layers: 16,
     alpha: 0.4 / 16,
     spread: 0.05,
     jitter: 0.06,
   })
+  // Le contour du visage : sans lui la tête reste une tache posée sur les
+  // épaules. Le chemin se referme sur son premier point, sinon `dryStroke`
+  // effile ses deux extrémités et laisse une encoche visible.
+  trait(ctx, [...visage, visage[0]], scale * 0.02, rng, accent, 0.26)
 
-  // Les cheveux : une masse courte, sans couettes — c'est la silhouette
-  // (épaules larges, vêtement long) qui dit « adulte », pas la coiffure.
+  // Les cheveux : une masse courte, puis quelques mèches tracées. C'est la
+  // silhouette (épaules larges, vêtement long) qui dit « adulte », pas la
+  // coiffure — les mèches ne servent qu'à la finesse du dessin.
   wash(ctx, [
     [headX - headR * 1.0, headY + headR * 0.2],
     [headX - headR * 0.7, headY - headR * 0.85],
@@ -432,11 +553,29 @@ export function adultReading(
     [headX + headR * 1.0, headY + headR * 0.2],
     [headX, headY - headR * 0.25],
   ], rng, { color: hair, layers: 14, alpha: 0.45 / 14, spread: 0.06, jitter: 0.08 })
+  for (const t of [-0.55, 0, 0.55]) {
+    trait(ctx, [
+      [headX + headR * t * 0.95, headY - headR * 0.98],
+      [headX + headR * t * 1.2, headY - headR * 0.3],
+    ], scale * 0.014, rng, accent, 0.2)
+  }
+
+  // Les yeux : deux arcs courts tournés vers le bas, pas deux points ronds.
+  // Un adulte absorbé dans sa lecture regarde la page — l'arc dit la paupière
+  // baissée, là où deux points diraient un regard vers le joueur.
+  const eyeY = headY + headR * 0.2
+  for (const ex of [-0.34, 0.32]) {
+    trait(ctx, [
+      [headX + headR * ex - headR * 0.17, eyeY],
+      [headX + headR * ex, eyeY + headR * 0.06],
+      [headX + headR * ex + headR * 0.17, eyeY],
+    ], scale * 0.016, rng, accent, 0.32)
+  }
 
   // Une petite touche d'accent au col, même rôle que sur `girlWriting` :
   // sans elle, une chevelure et un vêtement de teinte proche fusionnent.
-  dryStroke(ctx, [
-    [headX - shoulderW * 0.28, headY + headR * 1.3],
-    [headX + shoulderW * 0.28, headY + headR * 1.25],
-  ], scale * 0.03, rng, { color: accent, alpha: 0.3, layers: 2 })
+  trait(ctx, [
+    [headX - shoulderW * 0.3, headY + headR * 1.32],
+    [headX + shoulderW * 0.3, headY + headR * 1.26],
+  ], scale * 0.024, rng, accent, 0.3)
 }
