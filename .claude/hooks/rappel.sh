@@ -15,7 +15,7 @@ cat <<'JSON'
 {
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
-    "additionalContext": "Rappel permanent (Jeu Culture) : 1. Une skill se CHARGE par l'outil Skill ; la lire avec cat ne compte pas. 2. Ne jamais annoncer un rendu visuel sans l'avoir regardé dans un navigateur. 3. En rendant la main : si une friction a coûté du temps, corriger la skill ou le brief d'agent dans la foulée — c'est une case de la liste, pas un acte d'initiative."
+    "additionalContext": "Rappel permanent (Jeu Culture) : 1. Une skill se CHARGE par l'outil Skill ; la lire avec cat ne compte pas. 2. Ne jamais annoncer un rendu visuel sans l'avoir regardé dans un navigateur. 3. En rendant la main : si une friction a coûté du temps, corriger la skill ou le brief d'agent dans la foulée — c'est une case de la liste, pas un acte d'initiative. Mais jamais modifier pour modifier : sans gain réel et nommable, on ne touche à rien. Une skill qui grossit de retouches cosmétiques coûte du contexte à chaque invocation."
   }
 }
 JSON
