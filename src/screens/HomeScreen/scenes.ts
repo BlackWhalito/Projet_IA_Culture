@@ -1,5 +1,5 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { dryStroke, granulation, hardEdge, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, granulation, hardEdge, polygon, reserve, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import {
   column,
@@ -94,11 +94,11 @@ function voile(
   distance: number,
 ): void {
   const alpha = 0.5 * (1 - distance * 0.7)
-  wash(ctx, [
+  reserve(ctx, [
     [x, y - taille * 2.1],
     [x + taille * 0.85, y - taille * 0.1],
     [x - taille * 0.15, y - taille * 0.1],
-  ], rng, { color: PIERRE_PALE, layers: 12, alpha: alpha / 12, spread: 0.05, jitter: 0.06 })
+  ], rng, 0.95 - distance * 0.45)
   dryStroke(ctx, [[x, y - taille * 2.2], [x, y]], taille * 0.1, rng, {
     color: ENCRE_SOMBRE,
     alpha: alpha * 0.8,
@@ -308,14 +308,38 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   })
 
   // Les voiles : deux au loin, minuscules, une plus près et plus franche.
+  // La réserve maîtresse : la bande de lumière juste sous l'horizon. C'est
+  // elle qui fait respirer tout le tableau — un plan d'eau sans clair franc
+  // reste une nappe de couleur.
+  //
+  // Posée AVANT les voiles : une réserve efface tout ce qui est déjà là, sans
+  // distinction. Appelée après, elle mangeait la coque des deux voiliers du
+  // fond, qui se retrouvaient à flotter sur du blanc.
+  reserve(ctx, [
+    [-w * 0.05, horizon + h * 0.01],
+    [w * 0.38, horizon + h * 0.005],
+    [w * 0.76, horizon + h * 0.012],
+    [w * 1.05, horizon + h * 0.008],
+    [w * 1.05, horizon + h * 0.024],
+    [w * 0.62, horizon + h * 0.03],
+    [w * 0.22, horizon + h * 0.022],
+    [-w * 0.05, horizon + h * 0.028],
+  ], rng, 0.7)
+
   voile(ctx, w * 0.3, horizon + h * 0.035, w * 0.035, rng, 0.75)
   voile(ctx, w * 0.68, horizon + h * 0.05, w * 0.045, rng, 0.6)
   voile(ctx, w * 0.44, h * 0.62, w * 0.075, rng, 0.15)
 
   // Éclats de lumière réservée sur les crêtes.
   stroke(ctx, houle(h * 0.55, 4, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.045, layers: 10 })
-  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
+  reserve(ctx, [
+    [w * 0.4, h * 0.494], [w * 0.52, h * 0.4875], [w * 0.84, h * 0.4835],
+    [w * 0.94, h * 0.489], [w * 0.84, h * 0.4945], [w * 0.52, h * 0.4985],
+  ], rng, 0.55)
+  reserve(ctx, [
+    [w * 0.05, h * 0.7645], [w * 0.16, h * 0.7575], [w * 0.42, h * 0.7535],
+    [w * 0.52, h * 0.759], [w * 0.42, h * 0.7645], [w * 0.16, h * 0.7685],
+  ], rng, 0.48)
 
   // La granulation de l'eau : les grains d'un pigment lourd se déposent dans
   // les creux du papier, d'autant plus dru que le lavis est profond. C'est ce

@@ -433,3 +433,43 @@ export function granulation(
   }
   ctx.restore()
 }
+
+/**
+ * LA RÉSERVE — le blanc du papier, gardé intact.
+ *
+ * En aquarelle on ne peint pas le blanc : on le RÉSERVE, on laisse le papier
+ * nu. Le moteur essayait jusqu'ici de le simuler par un lavis très pâle, ce
+ * qui ne donne jamais qu'un gris clair — en `multiply`, poser une couleur ne
+ * peut qu'assombrir. C'est la raison, longtemps cherchée ailleurs, pour
+ * laquelle les tableaux n'avaient aucune vraie lumière : il leur manquait
+ * simplement du blanc, et aucun réglage de pigment ne pouvait en fabriquer.
+ *
+ * La réponse est de ne rien poser. `destination-out` EFFACE le pigment déjà
+ * déposé et redécouvre le fond de page, qui est précisément le papier — c'est
+ * le seul blanc franc possible ici, et c'est exactement le geste du peintre.
+ *
+ * Deux règles d'emploi :
+ * - Appeler la réserve APRÈS les lavis qu'elle traverse, mais AVANT ce qui
+ *   doit rester par-dessus (une voile, une figure) : elle efface tout ce qui
+ *   est déjà là, sans distinction.
+ * - Lui donner un contour franchement allongé si on veut un fil de lumière.
+ *   `deform` arrondit un contour plat en galette, et une réserve trop compacte
+ *   se lit comme une plaque blanche flottante plutôt que comme un éclat.
+ */
+export function reserve(
+  ctx: CanvasRenderingContext2D,
+  base: Point[],
+  rng: () => number,
+  force = 1,
+): void {
+  const contour = deform(base, 3, 0.16, rng)
+  ctx.save()
+  ctx.globalCompositeOperation = 'destination-out'
+  ctx.globalAlpha = force
+  ctx.beginPath()
+  ctx.moveTo(contour[0][0], contour[0][1])
+  for (const [x, y] of contour.slice(1)) ctx.lineTo(x, y)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
+}
