@@ -28,6 +28,7 @@ export function HomeScreen() {
 
       <div className={styles.grid}>
         {GRADE_LEVELS.map((grade) => {
+          const nombre = getLevelsByGrade(grade.id).length
           const contenu = (
             <>
               <span className={styles.art}>
@@ -36,7 +37,9 @@ export function HomeScreen() {
               <span className={styles.ligne}>
                 <span className={styles.label}>{grade.label}</span>
                 {grade.enabled ? (
-                  <span className={styles.niveaux}>{getLevelsByGrade(grade.id).length} niveaux</span>
+                  <span className={styles.niveaux}>
+                    {nombre} niveau{nombre > 1 ? 'x' : ''}
+                  </span>
                 ) : (
                   <span className={styles.soon}>Bientôt disponible</span>
                 )}

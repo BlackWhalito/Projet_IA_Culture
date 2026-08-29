@@ -33,7 +33,6 @@ interface Palette {
   paleA: number
   ink: string
   inkO: number
-  inkW: number
   trait: string
 }
 
@@ -47,7 +46,7 @@ const PALETTES: Record<'vif' | 'brume', Palette> = {
     accent: '#7a9455', accentA: 0.44,
     appui: '#8d6aa8', appuiA: 0.24,
     pale: '#e6d9c4', paleA: 0.5,
-    ink: '#3f3542', inkO: 1, inkW: 2.6,
+    ink: '#3f3542', inkO: 1,
     trait: '#5d4574',
   },
   brume: {
@@ -56,7 +55,7 @@ const PALETTES: Record<'vif' | 'brume', Palette> = {
     accent: '#8d6aa8', accentA: 0.2,
     appui: '#c3b0d4', appuiA: 0.17,
     pale: '#e6d9c4', paleA: 0.3,
-    ink: '#4a3560', inkO: 0.95, inkW: 2.8,
+    ink: '#4a3560', inkO: 0.95,
     trait: '#9b86b3',
   },
 }
@@ -231,13 +230,6 @@ function decor(id: GradeId, p: Palette): ReactNode {
           {couches('lueur', ell(122, 32, 76, 22, p.pale), p.paleA + 0.3, ['aq-bord-2', 'aq-bord-3', 'aq-bord-4'])}
           {couches('sol', bande(54, 42, p.trait), p.solA + 0.26)}
           {couches('clair', courbe('M16,74 Q100,69 184,75', 3.2, PAPIER), 0.85, ['aq-bord-4', 'aq-bord-4', 'aq-bord-4'])}
-        </>
-      )
-    default:
-      return (
-        <>
-          {ciel}
-          {sol}
         </>
       )
   }
