@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from 'react'
 import clsx from 'clsx'
-import { FRANCE_CONTOUR_PATH, FRANCE_VIEWBOX, FRANCE_ZONES } from '../../content/maps/france'
+import { FRANCE_CONTOUR_PATH, FRANCE_CORSE_PATH, FRANCE_VIEWBOX, FRANCE_ZONES } from '../../content/maps/france'
 import type { MapZone } from '../../types/maps'
 import styles from './FranceMap.module.css'
 
@@ -46,9 +46,24 @@ export function FranceMap({
 
   return (
     <svg viewBox={FRANCE_VIEWBOX} className={styles.carte} role="img" aria-label="Carte de la France">
+      {/*
+        Deux couches par forme, seeds différents : c'est la règle des lavis de la
+        skill `aquarelle`, et c'est ce qui donne au bord son irrégularité de
+        pinceau plutôt qu'un aplat découpé.
+
+        Mais ici on prend les filtres **doux** (`aq-bord-4`, puis `aq-bord-3`),
+        pas les deux premiers. `aq-bord-1` déplace les pixels de ±15 unités de
+        viewBox ; or la Bretagne fait 36 unités de haut à sa pointe et le
+        Cotentin 35 de large. Sous le filtre fort, les deux presqu'îles
+        fondaient — et le tracé, lui, était juste. La règle générale : le
+        `scale` d'un bord aquarelle doit rester bien en dessous de la plus
+        petite dimension de la forme qu'il déforme.
+      */}
       <g className={styles.contourCouches}>
-        <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-1)" opacity={0.42} />
-        <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-2)" opacity={0.32} />
+        <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-4)" opacity={0.42} />
+        <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-3)" opacity={0.32} />
+        <path d={FRANCE_CORSE_PATH} className={styles.contourTrait} filter="url(#aq-bord-4)" opacity={0.42} />
+        <path d={FRANCE_CORSE_PATH} className={styles.contourTrait} filter="url(#aq-bord-3)" opacity={0.32} />
       </g>
 
       {fleuves.map((zone) => (

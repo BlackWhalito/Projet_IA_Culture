@@ -47,8 +47,13 @@ export const CP_GEOGRAPHIE: Notion[] = [
       },
       capsur: {
         carteId: 'france',
-        cibles: ['paris'],
-        secondesParCible: 6,
+        // Quatre cibles, pas une. Avec une seule ville, la manche durait six
+        // secondes et ne laissait pas le temps de regarder la carte — donc pas
+        // le temps de se repérer, qui est pourtant tout ce que ce jeu demande.
+        // Paris d'abord parce que c'est la notion, les trois autres pour que
+        // la carte se remplisse et qu'on situe la capitale par rapport au reste.
+        cibles: ['paris', 'marseille', 'bordeaux', 'strasbourg'],
+        secondesParCible: 8,
       },
     },
   },

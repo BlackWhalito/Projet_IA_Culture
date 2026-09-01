@@ -35,7 +35,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, transparent 0%, var(--violet-brume) 140%);
+  background: radial-gradient(
+    circle at center,
+    transparent 12%,
+    color-mix(in srgb, var(--violet-brume) 70%, var(--violet)) 92%
+  );
   opacity: 0;
   animation-name: refermer;
   animation-timing-function: linear;
@@ -47,19 +51,19 @@
     opacity: 0;
   }
   to {
-    opacity: 0.55;
+    opacity: 0.78;
   }
 }
 
 .brouillardStatique {
-  opacity: 0.2;
+  opacity: 0.28;
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .brouillard {
     animation: none;
-    opacity: 0.2;
+    opacity: 0.28;
   }
 }
 
