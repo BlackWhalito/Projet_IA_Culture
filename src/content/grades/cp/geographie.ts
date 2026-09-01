@@ -46,7 +46,10 @@ export const CP_GEOGRAPHIE: Notion[] = [
         correctIndex: 0,
       },
       capsur: {
-        consigne: 'Repère quatre villes françaises, en commençant par la capitale.',
+        // Ne jamais promettre d'ordre ici : `CapSurGame` mélange `cibles` à
+        // chaque partie. La consigne annonçait « en commençant par la capitale »
+        // et la première ville demandée était Marseille.
+        consigne: 'Repère quatre villes françaises sur la carte, dont la capitale.',
         carteId: 'france',
         // Quatre cibles, pas une. Avec une seule ville, la manche durait six
         // secondes et ne laissait pas le temps de regarder la carte — donc pas

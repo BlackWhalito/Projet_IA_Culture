@@ -4,6 +4,35 @@
 
 Ce document est le pendant de [niveau-1.md](niveau-1.md). Celui-là traite de **ce que les jeux demandent** (le contenu, trop facile pour un adulte). Celui-ci traite de **comment ils le demandent, et de ce qu'ils rendent en échange**. Les deux sont nécessaires : du contenu piégeux dans une carte blanche posée sur du beige ne sera pas immersif, et une belle mise en scène qui interroge « la vue → les yeux » n'apprendra rien.
 
+## Où en est ce plan
+
+*Mis à jour le 1er septembre 2026, après une première passe d'implémentation.*
+
+| Chantier | État |
+|---|---|
+| C1 · Mélanger les propositions du QCM | ✅ fait |
+| C2 · Réparer les trois contrats de sortie cassés | ✅ fait |
+| C3 · Un test pour les quatre jeux qui n'en avaient pas | ✅ fait — 101 tests au total |
+| C4 · Le retour qui explique l'erreur | ⬜ **à faire — le plus gros gain restant** |
+| C5 · Le bilan de fin qui récapitule | ⬜ à faire |
+| C6 · La consigne fictionnelle | ✅ fait — les six mécaniques ont leur fiction, les cinq notions du Niveau 1 leur objectif |
+| C7 · Un décor aquarelle par domaine | 🟡 partiel — seule La Rivière a son décor peint |
+| C8 · Cap sur : une France reconnaissable | ✅ fait — 72 points réels + spline, Corse, brouillard, 4 cibles |
+| C9 · La Rivière : lui donner sa rivière | 🟡 partiel — le décor est fait, le passage à 2-3 mots simultanés non |
+| C10 · Association : tracer le lien au doigt | ⬜ à faire |
+| C11 · La Frise : de vraies dates | 🟡 partiel — le refus immédiat d'une carte hors tour est fait, le contenu daté non |
+| C12 · Le Fil des jours : les trois correctifs | 🟡 partiel — on peut désormais perdre ; la règle affichée et les deltas de jauge restent à faire |
+
+**Ajouté hors plan : le son.** `src/engine/sound.ts`, entièrement synthétisé en Web
+Audio, aucun fichier audio dans le projet. Huit voix dans une pentatonique de do,
+pour que deux sons qui se chevauchent restent consonants. Il était listé comme
+hors périmètre ; il ne l'est plus.
+
+**Le constat qui reste après cette passe** : les mécaniques et l'habillage sont
+réparés, mais **quatre jeux sur cinq restent non pertinents pour un adulte parce
+que leur contenu est trivial**. Le prochain chantier n'est pas visuel, il est
+éditorial — c'est celui de [niveau-1.md](niveau-1.md).
+
 ## Ce que j'ai vu, jeu par jeu
 
 Le Niveau 1 enchaîne cinq jeux, chacun dans une carte blanche flottant sur un fond beige, sans décor, sans consigne, sans son. La session complète dure moins de trois minutes.
