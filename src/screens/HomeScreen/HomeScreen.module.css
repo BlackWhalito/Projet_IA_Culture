@@ -1,75 +1,42 @@
 .home {
   position: relative;
-  max-width: 720px;
+  z-index: 1;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4) var(--space-6);
-  text-align: center;
-}
-
-.sideArt {
-  display: none;
-  position: fixed;
-  top: 0;
-  z-index: 0;
-  align-items: center;
-  width: 15vw;
-  min-width: 110px;
-  max-width: 170px;
-  height: 100vh;
-  pointer-events: none;
-}
-
-.sideArt canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 80vh;
-}
-
-.sideArtLeft {
-  left: 0;
-  justify-content: flex-start;
-}
-
-.sideArtRight {
-  right: 0;
-  justify-content: flex-end;
-}
-
-@media (min-width: 1100px) {
-  .sideArt {
-    display: flex;
-  }
-}
-
-.hero {
-  display: block;
-  width: 100%;
-  max-width: 460px;
-  height: auto;
-  margin: 0 auto calc(var(--space-4) * -1);
+  padding: var(--space-6) var(--space-4) var(--space-6);
 }
 
 .title {
-  position: relative;
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 2.5rem;
+  font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+  line-height: 1.06;
   color: var(--violet-profond);
 }
 
 .subtitle {
-  position: relative;
   margin: var(--space-2) 0 0;
+  font-size: 1.125rem;
   color: var(--color-text-muted);
 }
 
+/*
+ * Deux colonnes au téléphone, trois dès qu'il y a la place. Trois colonnes
+ * imposées partout donneraient des cartes de 106px de large sur un écran de
+ * 390 : la vignette n'y serait plus lisible.
+ */
 .grid {
-  position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
   margin-top: var(--space-5);
+}
+
+@media (min-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
 }
 
 .card {
@@ -77,48 +44,97 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: var(--papier);
+  background: var(--color-surface);
   border: 2px solid var(--papier-ombre);
   text-decoration: none;
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
+/* La vignette est en paysage (200 x 88), plus en carré : c'est ce qui permet
+   à la grille 3x3 de tenir dans un écran sans faire 1200px de haut. */
 .art {
   display: block;
   width: 100%;
-  aspect-ratio: 1;
+}
+
+.ligne {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
 }
 
 .label {
-  padding: var(--space-2) var(--space-2) 0;
-  font-size: 1.15rem;
+  font-family: var(--font-family-heading);
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--encre);
+  line-height: 1;
+  color: var(--violet-profond);
 }
 
 .soon {
-  padding: var(--space-1) var(--space-2) var(--space-2);
-  font-size: 0.75rem;
-  color: var(--violet-profond);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* Vert assombri : le vert olive de la palette tombe sous 4.5:1 sur la
+   surface crème, ce texte serait illisible en plein soleil. */
+.niveaux {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #4f6b33;
 }
 
 .enabled {
   cursor: pointer;
   border-color: var(--color-domain-sciences);
+  box-shadow: 0 3px 14px rgb(93 69 116 / 15%);
 }
 
 .enabled:active {
   transform: scale(0.97);
 }
 
+.enabled .label {
+  color: var(--encre);
+}
+
 .disabled {
   cursor: default;
 }
 
-.disabled .art {
-  opacity: 0.75;
+/*
+ * Le rivage : l'unique tableau de la page, ancré en bas et débordant de 70px
+ * sous son bord — le bas du rocher est donc rogné, ce qui est sans
+ * conséquence puisqu'il sortait déjà du cadre, et la fillette assise dessus
+ * garde son dégagement sous la dernière rangée de cartes.
+ *
+ * Le masque dissout son bord haut dans le papier. Sans lui, le tableau
+ * s'arrêterait sur une horizontale franche et se lirait comme une image
+ * collée sur la page.
+ */
+.rivage {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -150px;
+  z-index: -1;
+  height: clamp(320px, 54vh, 620px);
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0) 0%, rgb(0 0 0) 40%);
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0) 0%, rgb(0 0 0) 40%);
 }
 
-.disabled .label {
-  color: var(--violet-profond);
+/*
+ * `!important` à contrecœur, et pour une raison précise : `WatercolorScene`
+ * pose `height: auto` en style inline, qui l'emporte sur ce module. Or le
+ * canvas doit ici remplir un cadre de hauteur fixe et se laisser rogner, pas
+ * dicter sa propre hauteur.
+ */
+.rivage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center bottom;
 }

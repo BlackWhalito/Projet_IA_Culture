@@ -1,8 +1,7 @@
 import type { PaintScene } from '../../components/watercolor/WatercolorScene'
-import { dryStroke, polygon, stroke, wash } from '../../components/watercolor/engine'
+import { dryStroke, granulation, hardEdge, polygon, reserve, stroke, wash } from '../../components/watercolor/engine'
 import type { Point } from '../../components/watercolor/engine'
 import {
-  arcade,
   column,
   dome,
   facade,
@@ -95,11 +94,11 @@ function voile(
   distance: number,
 ): void {
   const alpha = 0.5 * (1 - distance * 0.7)
-  wash(ctx, [
+  reserve(ctx, [
     [x, y - taille * 2.1],
     [x + taille * 0.85, y - taille * 0.1],
     [x - taille * 0.15, y - taille * 0.1],
-  ], rng, { color: PIERRE_PALE, layers: 12, alpha: alpha / 12, spread: 0.05, jitter: 0.06 })
+  ], rng, 0.95 - distance * 0.45)
   dryStroke(ctx, [[x, y - taille * 2.2], [x, y]], taille * 0.1, rng, {
     color: ENCRE_SOMBRE,
     alpha: alpha * 0.8,
@@ -207,32 +206,27 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // vidant vers l'horizon où le papier reste presque nu. C'est cette bande
   // claire juste au-dessus de l'eau qui donne la lumière du tableau.
   gradedWash(ctx, -w * 0.05, 0, w * 1.05, horizon, [
-    { at: 0, color: VIOLET, alpha: 0.5 },
-    { at: 0.45, color: VIOLET_BRUME, alpha: 0.32 },
-    { at: 0.8, color: SABLE, alpha: 0.16 },
-    { at: 1, color: SABLE, alpha: 0.05 },
+    { at: 0, color: VIOLET, alpha: 0.36 },
+    { at: 0.42, color: VIOLET_BRUME, alpha: 0.26 },
+    { at: 0.78, color: SABLE, alpha: 0.18 },
+    { at: 1, color: SABLE, alpha: 0.06 },
   ])
 
   // Trois nuages, décalés et de tailles franchement inégales — alignés ou
   // de même taille, ils redeviennent une frise décorative.
-  cloud(ctx, w * 0.32, h * 0.13, w * 0.7, h * 0.06, rng, LUMIERE, {
+  cloud(ctx, w * 0.34, h * 0.075, w * 0.52, h * 0.055, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET,
-    alpha: 0.18,
+    alpha: 0.17,
     highlight: PAPIER,
   })
-  cloud(ctx, w * 0.78, h * 0.2, w * 0.5, h * 0.038, rng, LUMIERE, {
+  cloud(ctx, w * 0.86, h * 0.18, w * 0.34, h * 0.03, rng, LUMIERE, {
     light: PIERRE_PALE,
     shade: VIOLET_BRUME,
-    alpha: 0.13,
+    alpha: 0.11,
     highlight: PAPIER,
   })
-  cloud(ctx, w * 0.5, h * 0.28, w * 0.85, h * 0.022, rng, LUMIERE, {
-    light: SABLE,
-    shade: VIOLET_BRUME,
-    alpha: 0.09,
-    highlight: PAPIER,
-  })
+
 
   // La rive lointaine : des silhouettes très pâles, à peine posées, avec un
   // campanile qui dépasse — assez pour que l'horizon soit un lieu.
@@ -277,12 +271,27 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // opacité comparable : il ne passe qu'une fois. Les valeurs doivent donc
   // être nettement plus hautes qu'on ne l'attend.
   gradedWash(ctx, -w * 0.05, horizon, w * 1.05, h * 1.02, [
-    { at: 0, color: BLEU_CLAIR, alpha: 0.22 },
-    { at: 0.26, color: TURQUOISE, alpha: 0.42 },
-    { at: 0.56, color: BLEU, alpha: 0.56 },
-    { at: 0.8, color: VIOLET, alpha: 0.6 },
-    { at: 1, color: VIOLET_PROFOND, alpha: 0.72 },
+    { at: 0, color: SABLE, alpha: 0.07 },
+    { at: 0.16, color: BLEU_CLAIR, alpha: 0.16 },
+    { at: 0.42, color: TURQUOISE, alpha: 0.34 },
+    { at: 0.7, color: BLEU, alpha: 0.54 },
+    { at: 0.88, color: VIOLET_PROFOND, alpha: 0.66 },
+    { at: 1, color: ENCRE_SOMBRE, alpha: 0.5 },
   ])
+
+  // Le bord de flaque à l'horizon : là où la flaque du ciel s'est arrêtée, le
+  // pigment a migré vers sa limite et y a laissé une ligne dense. Une seule
+  // ligne dure dans tout le haut du tableau suffit à réveiller l'ensemble.
+  hardEdge(ctx, [
+    [w * 0.02, horizon + h * 0.0015],
+    [w * 0.2, horizon - h * 0.0018],
+    [w * 0.46, horizon + h * 0.001],
+  ], 1.6, rng, { color: VIOLET, alpha: 0.22 })
+  hardEdge(ctx, [
+    [w * 0.62, horizon - h * 0.001],
+    [w * 0.86, horizon + h * 0.0016],
+    [w * 1.0, horizon],
+  ], 1.4, rng, { color: VIOLET, alpha: 0.18 })
 
   // Les reflets de la rive, tirés verticalement juste sous l'horizon.
   reflection(ctx, w * 0.24, w * 0.3, horizon, h * 0.045, VIOLET_BRUME, rng, 5)
@@ -299,21 +308,59 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   })
 
   // Les voiles : deux au loin, minuscules, une plus près et plus franche.
+  // La réserve maîtresse : la bande de lumière juste sous l'horizon. C'est
+  // elle qui fait respirer tout le tableau — un plan d'eau sans clair franc
+  // reste une nappe de couleur.
+  //
+  // Posée AVANT les voiles : une réserve efface tout ce qui est déjà là, sans
+  // distinction. Appelée après, elle mangeait la coque des deux voiliers du
+  // fond, qui se retrouvaient à flotter sur du blanc.
+  reserve(ctx, [
+    [-w * 0.05, horizon + h * 0.01],
+    [w * 0.38, horizon + h * 0.005],
+    [w * 0.76, horizon + h * 0.012],
+    [w * 1.05, horizon + h * 0.008],
+    [w * 1.05, horizon + h * 0.024],
+    [w * 0.62, horizon + h * 0.03],
+    [w * 0.22, horizon + h * 0.022],
+    [-w * 0.05, horizon + h * 0.028],
+  ], rng, 0.7)
+
   voile(ctx, w * 0.3, horizon + h * 0.035, w * 0.035, rng, 0.75)
   voile(ctx, w * 0.68, horizon + h * 0.05, w * 0.045, rng, 0.6)
   voile(ctx, w * 0.44, h * 0.62, w * 0.075, rng, 0.15)
 
   // Éclats de lumière réservée sur les crêtes.
   stroke(ctx, houle(h * 0.55, 4, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.045, layers: 10 })
-  glint(ctx, w * 0.66, h * 0.49, w * 0.14, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.26, h * 0.76, w * 0.12, h * 0.018, rng, 0.45)
+  reserve(ctx, [
+    [w * 0.4, h * 0.494], [w * 0.52, h * 0.4875], [w * 0.84, h * 0.4835],
+    [w * 0.94, h * 0.489], [w * 0.84, h * 0.4945], [w * 0.52, h * 0.4985],
+  ], rng, 0.55)
+  reserve(ctx, [
+    [w * 0.05, h * 0.7645], [w * 0.16, h * 0.7575], [w * 0.42, h * 0.7535],
+    [w * 0.52, h * 0.759], [w * 0.42, h * 0.7645], [w * 0.16, h * 0.7685],
+  ], rng, 0.48)
+
+  // La granulation de l'eau : les grains d'un pigment lourd se déposent dans
+  // les creux du papier, d'autant plus dru que le lavis est profond. C'est ce
+  // gradient de densité, plus que le piqueté lui-même, qui fait le pigment.
+  granulation(ctx, 0, horizon + h * 0.12, w, h * 0.85, 520, rng, {
+    color: VIOLET_PROFOND,
+    alpha: 0.2,
+  })
 
   // Une profondeur qui referme le bas du tableau.
-  wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.9, h * 0.14, 11, 0, rng), rng, {
+  wash(ctx, polygon(w * 0.5, h * 1.06, w * 0.95, h * 0.2, 11, 0, rng), rng, {
     color: VIOLET_PROFOND,
     layers: 20,
-    alpha: 0.028,
+    alpha: 0.055,
     spread: 0.16,
+  })
+  wash(ctx, polygon(w * 0.5, h * 1.12, w * 0.8, h * 0.13, 9, 0, rng), rng, {
+    color: ENCRE_SOMBRE,
+    layers: 14,
+    alpha: 0.045,
+    spread: 0.2,
   })
 
   // Le rocher et l'enfant : premier plan qui ancre le regard, peint en
@@ -333,7 +380,7 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // qui fusionnait avec le rocher plutôt que de s'en détacher. `shade`
   // garde ENCRE_SOMBRE pour l'ombre portée, mais la face éclairée reste
   // assez claire pour qu'une figure posée dessus s'en distingue encore.
-  const rockTop = rocher(ctx, w * 0.76, h * 1.02, w * 0.5, h * 0.15, rng, LUMIERE, {
+  const rockTop = rocher(ctx, w * 0.64, h * 1.0, w * 0.72, h * 0.2, rng, LUMIERE, {
     stone: VIOLET_PROFOND,
     shade: ENCRE_SOMBRE,
   })
@@ -341,250 +388,168 @@ export const oceanScene: PaintScene = (ctx, w, h, rng) => {
   // dans la masse du rocher, la silhouette (torse, genoux) se fondait dans
   // sa teinte la plus sombre. Contre le ciel, elle reste nette quelle que
   // soit la face du rocher sur laquelle tombe le sommet.
-  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.003, h * 0.05, rng, LUMIERE, {
+  childWatchingSea(ctx, rockTop[0], rockTop[1] + h * 0.004, h * 0.085, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: OCRE,
     accent: ENCRE_SOMBRE,
   })
 }
-
 /**
- * Droite — la cité engloutie. Une barque minuscule s'avance vers des tours
- * qui sortent à peine de l'eau, dans une brume ocre. L'échelle fait tout le
- * sujet : la barque doit rester petite pour que la ville paraisse immense.
+ * Droite — la cité engloutie. Un temple en ruine au premier plan, un dôme
+ * encore debout, et l'eau qui a tout englouti jusqu'au quai.
+ *
+ * Réécrite après l'avoir enfin regardée à sa taille d'affichage réelle
+ * (317px de large, pas 170) : la version précédente se lisait comme une
+ * skyline moderne — une dizaine de tours fines, à angles droits, percées de
+ * fenêtres rectangulaires régulièrement espacées. Ce sont ces fenêtres, plus
+ * que tout le reste, qui disaient « immeuble de bureaux » : l'Antiquité n'a
+ * pas de grille de fenêtres, elle a des ouvertures rares et sombres.
+ *
+ * Trois décisions en découlent, et elles priment sur l'envie d'ajouter de la
+ * matière (voir `references/peinture-generative.md`, « le piège fondateur ») :
+ *
+ * 1. **Moins de masses, plus grandes.** Cinq volumes lisibles valent mieux que
+ *    dix silhouettes qui se confondent en peigne.
+ * 2. **Un temple, pas une colonnade éparse.** Deux fûts épais surmontés d'un
+ *    fronton, assez grands pour être lus d'un coup : c'est le repère le plus
+ *    univoque de l'Antiquité, bien plus qu'une colonne isolée au loin.
+ * 3. **Des noirs, enfin.** La version d'avant n'avait aucune valeur dense.
+ *    Quelques ouvertures sombres et la coque de la barque suffisent — étalé,
+ *    le noir alourdit, concentré il structure.
  */
 export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
-  // Ciel : même construction que la lagune — un dégradé continu qui se vide
-  // vers le bas, et des nuages structurés. C'est ce qui fait que les deux
-  // tableaux se répondent au lieu de coexister.
-  //
-  // Confiné au ciel : en `multiply`, rien n'occulte rien, un lavis qui
-  // déborde sur la ville reste visible À TRAVERS les façades et se lit
-  // comme une écharpe qui traverse les bâtiments.
-  gradedWash(ctx, -w * 0.05, 0, w * 1.05, h * 0.34, [
-    { at: 0, color: OCRE, alpha: 0.34 },
-    { at: 0.5, color: VIOLET_BRUME, alpha: 0.26 },
-    { at: 0.85, color: SABLE, alpha: 0.12 },
-    { at: 1, color: SABLE, alpha: 0.04 },
+  const quai = h * 0.68
+
+  // Ciel : un dégradé continu, chaud en haut, qui se vide vers l'horizon.
+  // Confiné au ciel — en `multiply`, un lavis qui déborde sur la ville reste
+  // visible À TRAVERS les façades et se lit comme une écharpe.
+  gradedWash(ctx, -w * 0.05, 0, w * 1.05, h * 0.4, [
+    { at: 0, color: OCRE, alpha: 0.24 },
+    { at: 0.4, color: VIOLET_BRUME, alpha: 0.28 },
+    { at: 0.8, color: SABLE, alpha: 0.16 },
+    { at: 1, color: SABLE, alpha: 0.05 },
   ])
-  // `light: VIOLET_BRUME`, pas `PIERRE_PALE` comme sur la lagune : ce ciel
-  // est chaud (OCRE/SABLE) alors que celui de la lagune est froid (VIOLET).
-  // PIERRE_PALE, un beige pâle, s'y fondait presque entièrement — le corps
-  // du nuage restait quasi invisible et son highlight, pourtant bien posé
-  // dessus, se lisait comme flottant sur du ciel nu. Un lavis froid tranche
-  // sur un ciel chaud là où un lavis chaud s'y noie.
-  cloud(ctx, w * 0.62, h * 0.11, w * 0.66, h * 0.045, rng, LUMIERE, {
+
+  // Trois nuages franchement inégaux, décalés, à des hauteurs différentes.
+  // La version d'avant en alignait de même taille et de même hauteur : à
+  // l'écran, une frise de festons identiques, le contraire d'un ciel.
+  cloud(ctx, w * 0.68, h * 0.08, w * 0.5, h * 0.052, rng, LUMIERE, {
     light: VIOLET_BRUME,
     shade: VIOLET,
     alpha: 0.16,
     highlight: PAPIER,
   })
-  cloud(ctx, w * 0.22, h * 0.2, w * 0.5, h * 0.026, rng, LUMIERE, {
-    light: SABLE,
-    shade: VIOLET_BRUME,
+  cloud(ctx, w * 0.2, h * 0.2, w * 0.32, h * 0.028, rng, LUMIERE, {
+    light: VIOLET_BRUME,
+    shade: VIOLET,
     alpha: 0.1,
     highlight: PAPIER,
   })
 
-  // La ville. Chaque bâtiment est un vrai volume d'architecture — façade
-  // avec ses fenêtres, corniche, toit en pente ou dôme — et non plus une
-  // masse effilée. `distance` (0 = devant, 1 = horizon) gouverne à la fois
-  // le contraste et la netteté du trait.
-  const quai = h * 0.66
+  // Peu d'éléments, bien séparés. Les versions précédentes empilaient façades
+  // lointaines, arcades isolées et éclats de pierre : sans mur derrière elles,
+  // les arches se lisaient comme des pierres tombales, et l'ensemble redevenait
+  // un amas de petits blocs pâles — le défaut même qu'on cherchait à quitter.
+  // Ici : un temple, un dôme, deux gisants. Rien d'autre.
 
-  // Fond lointain : deux silhouettes très pâles, sans détail, qui creusent
-  // l'espace derrière la ville.
-  facade(ctx, w * 0.16, h * 0.42, quai, w * 0.16, rng, LUMIERE, {
-    stone: VIOLET_BRUME,
+  // Le dôme, posé sur un socle bas et large plutôt que sur une tour. Un
+  // rectangle vertical sous une coupole redonne un bâtiment coiffé.
+  dome(ctx, w * 0.82, h * 0.47, w * 0.15, rng, LUMIERE, {
+    stone: PIERRE_PALE,
     shade: VIOLET,
-    distance: 0.85,
+    distance: 0.45,
+  })
+  ruinFacade(ctx, w * 0.82, h * 0.57, quai, w * 0.19, rng, LUMIERE, {
+    stone: PIERRE_PALE,
+    shade: VIOLET_PROFOND,
+    moss: VERT,
+    distance: 0.45,
     floors: 0,
     bays: 0,
-  })
-  facade(ctx, w * 0.88, h * 0.46, quai, w * 0.14, rng, LUMIERE, {
-    stone: VIOLET_BRUME,
-    shade: VIOLET,
-    distance: 0.8,
-    floors: 0,
-    bays: 0,
+    decay: 0.75,
   })
 
-  // Plan intermédiaire : le campanile, qui donne la verticale dominante.
-  // Une cité engloutie n'a plus de toits — `ruinFacade` remplace le
-  // toit en pente et la corniche par un sommet rongé, brisé par le temps
-  // plutôt que par l'eau qui l'a fait sombrer.
-  ruinFacade(ctx, w * 0.3, h * 0.2, quai, w * 0.13, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    moss: VERT,
-    distance: 0.4,
-    floors: 4,
-    bays: 2,
-  })
-
-  // Un fragment de colonnade brisée, entre le campanile et le dôme : le
-  // repère qui dit « Antiquité », pas seulement « vieux » — une façade
-  // rongée peut aussi bien être une usine abandonnée. Trois colonnes,
-  // cassures inégales, une seule encore couronnée de son chapiteau.
-  // Rayons doublés par rapport au premier essai : à la taille d'affichage
-  // réelle du canvas (220px de source, réduit encore par le CSS), un rayon
-  // sous ~0.02 * w tombe sous le seuil de lisibilité — vérifié à l'échelle
-  // réelle, pas seulement sur une capture zoomée qui masque le problème.
-  column(ctx, w * 0.37, quai, h * 0.22, w * 0.024, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: VIOLET_PROFOND,
-    distance: 0.35,
-    broken: true,
-  })
-  column(ctx, w * 0.425, quai, h * 0.16, w * 0.022, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: VIOLET_PROFOND,
-    distance: 0.38,
-    broken: true,
-  })
-  column(ctx, w * 0.48, quai, h * 0.27, w * 0.026, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.32,
-    broken: false,
-  })
-
-  // Un tambour effondré, à moitié submergé au bord de l'eau — la colonne
-  // qui n'a pas tenu, contrepoint au premier plan de celles qui tiennent
-  // encore debout au loin.
-  fallenColumn(ctx, w * 0.19, quai - h * 0.006, w * 0.15, w * 0.018, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.12,
-  })
-
-  // Le dôme, contrepoint rond d'une skyline sinon toute en verticales — le
-  // seul volume encore intact au milieu des ruines, ce qui le rend d'autant
-  // plus frappant. Ses murs, eux, ont vieilli comme les autres.
-  dome(ctx, w * 0.56, h * 0.4, w * 0.11, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: VIOLET,
-    distance: 0.5,
-  })
-  ruinFacade(ctx, w * 0.56, h * 0.4, quai, w * 0.17, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: VIOLET_PROFOND,
-    moss: VERT,
-    distance: 0.5,
-    floors: 2,
-    bays: 3,
-    decay: 0.3,
-  })
-
-  // Premier plan à droite : la grande masse d'ombre, celle qui porte le
-  // contraste du tableau. Son arcade, trouée de quelques arches
-  // effondrées, donne le rythme brisé d'une colonnade en ruine.
-  ruinFacade(ctx, w * 0.82, h * 0.33, quai, w * 0.3, rng, LUMIERE, {
-    stone: VIOLET,
-    shade: VIOLET_PROFOND,
-    moss: VERT,
-    distance: 0.08,
-    floors: 3,
-    bays: 3,
-  })
-  // Resserrée sur la droite (`w*0.85` à `w*0.97`, 2 arches au lieu de 4) :
-  // à sa portée d'origine (`w*0.68` à `w*0.97`), une arche tombait presque
-  // exactement sur le fronton voisin ajouté plus bas — même profondeur,
-  // rien pour les hiérarchiser, la colonne se lisait traversée par l'arche
-  // plutôt que comme un fût distinct. Ce sous-chantier a la priorité sur la
-  // largeur de l'arcade.
-  arcade(ctx, w * 0.85, w * 0.97, h * 0.55, quai, 2, rng, LUMIERE, 0.15, 0.22)
-
-  // Un fronton porté par deux colonnes, planté au premier plan — colonnes
-  // et triangle, le repère le plus univoque de l'Antiquité gréco-romaine,
-  // plus encore qu'une colonnade isolée. Placé ici plutôt que dans le
-  // groupe de colonnes plus loin : cette zone est la seule assez dégagée
-  // pour deux fûts nettement espacés. Plus clair (PIERRE_CHAUDE) que la
-  // masse violette derrière lui, pour s'en détacher plutôt que s'y fondre.
+  // LE TEMPLE — le sujet, et le seul.
   //
-  // Plusieurs essais ratés avant ces proportions et cette position : des
-  // colonnes hauteur/rayon ~12:1 (empruntées telles quelles à la colonne
-  // solitaire voisine) donnaient un mât fin coiffé d'un chapeau pointu,
-  // jamais un temple — un vrai fût antique reste autour de 6-8:1. Deux
-  // fûts trop rapprochés fusionnaient en un seul bloc. Centré sur `w*0.88`,
-  // le groupe tombait sur la silhouette lointaine du fond (`facade()` de
-  // « Fond lointain », plus haut) puis, décalé, sur une arche de l'arcade
-  // voisine — en `multiply`, rien n'occulte rien, ces teintes ressortaient
-  // à travers la colonne et le fronton censés être devant. Et à la taille
-  // d'affichage réelle du tableau (~170px CSS de large), la première
-  // version restait trop petite pour se lire comme « colonnes + triangle »
-  // plutôt qu'une texture parmi d'autres sur la façade sombre. `yBase` du
-  // fronton remonte du rayon des chapiteaux, pas du fût nu, pour coiffer
-  // les colonnes chapiteau compris.
-  column(ctx, w * 0.65, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.1,
-    broken: false,
-  })
-  column(ctx, w * 0.81, quai, h * 0.27, w * 0.048, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.1,
-    broken: false,
-  })
-  pediment(ctx, w * 0.73, quai - h * 0.27 - w * 0.048 * 0.55, w * 0.285, h * 0.022, rng, LUMIERE, {
-    stone: PIERRE_CHAUDE,
-    shade: VIOLET_PROFOND,
-    distance: 0.1,
-  })
-
-  // Premier plan à gauche : une façade claire, presque du papier nu, pour
-  // que la masse sombre de droite ait quelque chose à quoi s'opposer —
-  // moins rongée que les autres (`decay` réduit), pour que toute la ville
-  // ne casse pas à la même hauteur.
-  ruinFacade(ctx, w * 0.08, h * 0.5, quai, w * 0.2, rng, LUMIERE, {
-    stone: PIERRE_PALE,
-    shade: VIOLET_BRUME,
-    moss: VERT,
-    distance: 0.15,
-    floors: 2,
-    bays: 2,
-    decay: 0.32,
-  })
-
-  // Les reflets : tirés vers le bas en traits verticaux, puis cassés par des
-  // rides horizontales. Un reflet qui ne serait qu'une copie délavée reste
-  // une tache ; ce sont les cassures qui en font de l'eau.
-  for (const [cx, largeur, color, longueur] of [
-    [0.3, 0.13, PIERRE_CHAUDE, 0.16],
-    [0.56, 0.17, PIERRE_PALE, 0.13],
-    [0.82, 0.3, VIOLET_PROFOND, 0.15],
-    [0.08, 0.2, PIERRE_PALE, 0.12],
-  ] as Array<[number, number, string, number]>) {
-    reflection(ctx, w * cx, w * largeur, quai, h * longueur, color, rng, 9)
+  // Le verdict était « ça fait juste des immeubles » : c'est qu'une ruine
+  // antique ne se lit pas à ses murs mais à ses COLONNES. Quatre fûts très
+  // espacés — deux encore debout sous leur fronton, deux rompus de part et
+  // d'autre. C'est l'inégalité des hauteurs, et le ciel visible ENTRE les
+  // fûts, qui font la ruine ; serrés, ils fusionnent en un bloc rayé.
+  const futR = w * 0.045
+  const colonnade: Array<[number, number, boolean]> = [
+    [0.12, 0.12, true],
+    [0.32, 0.25, false],
+    [0.54, 0.25, false],
+    [0.72, 0.165, true],
+  ]
+  for (const [fx, fh, cassee] of colonnade) {
+    column(ctx, w * fx, quai, h * fh, futR, rng, LUMIERE, {
+      stone: cassee ? PIERRE_CHAUDE : PIERRE_PALE,
+      shade: VIOLET_PROFOND,
+      distance: 0.08,
+      broken: cassee,
+    })
   }
 
-  // L'eau, tenue sous la ligne de quai pour la même raison que le ciel :
-  // en `multiply`, une bande d'eau qui remonte trop haut traverse
-  // visiblement les façades.
+  // Le fronton ne coiffe QUE les deux fûts entiers : un temple dont la moitié
+  // s'est effondrée. Complet, il dirait « monument intact », l'inverse du sujet.
+  pediment(ctx, w * 0.43, quai - h * 0.25 - futR * 1.05, w * 0.34, h * 0.03, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.08,
+  })
+
+  // Les tambours couchés : une colonne qui tombe se brise à ses jointures,
+  // elle ne reste jamais entière. C'est le sol jonché qui achève de dire la
+  // ruine — mais deux gisants suffisent, au-delà on refait un amas.
+  fallenColumn(ctx, w * 0.24, quai - h * 0.006, w * 0.2, w * 0.028, rng, LUMIERE, {
+    stone: PIERRE_CHAUDE,
+    shade: VIOLET_PROFOND,
+    distance: 0.06,
+  })
+  fallenColumn(ctx, w * 0.64, quai - h * 0.014, w * 0.14, w * 0.02, rng, LUMIERE, {
+    stone: PIERRE_PALE,
+    shade: VIOLET_PROFOND,
+    distance: 0.2,
+  })
+
+  // Les reflets : tirés vers le bas puis cassés par des rides. Un reflet qui
+  // ne serait qu'une copie délavée reste une tache ; ce sont les cassures qui
+  // en font de l'eau. Raccourcis par rapport à la version d'avant, où ils
+  // descendaient si bas qu'ils se lisaient comme des rayures verticales.
+  for (const [cx, largeur, color, longueur] of [
+    [0.1, 0.28, VIOLET_PROFOND, 0.075],
+    [0.56, 0.46, PIERRE_CHAUDE, 0.06],
+    [0.78, 0.26, PIERRE_PALE, 0.055],
+  ] as Array<[number, number, string, number]>) {
+    reflection(ctx, w * cx, w * largeur, quai, h * longueur, color, rng, 8)
+  }
+
+  // L'eau, tenue sous la ligne de quai pour la même raison que le ciel.
   gradedWash(ctx, -w * 0.05, quai, w * 1.05, h * 1.02, [
-    { at: 0, color: BLEU_CLAIR, alpha: 0.26 },
-    { at: 0.35, color: BLEU, alpha: 0.46 },
-    { at: 0.72, color: VIOLET, alpha: 0.56 },
-    { at: 1, color: VIOLET_PROFOND, alpha: 0.68 },
+    { at: 0, color: SABLE, alpha: 0.1 },
+    { at: 0.2, color: BLEU_CLAIR, alpha: 0.2 },
+    { at: 0.46, color: TURQUOISE, alpha: 0.28 },
+    { at: 0.7, color: BLEU, alpha: 0.4 },
+    { at: 1, color: VIOLET_PROFOND, alpha: 0.52 },
   ])
-  // Les rides, en perspective comme sur la lagune.
-  ripples(ctx, 0, w, quai + h * 0.01, h * 1.0, 26, rng, {
+  // Les rides, en perspective : serrées près du quai, plus rares et plus
+  // marquées au premier plan. C'est cette variation d'échelle qui couche le
+  // plan d'eau — des touches de taille constante feraient lire un mur.
+  ripples(ctx, 0, w, quai + h * 0.012, h * 1.0, 30, rng, {
     color: BLEU,
     accent: VIOLET_PROFOND,
   })
-  stroke(ctx, houle(h * 0.72, 3, w * 0.8, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
-  // Deux éclats de lumière francs sur l'eau — le papier qui perce net,
-  // pas seulement un voile pâle.
-  glint(ctx, w * 0.68, h * 0.73, w * 0.12, h * 0.016, rng, 0.5)
-  glint(ctx, w * 0.22, h * 0.88, w * 0.1, h * 0.014, rng, 0.45)
+  stroke(ctx, houle(h * 0.78, 3, w * 0.9, rng), 2, rng, { color: PAPIER, alpha: 0.04, layers: 9 })
 
-  // La barque : petite, décalée, avec sa voile et son sillage.
-  const bx = w * 0.32
-  const by = h * 0.75
-  const s = w * 0.055
+  // La barque : petite, décalée, avec sa voile et son sillage. C'est elle qui
+  // donne l'échelle — sans objet de taille connue, la ville n'est pas immense,
+  // elle est juste dessinée.
+  const bx = w * 0.34
+  const by = h * 0.84
+  const s = w * 0.05
   wash(ctx, [
     [bx - s, by],
     [bx + s, by],
@@ -599,7 +564,7 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
   dryStroke(ctx, [[bx, by - s * 2], [bx, by]], 1.4, rng, { color: ENCRE_SOMBRE, alpha: 0.5, layers: 3 })
   dryStroke(ctx, [[bx - s, by], [bx + s * 0.6, by + s * 0.5]], 1.6, rng, {
     color: ENCRE_SOMBRE,
-    alpha: 0.4,
+    alpha: 0.45,
     layers: 2,
   })
   stroke(ctx, [[bx - s * 1.6, by + s * 0.7], [bx + s * 2.4, by + s * 0.55]], 2.4, rng, {
@@ -607,15 +572,15 @@ export const citeEngloutieScene: PaintScene = (ctx, w, h, rng) => {
     alpha: 0.045,
     layers: 10,
   })
-  // Un éclat réservé est toujours un trait fin, jamais une nappe — voir
-  // `glint()`. Une couleur saturée (essayé ici avec `BLEU_CLAIR`) se lisait
-  // comme une tache posée sur l'eau, pas comme un reflet ; une forme ronde
-  // (essayé ensuite avec `highlight()`) se lisait comme un galet flottant.
-  glint(ctx, w * 0.6, h * 0.72, w * 0.1, h * 0.014, rng, 0.4)
-  glint(ctx, w * 0.4, h * 0.9, w * 0.12, h * 0.016, rng, 0.35)
+
+  // Éclats de lumière réservée : toujours des traits fins, jamais des nappes.
+  // Une couleur saturée se lirait comme une tache posée sur l'eau, et une
+  // forme ronde comme un galet flottant — les deux ont déjà été essayées.
+  glint(ctx, w * 0.66, h * 0.75, w * 0.16, h * 0.006, rng, 0.45)
+  glint(ctx, w * 0.24, h * 0.92, w * 0.14, h * 0.005, rng, 0.4)
 
   // Un dernier voile vert-de-gris sur l'eau basse, pour le côté submergé.
-  wash(ctx, polygon(w * 0.5, h * 0.9, w * 0.7, h * 0.1, 10, 0, rng), rng, {
+  wash(ctx, polygon(w * 0.5, h * 0.95, w * 0.75, h * 0.06, 10, 0, rng), rng, {
     color: VERT,
     layers: 14,
     alpha: 0.016,
@@ -651,14 +616,14 @@ export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
   // `verificateur` : la lecture ne se lisait plus, seul le contour du
   // livre restait visible. `girlWriting`, juste à côté, pose le même
   // `PAPIER` sur `VIOLET` (nettement plus saturé) sans ce problème.
-  adultReading(ctx, w * 0.14, h * 0.74, h * 0.24, rng, LUMIERE, {
+  adultReading(ctx, w * 0.15, h * 0.76, h * 0.21, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: VIOLET,
     paper: PAPIER,
     accent: ENCRE_SOMBRE,
   })
-  adultReading(ctx, w * 0.32, h * 0.74, h * 0.22, rng, LUMIERE, {
+  adultReading(ctx, w * 0.31, h * 0.76, h * 0.19, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     clothes: BLEU,
@@ -666,7 +631,7 @@ export const bandeauScene: PaintScene = (ctx, w, h, rng) => {
     accent: ENCRE_SOMBRE,
   })
 
-  girlWriting(ctx, w * 0.74, h * 0.7, h * 0.27, rng, LUMIERE, {
+  girlWriting(ctx, w * 0.74, h * 0.72, h * 0.235, rng, LUMIERE, {
     skin: PIERRE_CHAUDE,
     hair: VIOLET_PROFOND,
     dress: VIOLET,

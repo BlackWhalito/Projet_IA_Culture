@@ -475,12 +475,27 @@ export function column(
   // verticale a l'air dessinée à la règle, pas rompue par le temps.
   const lean = broken ? (rng() - 0.5) * radius * 1.6 : 0
 
-  wash(ctx, [
-    [x - radius, yBase],
-    [x - radius * 0.82 + lean, yTop],
-    [x + radius * 0.82 + lean, yTop],
-    [x + radius, yBase],
-  ], rng, {
+  // Le sommet. Cassé, il se code en PALIERS — un segment horizontal à une
+  // hauteur, une chute quasi verticale, un nouveau palier. Jamais une pente
+  // continue : `wash()` repasse son flou fractal par-dessus le contour qu'on
+  // lui donne, et une diagonale reprise par ce flou se courbe et se lit comme
+  // un éclat de verre, pas comme une pierre rompue.
+  const xg = x - radius * 0.82 + lean
+  const xd = x + radius * 0.82 + lean
+  const sommet: Point[] = []
+  if (broken) {
+    const paliers = 3
+    const pas = (xd - xg) / paliers
+    for (let i = 0; i < paliers; i += 1) {
+      const yy = yTop + (rng() - 0.5) * radius * 0.85
+      sommet.push([xg + pas * i, yy], [xg + pas * (i + 1), yy])
+    }
+  } else {
+    sommet.push([xg, yTop], [xd, yTop])
+  }
+
+  // Le fût.
+  wash(ctx, [[x - radius, yBase], ...sommet, [x + radius, yBase]], rng, {
     color: stone,
     layers: 18,
     alpha: attenue(VALEUR.MOYEN, distance) / 18,
@@ -488,31 +503,85 @@ export function column(
     jitter: 0.04,
   })
 
-  // La cannelure : un seul trait ombré qui court le long du fût, côté
-  // ombre — sans lui, un fût reste un rectangle quelconque, indissociable
-  // d'un simple pilier.
-  const fluteX = lit ? x + radius * 0.28 : x - radius * 0.28
-  dryStroke(ctx, [[fluteX, yBase], [fluteX + lean, yTop]], radius * 0.16, rng, {
+  // LE MODELÉ — ce qui manquait le plus. Un fût est un cylindre : sans une
+  // moitié ombrée, il reste un rectangle, et une rangée de rectangles se lit
+  // comme des bâtiments. C'est ce dégradé, bien plus que la cannelure, qui
+  // fait lire « colonne ». L'ombre tombe du côté opposé à la lumière, comme
+  // partout ailleurs dans la scène.
+  const ombreG = lit ? x + radius * 0.12 : x - radius
+  const ombreD = lit ? x + radius : x - radius * 0.12
+  wash(ctx, [
+    [ombreG, yBase],
+    [ombreG + lean * 0.8, yTop],
+    [ombreD + lean * 0.8, yTop],
+    [ombreD, yBase],
+  ], rng, {
     color: shade,
-    alpha: attenue(0.3, distance),
-    layers: 2,
+    layers: 14,
+    alpha: attenue(0.34, distance) / 14,
+    spread: 0.04,
+    jitter: 0.05,
+  })
+
+  // Les cannelures : trois traits, pas un. Une seule rainure se lit comme une
+  // rayure accidentelle ; c'est leur RÉPÉTITION régulière qui dit la pierre
+  // taillée. Elles s'arrêtent sous le chapiteau, jamais dedans.
+  for (const t of [-0.42, 0, 0.42]) {
+    const fx = x + radius * t
+    dryStroke(ctx, [[fx, yBase - radius * 0.2], [fx + lean, yTop + radius * 0.25]], radius * 0.11, rng, {
+      color: shade,
+      alpha: attenue(0.26, distance),
+      layers: 2,
+    })
+  }
+
+  // La base : un bloc plus large au sol. Sans elle une colonne a l'air plantée
+  // dans le sol comme un poteau ; avec elle, elle repose dessus.
+  wash(ctx, [
+    [x - radius * 1.24, yBase],
+    [x - radius * 1.05, yBase - radius * 0.42],
+    [x + radius * 1.05, yBase - radius * 0.42],
+    [x + radius * 1.24, yBase],
+  ], rng, {
+    color: stone,
+    layers: 10,
+    alpha: attenue(VALEUR.CLAIR, distance) / 10,
+    spread: 0.05,
+    jitter: 0.06,
   })
 
   if (!broken) {
-    // Le chapiteau : le seul bloc plus large que le fût, repère net qui
-    // couronne la colonne.
+    // Le chapiteau en deux morceaux : l'échine évasée, puis l'abaque, la
+    // dalle plate posée dessus. Un seul trapèze faisait un chapeau ; ce sont
+    // les deux registres superposés qui font un chapiteau.
     wash(ctx, [
-      [x - radius * 1.3, yTop],
-      [x - radius * 1.05, yTop - radius * 0.55],
-      [x + radius * 1.05, yTop - radius * 0.55],
-      [x + radius * 1.3, yTop],
+      [x - radius * 0.95, yTop],
+      [x - radius * 1.2, yTop - radius * 0.4],
+      [x + radius * 1.2, yTop - radius * 0.4],
+      [x + radius * 0.95, yTop],
     ], rng, {
       color: stone,
       layers: 12,
       alpha: attenue(VALEUR.CLAIR, distance) / 12,
-      spread: 0.06,
-      jitter: 0.07,
+      spread: 0.05,
+      jitter: 0.06,
     })
+    wash(ctx, [
+      [x - radius * 1.34, yTop - radius * 0.4],
+      [x - radius * 1.34, yTop - radius * 0.72],
+      [x + radius * 1.34, yTop - radius * 0.72],
+      [x + radius * 1.34, yTop - radius * 0.4],
+    ], rng, {
+      color: stone,
+      layers: 10,
+      alpha: attenue(VALEUR.MOYEN, distance) / 10,
+      spread: 0.03,
+      jitter: 0.04,
+    })
+    dryStroke(ctx, [
+      [x - radius * 1.34, yTop - radius * 0.72],
+      [x + radius * 1.34, yTop - radius * 0.72],
+    ], radius * 0.1, rng, { color: plan.accent, alpha: attenue(0.3, distance), layers: 2 })
   }
 
   // L'arête éclairée, nette, comme sur une façade.

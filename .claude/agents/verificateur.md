@@ -32,7 +32,12 @@ npm run test
 
 Indispensable : le compilateur ne voit pas un jeu injouable.
 
-**D'abord, vérifie que le navigateur existe.** Certaines sessions (cloud, Linux) n'ont ni outil de preview ni PowerShell. Si `preview_list` n'est pas disponible, ne bricole pas et n'invente surtout pas un parcours que tu n'as pas fait : passe au repli ci-dessous et dis-le en toutes lettres dans ton rapport.
+**D'abord, vérifie de quel navigateur tu disposes.** Il y en a deux, et le second a longtemps été ignoré à tort :
+
+- **Le panneau de preview** (`preview_list` / `preview_start`) — la voie normale, décrite ci-dessous.
+- **Chromium piloté par Playwright**, quand le panneau n'existe pas. C'est le cas des sessions distantes Linux. Le binaire est installé (`/opt/pw-browsers/chromium-*/chrome-linux/chrome`) et Playwright est global (`/opt/node22/lib/node_modules/playwright`). Recette complète dans la skill `pieges-du-projet`, section « Regarder un rendu ». Lance `npm run dev` en tâche de fond, ouvre `http://127.0.0.1:5173`, capture, et lis la capture.
+
+Le repli sans navigateur (plus bas) ne vaut que si **aucun des deux** n'existe. Vérifie-le pour de bon avant d'y aller : constaté le 28 août 2026, la mention « les sessions cloud n'ont pas de navigateur » qui figurait ici était fausse, et elle a fait livrer un travail visuel sans que personne ne l'ait regardé.
 
 1. `preview_list` d'abord. S'il existe déjà un serveur, réutilise-le — n'en démarre jamais un deuxième.
 2. Sinon `preview_start` avec `{name: "jeu-culture-dev"}`.
