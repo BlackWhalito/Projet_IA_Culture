@@ -11,6 +11,7 @@ export const CP_HISTOIRE: Notion[] = [
     funFact: 'Les hommes préhistoriques ont appris à maîtriser le feu il y a environ 400 000 ans.',
     games: {
       qcm: {
+        consigne: 'Trouve ce que ces hommes ont su faire avant tout le monde.',
         question: "Qu'est-ce que les hommes préhistoriques ont appris à maîtriser ?",
         choices: ['Le feu', "L'électricité", 'Le moteur'],
         correctIndex: 0,
@@ -216,6 +217,7 @@ export const CP_HISTOIRE: Notion[] = [
     funFact: "Les historiens utilisent des frises chronologiques pour ranger les événements du plus ancien au plus récent.",
     games: {
       timeline: {
+        consigne: 'Range ces trois moments du plus ancien au plus récent.',
         events: [
           { label: 'Le passé', sortValue: 1 },
           { label: 'Le présent', sortValue: 2 },

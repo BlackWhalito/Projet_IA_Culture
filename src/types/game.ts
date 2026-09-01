@@ -21,7 +21,24 @@ export interface NotionResult extends GameCompleteResult {
   notionId: string
 }
 
-export interface QcmContent {
+/**
+ * La consigne propre à une notion : ce que le joueur doit faire dans **cette**
+ * manche, en une phrase impérative.
+ *
+ * Elle est séparée en deux couches, et c'est ce qui évite de la réécrire
+ * quarante fois. Le cadre narratif appartient à la **mécanique** (« Le fleuve
+ * charrie des mots. Deux rives, un courant, et il ne repasse pas. ») et vit
+ * dans `src/games/consignes.ts` ; seul l'objectif du jour appartient à la
+ * **notion** (« Range chaque mot selon son genre. ») et vit dans le contenu.
+ *
+ * Le champ s'appelle `consigne` et non `objectif` : `RiviereContent` a déjà un
+ * `objectif`, qui est un nombre d'objets à classer.
+ */
+export interface AvecConsigne {
+  consigne?: string
+}
+
+export interface QcmContent extends AvecConsigne {
   question: string
   choices: string[]
   correctIndex: number
@@ -29,15 +46,15 @@ export interface QcmContent {
   timeLimitSec?: number
 }
 
-export interface MatchContent {
+export interface MatchContent extends AvecConsigne {
   pairs: { left: string; right: string; leftImage?: string }[]
 }
 
-export interface TimelineContent {
+export interface TimelineContent extends AvecConsigne {
   events: { label: string; sortValue: number; image?: string }[]
 }
 
-export interface RiviereContent {
+export interface RiviereContent extends AvecConsigne {
   paniers: { id: string; label: string }[]
   flottants: { label: string; panierId: string }[]
   /** Durée en secondes pour qu'un mot traverse l'écran de haut en bas au démarrage. */
@@ -48,14 +65,14 @@ export interface RiviereContent {
   objectif: number
 }
 
-export interface CapSurContent {
+export interface CapSurContent extends AvecConsigne {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */
   cibles: string[]
   secondesParCible: number
 }
 
-export interface FilDesJoursContent {
+export interface FilDesJoursContent extends AvecConsigne {
   personnage: { nom: string; annee: string; role: string }
   jauges: { id: string; label: string; depart: number }[]
   etapes: {

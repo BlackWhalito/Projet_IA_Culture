@@ -4,6 +4,7 @@ import type { RiviereContent, GameCompleteResult } from '../../types/game'
 import { shuffle } from '../../engine/shuffle'
 import { elapsedSince } from '../../engine/timing'
 import { jouerSon } from '../../engine/sound'
+import { RiviereDecor } from './RiviereDecor'
 import styles from './RiviereGame.module.css'
 
 interface RiviereGameProps {
@@ -148,6 +149,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
       </div>
 
       <div className={styles.piste}>
+        <RiviereDecor />
         {current && (
           <button
             key={current.spawnId}

@@ -30,16 +30,22 @@
 
 .piste {
   position: relative;
-  min-height: 55vh;
-  max-height: 420px;
+  /* `height` et non `min-height` + `max-height` : en CSS, min-height l'emporte
+     sur max-height, si bien que sur un grand écran la piste s'étirait sans fin
+     au lieu d'être plafonnée à 420 px. */
+  height: min(55vh, 420px);
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-domain-geographie) 8%, var(--color-surface));
+  background: var(--papier);
   border: 2px solid color-mix(in srgb, var(--color-domain-geographie) 25%, var(--color-surface));
 }
 
+/* Le mot flotte AU-DESSUS du décor peint : le z-index le sort du lavis.
+   Ses bords restent nets et sa zone tapable rectangulaire — c'est de
+   l'interface, elle échappe aux règles douces de l'aquarelle. */
 .flottant {
   position: absolute;
+  z-index: 1;
   top: -15%;
   left: 50%;
   transform: translateX(-50%);
@@ -83,15 +89,20 @@
   flex-wrap: wrap;
 }
 
+/* Les deux rives. Elles reprennent le vert des berges peintes dans la piste,
+   pour qu'on lise « la rive gauche et la rive droite » et pas « deux boutons ».
+   Bords nets et hauteur tapable : c'est de l'interface, pas du décor. */
 .panier {
   flex: 1 1 0;
-  min-height: var(--touch-target-min);
+  min-height: 56px;
   padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-locked);
+  border: 2px solid color-mix(in srgb, var(--color-domain-sciences) 55%, var(--color-surface));
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: color-mix(in srgb, var(--color-domain-sciences) 10%, var(--color-surface));
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--encre);
 }
 
 .panier:active {

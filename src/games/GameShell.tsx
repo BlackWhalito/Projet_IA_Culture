@@ -4,6 +4,7 @@ import { selectGameForNotion } from '../engine/selectGameForNotion'
 import { DOMAINS } from '../content/domains'
 import { GameRouter } from './GameRouter'
 import { definirActif, estActif, jouerSon } from '../engine/sound'
+import { FICTIONS } from './consignes'
 import type { GameCompleteResult, NotionResult } from '../types/game'
 import styles from './GameShell.module.css'
 
@@ -54,6 +55,13 @@ export function GameShell({ notion, pinnedGameType, onContinue }: GameShellProps
           <span aria-hidden="true">{sonActif ? '🔊' : '🔇'}</span>
         </button>
       </div>
+
+      {phase === 'playing' && (
+        <div className={styles.consigne}>
+          <p className={styles.fiction}>{FICTIONS[selected.gameType]}</p>
+          {selected.content.consigne && <p className={styles.objectif}>{selected.content.consigne}</p>}
+        </div>
+      )}
 
       {phase === 'playing' && (
         <GameRouter

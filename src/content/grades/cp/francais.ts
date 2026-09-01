@@ -11,6 +11,7 @@ export const CP_FRANCAIS: Notion[] = [
     funFact: "Le français compte 6 voyelles (a, e, i, o, u, y) et 20 consonnes.",
     games: {
       riviere: {
+        consigne: 'Envoie chaque lettre sur la bonne rive : voyelle ou consonne.',
         paniers: [
           { id: 'voyelle', label: 'Voyelle' },
           { id: 'consonne', label: 'Consonne' },

@@ -46,6 +46,7 @@ export const CP_GEOGRAPHIE: Notion[] = [
         correctIndex: 0,
       },
       capsur: {
+        consigne: 'Repère quatre villes françaises, en commençant par la capitale.',
         carteId: 'france',
         // Quatre cibles, pas une. Avec une seule ville, la manche durait six
         // secondes et ne laissait pas le temps de regarder la carte — donc pas

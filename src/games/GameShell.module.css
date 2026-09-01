@@ -94,3 +94,30 @@
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+/* La consigne : deux lignes avant le jeu, jamais un écran d'intro.
+   La fiction pose le décor, l'objectif dit quoi faire — c'est le seul texte
+   qui a le droit d'être narratif, tout le reste de l'interface est net. */
+.consigne {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+  border-left: 3px solid color-mix(in srgb, var(--violet) 45%, transparent);
+}
+
+.fiction {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.objectif {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
