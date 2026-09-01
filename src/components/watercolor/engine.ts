@@ -363,9 +363,113 @@ export function grain(ctx: CanvasRenderingContext2D, width: number, height: numb
     data[i + 3] = 255
   }
   sctx.putImageData(image, 0, 0)
+  // Le grain ne doit exister QUE là où la scène a réellement peint. Sur un
+  // tableau couvert bord à bord ça ne change rien ; sur le bandeau, dont les
+  // trois quarts restent transparents, un grain appliqué à tout le rectangle
+  // dessine un rectangle gris franc sur le papier de la page — c'était devenu
+  // l'élément le plus visible du haut de l'accueil une fois le bandeau
+  // agrandi. `destination-in` découpe le bruit à la silhouette de la scène.
+  sctx.globalCompositeOperation = 'destination-in'
+  sctx.drawImage(ctx.canvas, 0, 0)
   ctx.save()
   ctx.globalCompositeOperation = 'multiply'
   ctx.globalAlpha = 0.5
   ctx.drawImage(scratch, 0, 0)
+  ctx.restore()
+}
+
+/**
+ * LE BORD DE FLAQUE. Quand une flaque de couleur sèche, le pigment migre vers
+ * sa limite et y laisse une ligne plus dense.
+ *
+ * C'est ce liseré — et surtout l'ALTERNANCE entre bords durs et bords fondus
+ * dans une même image — qui distingue une aquarelle d'un dégradé. Une image
+ * dont tous les bords sont mous ressemble à de l'aérographe, quelle que soit
+ * la qualité de ses couleurs.
+ */
+export function hardEdge(
+  ctx: CanvasRenderingContext2D,
+  path: Point[],
+  width: number,
+  rng: () => number,
+  options: { color: string; alpha?: number },
+): void {
+  const { color, alpha = 0.34 } = options
+  dryStroke(ctx, path, width, rng, { color, alpha: alpha * 0.45, layers: 2 })
+  dryStroke(ctx, path, width * 0.34, rng, { color, alpha, layers: 2 })
+}
+
+/**
+ * LA GRANULATION. Certains pigments — outremer, cæruleum, terres — ne se
+ * dissolvent pas complètement : leurs grains se déposent dans les creux du
+ * papier et y laissent un piqueté, d'autant plus dense que le lavis est
+ * profond.
+ *
+ * À ne pas confondre avec `flecks`, qui pose des taches molles de la taille
+ * d'un pouce : ici ce sont des points DURS et minuscules. Leur densité suit la
+ * profondeur du lavis (tirage biaisé vers le bas, là où le pigment tombe) —
+ * c'est ce gradient, pas le piqueté lui-même, qui rend l'effet crédible.
+ */
+export function granulation(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  count: number,
+  rng: () => number,
+  options: { color: string; alpha?: number },
+): void {
+  const { color, alpha = 0.22 } = options
+  ctx.save()
+  ctx.fillStyle = color
+  for (let i = 0; i < count; i += 1) {
+    const t = Math.sqrt(rng())
+    ctx.globalAlpha = alpha * (0.3 + t * 0.7) * (0.45 + rng() * 0.55)
+    const r = 0.55 + rng() * 1.05
+    ctx.beginPath()
+    ctx.ellipse(x + rng() * w, y + t * h, r, r * (0.7 + rng() * 0.6), rng() * 3, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+}
+
+/**
+ * LA RÉSERVE — le blanc du papier, gardé intact.
+ *
+ * En aquarelle on ne peint pas le blanc : on le RÉSERVE, on laisse le papier
+ * nu. Le moteur essayait jusqu'ici de le simuler par un lavis très pâle, ce
+ * qui ne donne jamais qu'un gris clair — en `multiply`, poser une couleur ne
+ * peut qu'assombrir. C'est la raison, longtemps cherchée ailleurs, pour
+ * laquelle les tableaux n'avaient aucune vraie lumière : il leur manquait
+ * simplement du blanc, et aucun réglage de pigment ne pouvait en fabriquer.
+ *
+ * La réponse est de ne rien poser. `destination-out` EFFACE le pigment déjà
+ * déposé et redécouvre le fond de page, qui est précisément le papier — c'est
+ * le seul blanc franc possible ici, et c'est exactement le geste du peintre.
+ *
+ * Deux règles d'emploi :
+ * - Appeler la réserve APRÈS les lavis qu'elle traverse, mais AVANT ce qui
+ *   doit rester par-dessus (une voile, une figure) : elle efface tout ce qui
+ *   est déjà là, sans distinction.
+ * - Lui donner un contour franchement allongé si on veut un fil de lumière.
+ *   `deform` arrondit un contour plat en galette, et une réserve trop compacte
+ *   se lit comme une plaque blanche flottante plutôt que comme un éclat.
+ */
+export function reserve(
+  ctx: CanvasRenderingContext2D,
+  base: Point[],
+  rng: () => number,
+  force = 1,
+): void {
+  const contour = deform(base, 3, 0.16, rng)
+  ctx.save()
+  ctx.globalCompositeOperation = 'destination-out'
+  ctx.globalAlpha = force
+  ctx.beginPath()
+  ctx.moveTo(contour[0][0], contour[0][1])
+  for (const [x, y] of contour.slice(1)) ctx.lineTo(x, y)
+  ctx.closePath()
+  ctx.fill()
   ctx.restore()
 }

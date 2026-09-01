@@ -27,9 +27,22 @@ export function WatercolorScene({ paint, width, height, seed, className, alt }: 
   useEffect(() => {
     const canvas = ref.current
     if (!canvas) return
-    const ratio = Math.min(window.devicePixelRatio || 1, 2)
-    canvas.width = width * ratio
-    canvas.height = height * ratio
+    // La résolution se règle sur la taille RÉELLEMENT affichée, pas sur les
+    // dimensions demandées. Un tableau de 1500x1150 posé dans un cadre de
+    // 390px de large peignait 3000x2300 pixels sur téléphone — sept fois trop,
+    // et 1,4 s de fil principal bloqué au chargement (cartes non cliquables).
+    // On ne monte jamais au-dessus de la résolution demandée : c'est un
+    // plafond, pas un facteur d'agrandissement.
+    const cadre = canvas.getBoundingClientRect()
+    const affichage =
+      cadre.width > 0 && cadre.height > 0
+        ? // `max` et non `min` : le canvas peut être rogné (`object-fit: cover`),
+          // auquel cas c'est la dimension qui déborde qui fixe la finesse utile.
+          Math.min(1, Math.max(cadre.width / width, cadre.height / height))
+        : 1
+    const ratio = Math.min(window.devicePixelRatio || 1, 2) * affichage
+    canvas.width = Math.round(width * ratio)
+    canvas.height = Math.round(height * ratio)
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     ctx.scale(ratio, ratio)

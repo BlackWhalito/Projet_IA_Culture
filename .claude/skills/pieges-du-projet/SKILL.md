@@ -50,7 +50,9 @@ Cas voisin : `useRef(Date.now())` est un vrai appel impur au rendu, celui-là es
 
 **Cause.** Avoir lancé `npm run dev` alors qu'un serveur tournait déjà via le panneau navigateur.
 
-**Contournement.** Toujours `preview_list` avant de démarrer quoi que ce soit. Ne jamais lancer un serveur de dev via Bash ou PowerShell — uniquement `preview_start`.
+**Contournement.** Toujours `preview_list` avant de démarrer quoi que ce soit. **Quand le panneau navigateur existe**, ne jamais lancer un serveur de dev via Bash ou PowerShell — uniquement `preview_start`.
+
+La restriction s'arrête là : sur une session distante Linux, il n'y a pas de panneau, donc `npm run dev` en tâche de fond est la seule voie, et c'est celle qu'attend la section « Regarder un rendu ». Vérifie d'abord qu'aucun serveur ne tourne déjà (`lsof -i :5173`, ou une requête sur le port).
 
 ## Agents et skills créés en cours de session
 
@@ -76,7 +78,26 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
+## Regarder un rendu — la voie directe
+
+**À essayer en premier, avant le contournement de la section suivante.**
+
+Les sessions distantes Linux n'ont pas de panneau navigateur, ce qui a longtemps fait croire qu'elles n'avaient pas de navigateur du tout. Faux : **Chromium et Playwright y sont installés**, et on peut donc capturer un rendu en trois lignes, sans passer par le compositeur ni par un aller-retour base64.
+
+- Binaire : `/opt/pw-browsers/chromium-<version>/chrome-linux/chrome`. Le chemin porte le numéro de build — le résoudre avec `find /opt/pw-browsers -maxdepth 3 -name chrome`, ne jamais l'écrire en dur.
+- Playwright est global : importer depuis `/opt/node22/lib/node_modules/playwright/index.mjs`.
+
+Un script d'une vingtaine de lignes suffit : `chromium.launch({ executablePath })`, `newPage({ viewport })`, `goto`, `screenshot({ path })`. Écouter aussi `pageerror` et `console` — c'est ce qui distingue « ma page est moche » de « ma page est cassée ». Puis lire le PNG avec l'outil `Read`, qui affiche réellement les images.
+
+**Deux pièges rencontrés le 28 août 2026.**
+
+Pour l'app elle-même, lancer `npm run dev` en tâche de fond et viser `http://127.0.0.1:5173`. Pour un fichier HTML isolé, servir le dossier par un petit serveur local plutôt que d'ouvrir en `file://` : les ressources relatives et la CSP se comportent autrement.
+
+Un fichier pensé pour un runtime absent ne s'ouvre pas nu. Une planche de maquette Claude Design (`.dc.html`) référence `./support.js`, injecté seulement par l'éditeur : ouverte seule, elle échoue sur `DCLogic is not defined` et ne rend rien. Poser à côté un bouchon de trois lignes — `window.DCLogic = class {}`, plus une règle `x-dc { display: block }` — rend la planche en taille réelle, ce que le canevas ne permet pas (il la réduit à environ un tiers, illisible pour juger un dessin).
+
 ## Voir réellement ce qu'on dessine, quand la capture d'écran refuse
+
+**Repli, quand seul le panneau navigateur existe** (session Windows locale) et qu'il refuse de composer. Sur une session Linux, prendre la voie directe ci-dessus.
 
 **Symptôme.** `computer{action:"screenshot"}` échoue en boucle avec « the Browser pane is not displayed, so the page is not compositing frames », quel que soit l'onglet, le `tabs_select` ou le redimensionnement. Conséquence grave sur un travail visuel : on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu.
 
