@@ -11,7 +11,7 @@ export const CP_SCIENCES: Notion[] = [
     funFact: 'La peau, organe du toucher, est le plus grand organe du corps humain.',
     games: {
       match: {
-        consigne: "Relie chaque sens à l'organe qui le porte.",
+        consigne: "Relie chaque sens à l’organe qui le porte.",
         pairs: [
           { left: 'La vue', right: 'Les yeux' },
           { left: "L'ouïe", right: 'Les oreilles' },

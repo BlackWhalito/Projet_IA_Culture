@@ -25,7 +25,6 @@
 export function RiviereDecor() {
   return (
     <svg
-      className="riviereDecor"
       viewBox="0 0 300 600"
       preserveAspectRatio="none"
       aria-hidden="true"

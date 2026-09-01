@@ -15,6 +15,22 @@ interface FranceMapProps {
   showAllLabels?: boolean
 }
 
+/**
+ * Rayon de la zone tapable d'une ville ou d'un pays, en unités de viewBox.
+ *
+ * Mesuré à 390 px de large : à 28, les cibles faisaient 22 × 22 px réels, soit
+ * la moitié du minimum de 44 px de la charte. À 38 elles passent à ~30 px.
+ *
+ * Pourquoi pas plus : les deux villes les plus proches, Marseille et Nice, sont
+ * distantes de 81 unités. Au-delà de 40, leurs zones se recouvriraient et la
+ * plus haute dans le DOM volerait les clics de l'autre — on gagnerait une
+ * cible confortable en en rendant une autre inatteignable.
+ *
+ * Les 44 px restent donc hors d'atteinte tant que la carte tient dans une
+ * carte de 390 px avec quinze zones : c'est une limite de place, pas de code.
+ */
+const RAYON_ZONE_TAPABLE = 38
+
 function estInteractive(zone: MapZone, interactiveZoneIds: string[] | undefined): boolean {
   return !interactiveZoneIds || interactiveZoneIds.includes(zone.id)
 }
@@ -96,7 +112,7 @@ export function FranceMap({
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_ZONE_TAPABLE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointPays} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) + 22} className={styles.labelPays}>
@@ -116,7 +132,7 @@ export function FranceMap({
           onClick={() => handleActivate(zone)}
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
-          <circle cx={zone.cx} cy={zone.cy} r={28} className={styles.zoneHitArea} />
+          <circle cx={zone.cx} cy={zone.cy} r={RAYON_ZONE_TAPABLE} className={styles.zoneHitArea} />
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointVille} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) - 12} className={styles.labelVille}>

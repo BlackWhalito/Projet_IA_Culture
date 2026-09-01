@@ -27,6 +27,7 @@ const SCENARIO_BIDON: FilDesJoursContent = {
     },
   ],
   epilogues: [
+    { condition: { moral: [0, 20] }, texte: 'Tout s’effondre.', echec: true },
     { condition: { moral: [80, 100] }, texte: 'Grand triomphe.' },
     { condition: {}, texte: 'Fin ordinaire.' },
   ],
@@ -58,7 +59,7 @@ describe('FilDesJoursGame', () => {
     expect(screen.getByText('Grand triomphe.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Terminer' }))
-    expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number) })
+    expect(onComplete).toHaveBeenCalledWith({ correct: true, timeMs: expect.any(Number), mistakes: 0 })
   })
 
   it('replie sur un épilogue par défaut quand aucune condition ne correspond', () => {
@@ -74,5 +75,40 @@ describe('FilDesJoursGame', () => {
 
     // moral parti à 50, effets -20+10+10 = 50 : hors tranche du triomphe (80-100).
     expect(screen.getByText('Fin ordinaire.')).toBeInTheDocument()
+  })
+  /**
+   * Le test qui manquait au correctif de l'issue.
+   *
+   * `correct` a d'abord été renvoyé à `true` en dur, puis lié à « une jauge à
+   * zéro » — une règle qui ne se déclenchait qu'une fois sur 729 dans le vrai
+   * scénario de Louis XIV, et jamais chez Colomb. L'issue est désormais celle
+   * de l'épilogue atteint : le texte lu **est** le verdict reçu, et les deux ne
+   * peuvent plus se contredire.
+   */
+  it('perd la partie quand le scénario mène à un épilogue d’échec', () => {
+    const onComplete = vi.fn()
+    const chute: FilDesJoursContent = {
+      ...SCENARIO_BIDON,
+      etapes: [
+        {
+          titre: 'Étape unique',
+          scene: 'Tout se joue ici.',
+          options: [{ texte: 'Sombrer', effets: { moral: -40 }, consequence: 'Ça descend vite.' }],
+        },
+      ],
+    }
+    render(<FilDesJoursGame content={chute} onComplete={onComplete} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sombrer' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+
+    // moral parti à 50, −40 : il finit à 10, dans la tranche de l'échec.
+    expect(screen.getByText('Tout s’effondre.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Terminer' }))
+    expect(onComplete).toHaveBeenCalledWith({
+      correct: false,
+      timeMs: expect.any(Number),
+      mistakes: 1,
+    })
   })
 })

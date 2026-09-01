@@ -121,3 +121,23 @@
   font-weight: 600;
   color: var(--color-text);
 }
+
+@media (max-height: 780px) {
+  .shell {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .consigne {
+    gap: 0;
+  }
+
+  .fiction {
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .objectif {
+    font-size: 0.98rem;
+  }
+}

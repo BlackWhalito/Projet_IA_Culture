@@ -17,11 +17,12 @@ Ce document est le pendant de [niveau-1.md](niveau-1.md). Celui-là traite de **
 | C5 · Le bilan de fin qui récapitule | ⬜ à faire |
 | C6 · La consigne fictionnelle | ✅ fait — les six mécaniques ont leur fiction, les cinq notions du Niveau 1 leur objectif |
 | C7 · Un décor aquarelle par domaine | 🟡 partiel — seule La Rivière a son décor peint |
+| — · Jouabilité sur téléphone | ✅ corrigé — les rives de La Rivière passaient sous la ligne de flottaison dès 390 × 664 |
 | C8 · Cap sur : une France reconnaissable | ✅ fait — 72 points réels + spline, Corse, brouillard, 4 cibles |
 | C9 · La Rivière : lui donner sa rivière | 🟡 partiel — le décor est fait, le passage à 2-3 mots simultanés non |
 | C10 · Association : tracer le lien au doigt | ⬜ à faire |
 | C11 · La Frise : de vraies dates | 🟡 partiel — le refus immédiat d'une carte hors tour est fait, le contenu daté non |
-| C12 · Le Fil des jours : les trois correctifs | 🟡 partiel — on peut désormais perdre ; la règle affichée et les deltas de jauge restent à faire |
+| C12 · Le Fil des jours : les trois correctifs | 🟡 partiel — on perd désormais 8,5 % des parties (Louis XIV) et 8,2 % (Colomb), mesuré par énumération exhaustive ; la règle affichée et les deltas de jauge restent à faire |
 
 **Ajouté hors plan : le son.** `src/engine/sound.ts`, entièrement synthétisé en Web
 Audio, aucun fichier audio dans le projet. Huit voix dans une pentatonique de do,

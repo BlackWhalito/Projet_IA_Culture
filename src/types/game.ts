@@ -80,5 +80,17 @@ export interface FilDesJoursContent extends AvecConsigne {
     scene: string
     options: { texte: string; effets: Record<string, number>; consequence: string; historique?: string }[]
   }[]
-  epilogues: { condition: Record<string, [number, number]>; texte: string }[]
+  epilogues: {
+    condition: Record<string, [number, number]>
+    texte: string
+    /**
+     * Marque un dénouement comme une défaite.
+     *
+     * C'est **l'épilogue** qui décide de l'issue, pas un seuil calculé à côté :
+     * sinon le récit et le score se contredisent. C'est exactement ce qui
+     * arrivait — le seul chemin perdant de Louis XIV affichait « la galerie
+     * s'incline tout entière sur son passage », puis « Pas tout à fait… ».
+     */
+    echec?: boolean
+  }[]
 }

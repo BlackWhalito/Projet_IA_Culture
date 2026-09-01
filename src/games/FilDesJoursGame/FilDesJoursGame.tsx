@@ -49,16 +49,28 @@ export function FilDesJoursGame({ content, onComplete }: FilDesJoursGameProps) {
   }
 
   /**
-   * On peut désormais perdre une matinée.
+   * L'issue est celle de l'épilogue atteint, et rien d'autre.
    *
-   * `correct` était renvoyé à `true` en dur : quelle que soit la partie, le
-   * joueur gagnait. Le scénario fait pourtant monter une jauge en faisant
-   * descendre l'autre à chaque choix — une jauge tombée à zéro est donc une
-   * vraie défaite, et c'est la seule lecture qui rende les choix conséquents.
+   * Deux versions ont échoué avant celle-ci. `correct` a d'abord été renvoyé à
+   * `true` en dur : on ne pouvait pas perdre. Puis on l'a lié à « une jauge
+   * tombée à zéro », ce qui semblait juste mais ne l'était pas : l'énumération
+   * exhaustive des parties donne **1 chemin perdant sur 729** chez Louis XIV et
+   * **0 sur 2187** chez Colomb — un `true` déguisé. Pire, ce seul chemin
+   * perdant affichait un épilogue triomphal suivi d'un « Pas tout à fait… ».
+   *
+   * Faire décider l'épilogue supprime la contradiction par construction : le
+   * texte que le joueur lit **est** le verdict qu'il reçoit. Le contenu porte
+   * les seuils, là où vivent déjà les conditions.
    */
   function handleTerminer() {
-    const correct = content.jauges.every((jauge) => (jauges[jauge.id] ?? 0) > 0)
-    onComplete({ correct, timeMs: elapsedSince(startedAtRef.current) })
+    const fin = resoudreEpilogue(jauges, content.epilogues)
+    onComplete({
+      correct: !fin.echec,
+      timeMs: elapsedSince(startedAtRef.current),
+      // Chaque choix qui abîme une jauge compte : sans cela cette mécanique
+      // était la seule des six à ne jamais être pénalisée au score.
+      mistakes: content.jauges.filter((j) => (jauges[j.id] ?? 0) < j.depart).length,
+    })
   }
 
   return (

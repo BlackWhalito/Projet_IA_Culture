@@ -187,6 +187,26 @@ export const CP_HISTOIRE: Notion[] = [
           },
         ],
         epilogues: [
+          // Les épilogues d'échec passent en premier : `resoudreEpilogue` retient
+          // le premier dont toutes les conditions sont satisfaites.
+          //
+          // Les seuils viennent d'une énumération exhaustive des 729 parties
+          // possibles, pas d'une intuition : la Cour finit à 30 ou moins dans
+          // 8 % des chemins, et l'autorité dans 0,3 %. C'est peu, et c'est
+          // assumé — le vrai rééquilibrage du scénario est la tâche T1 de
+          // docs/niveau-1.md. Mais on peut désormais perdre pour de bon, alors
+          // qu'avant un seul chemin sur 729 échouait, et il affichait un
+          // épilogue triomphal.
+          {
+            condition: { attentionCour: [0, 30] },
+            echec: true,
+            texte: "Dix heures sonnent dans une galerie à moitié vide. À force de trancher seul et de ne rien laisser à quiconque, le roi s'est levé ce matin devant des courtisans qui n'avaient plus rien à y gagner — et un Versailles où l'on ne se dispute plus le privilège de tendre la chemise est un Versailles qui a cessé de fonctionner. Toute la mécanique du lever tenait là : occuper la noblesse à se disputer des riens, pour qu'elle ne se dispute pas le royaume.",
+          },
+          {
+            condition: { autorite: [0, 30] },
+            echec: true,
+            texte: "Dix heures sonnent, et personne ne s'en aperçoit vraiment. Le lever s'est dissous en conversations, en familiarités, en petits arrangements ; le roi est sorti de sa chambre comme un homme parmi d'autres. C'est précisément ce que le cérémonial existait pour empêcher : à Versailles, un roi qu'on approche sans protocole est un roi qu'on finit par ne plus craindre.",
+          },
           {
             condition: { autorite: [75, 100] },
             texte: "Dix heures sonnent. Le roi sort enfin de sa chambre, chapeau, canne et gants en main, et la galerie s'incline tout entière sur son passage, sans un murmure. Ce matin encore, une trentaine de mains ont participé à habiller un seul homme — et pas une seule fois il n'est resté seul avec lui-même.",
@@ -473,6 +493,15 @@ export const CP_HISTOIRE: Notion[] = [
           },
         ],
         epilogues: [
+          // Même logique que pour Louis XIV : l'échec d'abord, avec un seuil
+          // atteignable. Sur les 2187 parties possibles, la distance reste à 25
+          // ou moins dans 8 % des chemins — et aucune, avant ce correctif, ne
+          // pouvait être perdue.
+          {
+            condition: { milles: [0, 25] },
+            echec: true,
+            texte: "Les semaines passent sans que rien change à l'horizon. Trop de jours à louvoyer, trop de caps repris, trop de prudence : les vivres s'épuisent avant que la terre n'apparaisse, et il faut virer de bord. L'Asie, de toute façon, n'était pas là où Colomb la croyait — il avait sous-estimé la circonférence de la Terre d'environ un quart, et seul un continent qu'il n'attendait pas pouvait le sauver de son erreur de calcul.",
+          },
           {
             condition: { vivres: [0, 25] },
             texte: "Les tonneaux sonnent creux depuis plusieurs jours quand le cri tant attendu retentit enfin. On l'a appelée San Salvador — la première terre des Indes, croit-on à bord, atteinte de justesse, l'eau douce presque à sec.",

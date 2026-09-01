@@ -32,8 +32,13 @@
   position: relative;
   /* `height` et non `min-height` + `max-height` : en CSS, min-height l'emporte
      sur max-height, si bien que sur un grand écran la piste s'étirait sans fin
-     au lieu d'être plafonnée à 420 px. */
-  height: min(55vh, 420px);
+     au lieu d'être plafonnée à 420 px.
+
+     La borne basse compte autant : mesuré à 390 × 664 (un téléphone courant,
+     barres de navigateur comprises), les trois rives de la Rivière du niveau 2
+     tombaient TOUTES sous la ligne de flottaison — le jeu était injouable sans
+     scroller pendant que le mot tombe en quatre secondes. */
+  height: clamp(150px, 40vh, 400px);
   overflow: hidden;
   border-radius: var(--radius-md);
   background: var(--papier);
@@ -135,5 +140,14 @@
 
   .rejet {
     animation: none;
+  }
+}
+
+/* Écrans courts : on rend au jeu la place que prend l'habillage. La consigne
+   reste (c'est elle qui dit quoi faire) mais se resserre, et la piste descend
+   à sa borne basse. Mesuré : rives visibles jusqu'à 360 × 640. */
+@media (max-height: 780px) {
+  .piste {
+    height: clamp(140px, 26vh, 240px);
   }
 }
