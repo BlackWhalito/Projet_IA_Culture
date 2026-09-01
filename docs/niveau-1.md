@@ -2,6 +2,8 @@
 
 ## Contexte
 
+> **Document frère** — [niveau-1-jeux.md](niveau-1-jeux.md) traite les *jeux* du Niveau 1 : ce qu'on y fait avec ses doigts, ce qu'on y voit, ce qu'on y risque. Celui-ci traite le *contenu*. Deux tâches sont communes aux deux et signalées à leur place (T1 et T5).
+
 Le jeu s'adresse désormais à un **adulte** qui refait le programme scolaire du CP à la 3e (décision actée, commit « Change de public cible »). Le Niveau 1 est le premier écran qu'il voit. Il ne tient pas la promesse, et l'exploration a montré pourquoi.
 
 **Le jeu ne teste rien, et l'anecdote enseigne tout.** C'est à l'envers : on devrait buter, puis recevoir l'explication en récompense. Aujourd'hui les anecdotes sont parfois bonnes, mais ce que les jeux font manipuler est systématiquement trivial.
