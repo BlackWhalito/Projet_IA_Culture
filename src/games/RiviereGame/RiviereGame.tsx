@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import type { RiviereContent, GameCompleteResult } from '../../types/game'
 import { shuffle } from '../../engine/shuffle'
 import { elapsedSince } from '../../engine/timing'
+import { jouerSon } from '../../engine/sound'
 import styles from './RiviereGame.module.css'
 
 interface RiviereGameProps {
@@ -86,6 +87,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
 
   function handleWordTap(spawnId: number) {
     if (finished || rejectPanierId) return
+    jouerSon('tap')
     setSelectedSpawnId(spawnId)
   }
 
@@ -96,11 +98,13 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     if (flottant.panierId === panierId) {
       setSelectedSpawnId(null)
       setCorrectCount((c) => c + 1)
+      jouerSon('depot')
       avancerQueue()
       return
     }
 
     setWrongTapCount((w) => w + 1)
+    jouerSon('faux')
     setRejectPanierId(panierId)
     window.setTimeout(() => setRejectPanierId(null), REJET_DUREE_MS)
   }
@@ -112,6 +116,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     const timer = window.setTimeout(() => {
       setSelectedSpawnId(null)
       setRateCount((r) => r + 1)
+      jouerSon('rate')
       avancerQueue()
     }, dureeMs)
     return () => window.clearTimeout(timer)

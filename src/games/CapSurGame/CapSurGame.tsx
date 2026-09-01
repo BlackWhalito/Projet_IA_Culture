@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import type { CapSurContent, GameCompleteResult } from '../../types/game'
 import { elapsedSince } from '../../engine/timing'
+import { jouerSon } from '../../engine/sound'
 import { shuffle } from '../../engine/shuffle'
 import { FranceMap } from '../../components/maps/FranceMap'
 import { EuropeMap } from '../../components/maps/EuropeMap'
@@ -55,6 +56,7 @@ export function CapSurGame({ content, onComplete }: CapSurGameProps) {
       if (!cible) return
       const touche = toucheId ? zones[toucheId] : null
       const correct = touche?.id === cible.id
+      jouerSon(correct ? 'juste' : 'faux')
       if (correct) {
         setCorrectCount((c) => c + 1)
         setRevealedIds((ids) => (ids.includes(cible.id) ? ids : [...ids, cible.id]))

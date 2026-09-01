@@ -58,3 +58,28 @@
 .trayCard:active {
   transform: scale(0.98);
 }
+
+.rejete {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 15%, var(--color-surface));
+  animation: secousse 0.3s ease;
+}
+
+@keyframes secousse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rejete {
+    animation: none;
+  }
+}

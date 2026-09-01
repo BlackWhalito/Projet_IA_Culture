@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FilDesJoursContent, GameCompleteResult } from '../../types/game'
 import { appliquerEffets, jaugesInitiales, resoudreEpilogue } from '../../engine/fildesjours'
 import { elapsedSince } from '../../engine/timing'
+import { jouerSon } from '../../engine/sound'
 import styles from './FilDesJoursGame.module.css'
 
 interface FilDesJoursGameProps {
@@ -31,6 +32,7 @@ export function FilDesJoursGame({ content, onComplete }: FilDesJoursGameProps) {
   const epilogue = phase === 'epilogue' ? resoudreEpilogue(jauges, content.epilogues) : null
 
   function handleChoix(option: FilDesJoursContent['etapes'][number]['options'][number]) {
+    jouerSon('tap')
     setJauges((j) => appliquerEffets(j, option.effets))
     setConsequence({ texte: option.consequence, historique: option.historique })
     setPhase('consequence')
@@ -46,8 +48,17 @@ export function FilDesJoursGame({ content, onComplete }: FilDesJoursGameProps) {
     }
   }
 
+  /**
+   * On peut désormais perdre une matinée.
+   *
+   * `correct` était renvoyé à `true` en dur : quelle que soit la partie, le
+   * joueur gagnait. Le scénario fait pourtant monter une jauge en faisant
+   * descendre l'autre à chaque choix — une jauge tombée à zéro est donc une
+   * vraie défaite, et c'est la seule lecture qui rende les choix conséquents.
+   */
   function handleTerminer() {
-    onComplete({ correct: true, timeMs: elapsedSince(startedAtRef.current) })
+    const correct = content.jauges.every((jauge) => (jauges[jauge.id] ?? 0) > 0)
+    onComplete({ correct, timeMs: elapsedSince(startedAtRef.current) })
   }
 
   return (

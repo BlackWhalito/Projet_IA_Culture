@@ -11,8 +11,32 @@
   box-shadow: 0 4px 16px rgb(93 69 116 / 10%);
 }
 
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sonBouton {
+  flex: none;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--papier-ombre);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sonBouton:active {
+  transform: scale(0.95);
+}
+
 .domainBadge {
-  align-self: flex-start;
   border: none;
   border-radius: var(--radius-pill);
   padding: var(--space-1) var(--space-3);
