@@ -78,6 +78,35 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
+## Une forme dessinée à la main qui reste fausse — et le filtre accusé à tort
+
+**Symptôme.** Une forme SVG écrite à la main (une carte, une silhouette) ne ressemble pas à ce qu'elle devrait, on corrige les coordonnées, on recapture — et elle reste fausse. Comme le projet couvre tout de filtres aquarelle, on finit par soupçonner le filtre.
+
+**Ce qui a coûté trois itérations sur la carte de France.** Redessiner à l'estime donne des proportions fausses : on ne juge pas de mémoire la largeur de la Normandie. Poser ensuite les bons sommets, tirés de vraies coordonnées, ne suffit pas non plus — les **points de contrôle des courbes de Bézier entre les sommets** sont choisis à l'aveugle, et ce sont eux qui déforment. À ce stade on a accusé `aq-bord-1` de manger les presqu'îles, ce qui était plausible (il déplace de ±15 unités, la Bretagne en fait 36). C'était faux.
+
+**Les deux règles.**
+
+1. **Rendre la forme nue avant de soupçonner quoi que ce soit.** Un fichier HTML de dix lignes, le chemin sans aucun filtre à côté du chemin filtré, une capture, et le doute est tranché en une minute. Sans ça on débogue le mauvais étage. C'est l'application directe de la règle « instrumenter avant de conclure » plus bas.
+2. **Ne pas écrire de points de contrôle à la main.** Poser une liste de points réels et les relier par une spline (Catmull-Rom convertie en Béziers, une quinzaine de lignes) donne une forme juste par construction. Voir `src/content/maps/france.ts` : 72 points en longitude/latitude et une tension de 0,85. Corriger la carte, c'est corriger un point — jamais une courbe.
+
+**Le corollaire pour les projections.** Une projection linéaire lon/lat a besoin de **deux facteurs différents** : aux latitudes françaises un degré de longitude vaut environ 77 km contre 111 pour un degré de latitude. Un facteur unique donne une France étirée en largeur.
+
+## Un identifiant inconnu qui se lit comme zéro
+
+**Symptôme.** Une condition de contenu se déclenche sur *toutes* les parties au lieu de quelques-unes, sans erreur ni avertissement.
+
+**Cause.** `resoudreEpilogue` (et tout code du même genre) lit `jauges[id] ?? 0`. Une condition qui vise une jauge **qui n'existe pas** est donc toujours satisfaite. Écrire `distance` au lieu de `milles` a rendu perdantes les 2187 parties de Christophe Colomb d'un coup.
+
+**Contournement.** C'est la même famille que le repli silencieux de `selectGameForNotion` : la seule défense est un test d'intégrité du contenu. `contentIntegrity.test.ts` vérifie maintenant que toute jauge citée dans un épilogue ou dans les effets d'une option existe bien, et que le taux de défaite d'un scénario reste entre 2 et 40 %. **Quand tu ajoutes un garde-fou de ce type, réintroduis le bug une fois pour vérifier qu'il l'attrape** — un test qui ne peut pas échouer ne vaut rien.
+
+## `min-height` l'emporte sur `max-height`
+
+**Symptôme.** Une zone de jeu plafonnée par `max-height` s'étire quand même, ou pousse les commandes hors de l'écran sur téléphone.
+
+**Cause.** En CSS, `min-height` gagne toujours contre `max-height`. `min-height: 55vh; max-height: 420px` vaut donc 55vh sur un grand écran, et le plafond ne sert à rien.
+
+**Contournement.** Un seul `height: clamp(...)`. Et **mesurer sur un viewport court** (390 × 664 est un téléphone courant, barres du navigateur comprises), pas seulement sur le format de référence : les rives de La Rivière tombaient toutes sous la ligne de flottaison, et le format 420 × 860 ne le montrait pas.
+
 ## Regarder un rendu — la voie directe
 
 **À essayer en premier, avant le contournement de la section suivante.**
