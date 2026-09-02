@@ -95,6 +95,46 @@ export interface ChaineContent extends AvecConsigne {
   secondesParCarte: number
 }
 
+/**
+ * « La virgule qui sauve » — on pose la ponctuation qui donne à une phrase le
+ * sens qu'on nous commande, sachant que la même suite de mots peut dire
+ * l'inverse.
+ *
+ * La ponctuation n'est pas de la décoration de fin de phrase : c'est un
+ * **opérateur de sens**. Le QCM que cette mécanique remplace demandait « quel
+ * signe termine une phrase interrogative ? » — question à laquelle personne
+ * n'a jamais répondu faux. Ce qu'un adulte a réellement oublié, c'est que la
+ * virgule décide **qui fait quoi à qui**, et qu'un signe final change l'acte de
+ * langage : on informe, on demande, ou on ordonne.
+ *
+ * Un QCM ne peut pas l'enseigner, parce qu'il faudrait voir la phrase
+ * basculer. Ici c'est le geste même : on pose la virgule, et la paraphrase du
+ * sens se réécrit sous les yeux **avant** toute validation.
+ */
+export interface PonctuationContent extends AvecConsigne {
+  atelier: { qui: string; lieu: string; annee?: string }
+  cas: {
+    mots: string[]
+    /** Indices des mots après lesquels une fente s'ouvre. */
+    fentes: number[]
+    /** Le cycle proposé, dans l'ordre. Un tap avance d'un cran, et `null` boucle. */
+    signes: string[]
+    /** Le sens qu'on demande au joueur de produire. */
+    commande: string
+    /** La configuration attendue, de même longueur que `fentes`. */
+    attendu: (string | null)[]
+    /**
+     * Les paraphrases affichées **en direct**, dès que la configuration
+     * courante correspond. C'est le cœur du plaisir : on voit le sens basculer
+     * avant de valider.
+     */
+    lectures: { config: (string | null)[]; texte: string }[]
+    /** Ce qu'on aurait obtenu à une virgule près. Servi après la validation. */
+    adverse: string
+    secondes: number
+  }[]
+}
+
 export interface CapSurContent extends AvecConsigne {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */

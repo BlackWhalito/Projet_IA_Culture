@@ -7,6 +7,7 @@ import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
 import { CapSurGame } from './CapSurGame/CapSurGame'
 import { ChaineGame } from './ChaineGame/ChaineGame'
+import { PonctuationGame } from './PonctuationGame/PonctuationGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -29,5 +30,7 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <CapSurGame content={selected.content} onComplete={onComplete} />
     case 'chaine':
       return <ChaineGame content={selected.content} onComplete={onComplete} />
+    case 'ponctuation':
+      return <PonctuationGame content={selected.content} onComplete={onComplete} />
   }
 }

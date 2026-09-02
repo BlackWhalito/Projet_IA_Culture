@@ -1,0 +1,170 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.compteur {
+  font-variant-numeric: tabular-nums;
+}
+
+.atelier {
+  font-style: italic;
+  text-align: right;
+}
+
+/* La commande du duc : c'est l'énoncé, il doit se lire avant la phrase. */
+.commande {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-domain-francais) 12%, var(--color-surface));
+  font-size: 1.02rem;
+  line-height: 1.4;
+  color: var(--encre);
+}
+
+/*
+ * La phrase, en mots séparés par des fentes.
+ *
+ * `align-items: baseline` : les signes de ponctuation doivent s'asseoir sur la
+ * même ligne que les mots, sinon la phrase se lit en escalier.
+ */
+.phrase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--papier);
+  border: 1px solid var(--papier-ombre);
+}
+
+.groupe {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.mot {
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--encre);
+}
+
+/*
+ * La fente. Elle fait 44 px de haut comme tout ce qui se tape, mais reste
+ * étroite : c'est un intervalle entre deux mots, pas un bouton posé à côté
+ * d'eux. Le point médian marque une fente vide sans casser la lecture.
+ */
+.fente {
+  min-width: 30px;
+  min-height: var(--touch-target-min);
+  padding: 0 2px;
+  border: none;
+  border-bottom: 2px dashed var(--violet-brume);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--violet-profond);
+  font-family: var(--font-family-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fenteVide {
+  color: var(--color-locked);
+}
+
+.fente:disabled {
+  cursor: default;
+  border-bottom-color: transparent;
+}
+
+.fente:not(:disabled):active {
+  background: color-mix(in srgb, var(--violet) 15%, transparent);
+}
+
+/*
+ * La ligne de lecture : ce que la phrase dit **en l'état**. Elle se réécrit à
+ * chaque tap, avant toute validation — c'est là qu'est le plaisir du jeu, donc
+ * elle a la place d'un vrai bloc, pas d'une note de bas de page.
+ */
+.lecture {
+  margin: 0;
+  min-height: 3.2em;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--violet);
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--encre);
+}
+
+.lectureVide {
+  border-left-color: var(--color-locked);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 3.2em;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--violet);
+}
+
+.verdictJuste,
+.verdictFaux {
+  margin: 0;
+  font-weight: 700;
+}
+
+.verdictJuste {
+  color: var(--color-success);
+}
+
+.verdictFaux {
+  color: var(--color-error);
+}
+
+/* Ce qu'on aurait obtenu à une virgule près : la vraie leçon du cas. */
+.adverse {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--encre);
+}
+
+.cacheter {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--violet);
+  color: var(--color-surface);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.cacheter:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.cacheter:not(:disabled):active {
+  transform: scale(0.98);
+}
