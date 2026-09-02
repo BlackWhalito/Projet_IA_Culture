@@ -1,0 +1,199 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.compteur {
+  font-variant-numeric: tabular-nums;
+}
+
+.lanternes {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.lanterne {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-domain-histoire);
+}
+
+.lanterneEteinte {
+  background: var(--color-locked);
+}
+
+/* La mise. C'est le seul chiffre qui compte dans cette mécanique : il est donc
+   le plus gros de l'écran après l'affirmation elle-même. */
+.mise {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.miseValeur {
+  display: block;
+  font-family: var(--font-family-heading);
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--violet-profond);
+  font-variant-numeric: tabular-nums;
+}
+
+.pile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+}
+
+/*
+ * La carte suit le doigt.
+ *
+ * `touch-action: none` est indispensable et c'est le premier geste continu du
+ * projet : sans lui, le navigateur interprète le glissement comme un
+ * défilement de page et vole l'événement au bout de quelques pixels.
+ * `user-select: none` évite la sélection de texte pendant le glissement.
+ */
+.carte {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  width: 100%;
+  min-height: 200px;
+  display: grid;
+  align-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 2px solid var(--papier-ombre);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--violet-profond) 22%, transparent);
+  cursor: grab;
+}
+
+.carte:active {
+  cursor: grabbing;
+}
+
+/* Les deux teintes d'engagement. Elles apparaissent avant la validation : le
+   pouce doit sentir le point de non-retour, pas le découvrir. */
+.carteVrai {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface));
+}
+
+.carteFaux {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 12%, var(--color-surface));
+}
+
+.carteFigee {
+  transform: none !important;
+}
+
+.affirmation {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.35rem;
+  line-height: 1.35;
+  color: var(--encre);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.verdictJuste,
+.verdictFaux {
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.verdictJuste {
+  color: var(--color-success);
+}
+
+.verdictFaux {
+  color: var(--color-error);
+}
+
+/* Le verdict est le vrai contenu pédagogique de cette mécanique : il doit se
+   lire confortablement, pas se deviner en petit. */
+.verdictTexte {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--encre);
+  text-align: left;
+}
+
+.reponses {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.bouton {
+  flex: 1 1 0;
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-locked);
+  background: var(--color-surface);
+  color: var(--encre);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.bouton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.boutonVrai {
+  border-color: color-mix(in srgb, var(--color-success) 60%, var(--color-surface));
+}
+
+.boutonFaux {
+  border-color: color-mix(in srgb, var(--color-error) 60%, var(--color-surface));
+}
+
+.bouton:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Encaisser est une décision, pas une sortie de secours : le bouton est plein
+   et lisible, à la hauteur de ce qu'il fait perdre. */
+.encaisser {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--violet);
+  color: var(--color-surface);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.encaisser:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.encaisser:not(:disabled):active {
+  transform: scale(0.98);
+}

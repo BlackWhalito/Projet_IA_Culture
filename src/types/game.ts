@@ -65,6 +65,36 @@ export interface RiviereContent extends AvecConsigne {
   objectif: number
 }
 
+/**
+ * « Je te crois pas » — des affirmations qu'on balaye vrai ou faux, une mise
+ * qui double, et le droit d'encaisser avant de tout perdre.
+ *
+ * Cette mécanique remplace le QCM, et c'est le point : un QCM annonce qu'une
+ * des trois propositions est vraie, donc il fait **comparer**. Ici il faut
+ * **désavouer** une phrase qui ressemble à ce qu'on dirait soi-même à un dîner.
+ * C'est le seul format qui attaque une idée reçue installée.
+ */
+export interface ChaineContent extends AvecConsigne {
+  /**
+   * Les affirmations, **dans l'ordre de perfidie croissante** — jamais
+   * mélangées. C'est cet ordre qui fait la courbe de la manche : les évidences
+   * du début installent la confiance, et la tentation d'encaisser devient
+   * maximale exactement au moment où les vrais pièges arrivent.
+   */
+  affirmations: {
+    texte: string
+    vrai: boolean
+    /**
+     * Servi après la réponse, juste ou fausse. Doit dire **pourquoi c'était
+     * tentant**, pas seulement ce qui est vrai : c'est là que loge tout
+     * l'apprentissage de cette mécanique.
+     */
+    verdict: string
+  }[]
+  /** Temps de réflexion par carte. Au-delà, la carte compte comme ratée. */
+  secondesParCarte: number
+}
+
 export interface CapSurContent extends AvecConsigne {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */

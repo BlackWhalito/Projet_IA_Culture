@@ -6,6 +6,7 @@ import { TimelineGame } from './TimelineGame/TimelineGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
 import { CapSurGame } from './CapSurGame/CapSurGame'
+import { ChaineGame } from './ChaineGame/ChaineGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -26,5 +27,7 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
       return <FilDesJoursGame content={selected.content} onComplete={onComplete} />
     case 'capsur':
       return <CapSurGame content={selected.content} onComplete={onComplete} />
+    case 'chaine':
+      return <ChaineGame content={selected.content} onComplete={onComplete} />
   }
 }

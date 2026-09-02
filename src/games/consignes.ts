@@ -24,5 +24,6 @@ export const FICTIONS: Record<GameTypeId, string> = {
   match: 'Deux colonnes, une seule bonne façon de les relier.',
   timeline: 'Le temps se remet en place une carte à la fois. Une carte hors tour te revient.',
   qcm: 'Une question, trois pistes. Une seule tient debout.',
+  chaine: 'Chaque phrase te rapporte le double — ou te ruine. Tu peux partir quand tu veux.',
   fildesjours: 'Une journée, des choix, et des forces qui se nourrissent rarement l’une l’autre.',
 }

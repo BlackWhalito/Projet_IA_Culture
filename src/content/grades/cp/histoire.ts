@@ -528,9 +528,99 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 3,
     title: "L'origine des jours de la semaine",
-    summary: 'Les noms des jours de la semaine viennent des astres et des dieux romains.',
-    funFact: 'Lundi vient de la Lune, et vendredi vient de Vénus : les jours de la semaine gardent la trace des astres observés par les Romains.',
+    summary:
+      'Cinq jours sur sept portent le nom d’un astre romain. Les deux derniers, non : ' +
+      'le week-end français a été rebaptisé par les religions.',
+    funFact:
+      'L’anglais a gardé Saturday, le jour de Saturne, et Sunday, le jour du Soleil. ' +
+      'Le français les a remplacés : samedi vient de l’hébreu shabbat — le m vient du ' +
+      'grec, qui avait nasalisé le mot — et dimanche du latin chrétien dies dominicus, ' +
+      '« le jour du Seigneur ». Deux religions ont effacé deux dieux romains, et ' +
+      'seulement de ce côté-ci de la Manche.',
     games: {
+      /*
+       * Les affirmations sont dans l'ordre de perfidie croissante, jamais
+       * mélangées : c'est cet ordre qui fait la courbe de la manche. Les six
+       * premières installent la confiance, la huitième pose le piège, et les
+       * deux suivantes le referment.
+       *
+       * Étymologies vérifiées par recherche (Wikipédia « Noms des jours de la
+       * semaine » et « Dimanche »), pas de mémoire — c'est la règle du projet,
+       * et le `summary` précédent était justement faux : il affirmait que les
+       * sept jours venaient des dieux romains.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'Lundi vient de la Lune.',
+            vrai: true,
+            verdict: 'Dies Lunae, « le jour de la Lune ». Celui-là est resté intact.',
+          },
+          {
+            texte: 'Mercredi vient de Mercure.',
+            vrai: true,
+            verdict: 'Dies Mercurii. Le dieu des marchands et des voyageurs.',
+          },
+          {
+            texte: 'Vendredi vient de Vénus.',
+            vrai: true,
+            verdict: 'Dies Veneris. Rien à voir avec le vendredi de la Passion.',
+          },
+          {
+            texte: 'Le mot « semaine » vient d’un mot latin qui veut dire « sept ».',
+            vrai: true,
+            verdict: 'Septimana, de septem. Une semaine, c’est littéralement « la septaine ».',
+          },
+          {
+            texte: 'Les sept jours viennent des sept astres que les Anciens appelaient planètes.',
+            vrai: true,
+            verdict:
+              'Le Soleil, la Lune, Mars, Mercure, Jupiter, Vénus et Saturne. Sept astres ' +
+              'mobiles dans le ciel : sept jours. La Terre n’en faisait pas partie.',
+          },
+          {
+            texte: 'Jeudi vient de Jupiter.',
+            vrai: true,
+            verdict: 'Jovis dies, le jour de Jove — l’autre nom de Jupiter.',
+          },
+          {
+            texte: 'Selon la norme internationale, la semaine commence le lundi.',
+            vrai: true,
+            verdict:
+              'Norme ISO 8601. Beaucoup de calendriers, notamment américains, la font ' +
+              'commencer le dimanche : la question a une réponse, mais elle est récente.',
+          },
+          {
+            texte: 'En anglais, « Saturday » vient bien de Saturne.',
+            vrai: true,
+            verdict: 'Saturn’s day. Retiens-le : la carte suivante en dépend.',
+          },
+          {
+            texte: 'Samedi vient de Saturne.',
+            vrai: false,
+            verdict:
+              'Le piège. L’anglais dit Saturday, mais le français vient de l’hébreu ' +
+              'shabbat, passé par le grec — d’où le m — puis par le latin sambati dies. ' +
+              'La semaine française n’est romaine qu’aux cinq septièmes.',
+          },
+          {
+            texte: 'Dimanche vient du Soleil.',
+            vrai: false,
+            verdict:
+              'Encore l’anglais qui trompe : Sunday, oui ; dimanche, non. Du latin ' +
+              'chrétien dies dominicus, « le jour du Seigneur ».',
+          },
+          {
+            texte: 'Chez les Romains, le dimanche était pourtant bien le jour du Soleil.',
+            vrai: true,
+            verdict:
+              'Dies Solis. Il l’était — et c’est justement ce que le christianisme a ' +
+              'recouvert. Le Soleil n’a pas disparu du calendrier par hasard.',
+          },
+        ],
+      },
       match: {
         pairs: [
           { left: 'Lundi', right: 'La Lune' },

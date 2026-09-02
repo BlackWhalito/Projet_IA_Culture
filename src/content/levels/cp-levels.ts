@@ -87,7 +87,7 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-sciences-jour-nuit', gameType: 'qcm' },
       { notionId: 'cp-francais-rimes', gameType: 'qcm' },
-      { notionId: 'cp-histoire-jours-semaine', gameType: 'match' },
+      { notionId: 'cp-histoire-jours-semaine', gameType: 'chaine' },
       { notionId: 'cp-geographie-tour-eiffel-monuments', gameType: 'qcm' },
       { notionId: 'cp-sciences-vivipares-ovipares', gameType: 'riviere' },
     ],
