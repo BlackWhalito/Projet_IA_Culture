@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { GradeId, GameTypeId } from '../../types/content'
 import { getNotionById } from '../../content/notions'
@@ -6,6 +6,7 @@ import { GameShell } from '../../games/GameShell'
 import type { NotionResult } from '../../types/game'
 import { readBestScore, useProgressStore } from '../../state/progressStore'
 import { computeSessionScore, computeStarRating } from '../../engine/scoring'
+import { arreterMusique, demarrerMusique } from '../../engine/musique'
 import styles from './GameSessionScreen.module.css'
 
 interface GameSessionScreenProps {
@@ -25,6 +26,21 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
 
   const current = queue[index]
   const isDone = index >= queue.length
+
+  /**
+   * L'ambiance du niveau tourne pendant toute la session et s'arrête en
+   * sortant. Elle est liée au NIVEAU, pas au jeu : passer d'une mécanique à la
+   * suivante ne doit pas couper la musique, sinon on entend une saccade à
+   * chaque écran.
+   *
+   * Le navigateur suspend l'audio tant que l'utilisateur n'a pas interagi ;
+   * `demarrerMusique` réveille le contexte, et le premier tap du joueur suffit
+   * à le débloquer. Le fondu d'entrée de 2,5 s rend cette latence inaudible.
+   */
+  useEffect(() => {
+    demarrerMusique(levelId)
+    return () => arreterMusique()
+  }, [levelId])
 
   function handleContinue(result: NotionResult) {
     const nextResults = [...results, result]
@@ -84,6 +100,7 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
         key={`${index}-${notion.id}`}
         notion={notion}
         pinnedGameType={current.gameType}
+        levelId={levelId}
         onContinue={handleContinue}
       />
     </div>

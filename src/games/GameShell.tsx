@@ -4,6 +4,7 @@ import { selectGameForNotion } from '../engine/selectGameForNotion'
 import { DOMAINS } from '../content/domains'
 import { GameRouter } from './GameRouter'
 import { definirActif, estActif, jouerSon } from '../engine/sound'
+import { arreterMusique, demarrerMusique } from '../engine/musique'
 import { FICTIONS } from './consignes'
 import type { GameCompleteResult, NotionResult } from '../types/game'
 import styles from './GameShell.module.css'
@@ -11,6 +12,8 @@ import styles from './GameShell.module.css'
 interface GameShellProps {
   notion: Notion
   pinnedGameType?: GameTypeId
+  /** Sert à relancer l'ambiance du niveau quand on rallume le son en pleine partie. */
+  levelId?: string
   onContinue: (result: NotionResult) => void
 }
 
@@ -22,7 +25,7 @@ type Phase = 'playing' | 'feedback'
  * demander (le résumé et la phrase à trous étaient parfois identiques).
  * Le savoir est désormais la récompense, pas la consigne.
  */
-export function GameShell({ notion, pinnedGameType, onContinue }: GameShellProps) {
+export function GameShell({ notion, pinnedGameType, levelId, onContinue }: GameShellProps) {
   const [phase, setPhase] = useState<Phase>('playing')
   const [result, setResult] = useState<GameCompleteResult | null>(null)
   const [sonActif, setSonActif] = useState(() => estActif())
@@ -33,9 +36,16 @@ export function GameShell({ notion, pinnedGameType, onContinue }: GameShellProps
     const suivant = !sonActif
     definirActif(suivant)
     setSonActif(suivant)
-    // Le retour sonore du rallumage vaut mieux qu'une étiquette : on entend
-    // immédiatement ce qu'on vient de récupérer.
-    if (suivant) jouerSon('juste')
+    if (suivant) {
+      // Le retour sonore du rallumage vaut mieux qu'une étiquette : on entend
+      // immédiatement ce qu'on vient de récupérer.
+      jouerSon('juste')
+      if (levelId) demarrerMusique(levelId)
+    } else {
+      // Un seul bouton coupe tout : un joueur qui coupe « le son » ne s'attend
+      // pas à ce que la musique continue.
+      arreterMusique()
+    }
   }
 
   return (

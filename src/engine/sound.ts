@@ -1,3 +1,5 @@
+import { contexteActif, estActif, reverb } from './audio'
+
 /**
  * Le son du jeu, entièrement synthétisé — aucun fichier audio dans le projet.
  *
@@ -15,6 +17,9 @@
  *   d'`AudioContext` (jsdom en test, par exemple) : les jeux peuvent donc
  *   l'appeler sans garde.
  */
+
+/** Volume général, appliqué par-dessus le gain de chaque note. */
+const VOLUME_MAITRE = 0.5
 
 export type SonId =
   | 'tap'
@@ -118,83 +123,6 @@ export const VOIX: Record<SonId, Voix> = {
   },
 }
 
-const CLE_STOCKAGE = 'jeu-culture-son-v1'
-/** Volume général, appliqué par-dessus le gain de chaque note. */
-const VOLUME_MAITRE = 0.5
-/** Longueur de la queue de réverbération, en secondes. */
-const REVERB_SEC = 1.1
-
-/**
- * Le son est actif par défaut : c'est ce qui rend le jeu immersif, et le
- * couper doit être un geste volontaire, pas une découverte.
- */
-export function estActif(): boolean {
-  try {
-    return window.localStorage.getItem(CLE_STOCKAGE) !== 'off'
-  } catch {
-    // Navigation privée, stockage bloqué : on joue le son plutôt que de se taire.
-    return true
-  }
-}
-
-export function definirActif(actif: boolean): void {
-  try {
-    window.localStorage.setItem(CLE_STOCKAGE, actif ? 'on' : 'off')
-  } catch {
-    // Le réglage ne survivra pas au rechargement, mais la session courante marche.
-  }
-}
-
-type FabriqueContexte = new () => AudioContext
-
-function fabriqueContexte(): FabriqueContexte | null {
-  if (typeof window === 'undefined') return null
-  const w = window as unknown as { AudioContext?: FabriqueContexte; webkitAudioContext?: FabriqueContexte }
-  return w.AudioContext ?? w.webkitAudioContext ?? null
-}
-
-let contexte: AudioContext | null = null
-let reverb: ConvolverNode | null = null
-
-/**
- * Une réverbération synthétisée : du bruit qui décroît, ce qui suffit à donner
- * aux notes l'espace d'une pièce plutôt que la sécheresse d'un oscillateur nu.
- * C'est ce détail, plus que les hauteurs, qui fait la différence entre « bip »
- * et « instrument ».
- */
-function fabriquerReverb(ctx: AudioContext): ConvolverNode {
-  const longueur = Math.floor(ctx.sampleRate * REVERB_SEC)
-  const buffer = ctx.createBuffer(2, longueur, ctx.sampleRate)
-  for (let canal = 0; canal < 2; canal++) {
-    const donnees = buffer.getChannelData(canal)
-    for (let i = 0; i < longueur; i++) {
-      // Décroissance exponentielle : la queue s'éteint sans coupure nette.
-      donnees[i] = (Math.random() * 2 - 1) * (1 - i / longueur) ** 3
-    }
-  }
-  const noeud = ctx.createConvolver()
-  noeud.buffer = buffer
-  return noeud
-}
-
-/**
- * Le contexte audio ne peut pas être créé au chargement du module : les
- * navigateurs le suspendent tant que l'utilisateur n'a pas interagi avec la
- * page. On le fabrique donc au premier son — c'est-à-dire après un clic, par
- * construction — et on le réveille s'il a été suspendu entre-temps.
- */
-function contexteActif(): AudioContext | null {
-  const Fabrique = fabriqueContexte()
-  if (!Fabrique) return null
-  if (!contexte) {
-    contexte = new Fabrique()
-    reverb = fabriquerReverb(contexte)
-    reverb.connect(contexte.destination)
-  }
-  if (contexte.state === 'suspended') void contexte.resume()
-  return contexte
-}
-
 /**
  * Joue un son. Ne lève jamais : un environnement sans Web Audio (jsdom), un
  * son coupé, un contexte refusé par le navigateur — dans tous ces cas l'appel
@@ -203,7 +131,8 @@ function contexteActif(): AudioContext | null {
 export function jouerSon(id: SonId): void {
   if (!estActif()) return
   const ctx = contexteActif()
-  if (!ctx || !reverb) return
+  const echo = reverb()
+  if (!ctx || !echo) return
 
   const voix = VOIX[id]
   const maintenant = ctx.currentTime
@@ -234,9 +163,15 @@ export function jouerSon(id: SonId): void {
     enveloppe.connect(sec)
     enveloppe.connect(mouille)
     sec.connect(ctx.destination)
-    mouille.connect(reverb)
+    mouille.connect(echo)
 
     osc.start(debut)
     osc.stop(fin + 0.02)
   }
 }
+
+/**
+ * Réexportés pour que les composants n'aient qu'un seul module audio à
+ * connaître. La source de vérité est `audio.ts`.
+ */
+export { estActif, definirActif } from './audio'
