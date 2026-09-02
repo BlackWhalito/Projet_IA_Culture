@@ -1,4 +1,16 @@
 :root {
+  /*
+   * L'app est un design CLAIR, et elle doit le dire.
+   *
+   * Sans cette ligne, un navigateur en mode sombre peint le texte des
+   * contrôles de formulaire avec SA palette : un `<button>` sans `color`
+   * explicite se retrouve en texte blanc sur le fond crème de l'app. C'est
+   * exactement ce qui rendait le mot de La Rivière invisible — « un carré
+   * blanc qui défile ». Chromium conservait le noir, ce qui a masqué le
+   * défaut pendant toute une session de vérification.
+   */
+  color-scheme: light;
+
   --papier: #f7f2e7;
   --papier-ombre: #e8dfe4;
   --color-bg: var(--papier);

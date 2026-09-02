@@ -1,0 +1,79 @@
+/*
+ * Le mouvement de la rivière.
+ *
+ * Tout passe par `transform` et `opacity` — jamais par un filtre, jamais par
+ * une propriété qui force un recalcul de mise en page. C'est la règle de coût
+ * de la skill `aquarelle` : un `feTurbulence` recalculé à chaque image fait
+ * chuter le framerate sur téléphone.
+ *
+ * Le motif de chaque couche est dessiné DEUX fois, à 600 unités d'écart, et la
+ * couche défile de 600 exactement : à la fin du cycle, la copie du haut occupe
+ * la position de départ de l'originale. La boucle est donc invisible, sans
+ * aucun code JavaScript.
+ */
+
+.decor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@keyframes couler {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(600px);
+  }
+}
+
+/* Le fil du courant : la couche la plus rapide, celle qui donne la direction. */
+.courant {
+  fill: none;
+  stroke: var(--violet-profond);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.3;
+}
+
+.courantMotif {
+  animation: couler 7s linear infinite;
+}
+
+/* Les remous : plus lents et plus pâles. L'écart de vitesse avec le fil du
+   courant crée la parallaxe, et c'est elle qui donne la profondeur. */
+.remous {
+  fill: none;
+  stroke: var(--violet);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.28;
+}
+
+.remousMotif {
+  animation: couler 13s linear infinite;
+}
+
+/* L'écume : la couche la plus rapide et la plus claire, en réserve de papier. */
+.ecume {
+  fill: var(--papier);
+  opacity: 0.55;
+}
+
+.ecumeMotif {
+  animation: couler 4.5s linear infinite;
+}
+
+/*
+ * Mouvement réduit : la rivière se fige plutôt que de disparaître. Un joueur
+ * qui a demandé moins d'animation veut toujours voir où est l'eau.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .courantMotif,
+  .remousMotif,
+  .ecumeMotif {
+    animation: none;
+  }
+}

@@ -158,7 +158,11 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
               [styles.flottantStatique]: prefersReducedMotion,
               [styles.selectionne]: selectedSpawnId === current.spawnId,
             })}
-            style={prefersReducedMotion ? undefined : { animationDuration: `${vitesseSec}s` }}
+            // Deux animations : la chute, dont la durée suit l'accélération du
+            // jeu, et la dérive latérale, dont la durée est fixe — c'est la
+            // rivière qui balance, pas le mot qui s'agite. Une seule valeur
+            // ici s'appliquerait aux deux.
+            style={prefersReducedMotion ? undefined : { animationDuration: `${vitesseSec}s, 2.6s` }}
             onClick={() => handleWordTap(current.spawnId)}
           >
             {content.flottants[current.flottantIndex].label}

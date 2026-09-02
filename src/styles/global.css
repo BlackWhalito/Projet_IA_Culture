@@ -16,8 +16,17 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/*
+ * Un bouton n'hérite NI de la famille NI de la couleur du texte : sans ces
+ * deux lignes il prend les valeurs du navigateur, qui changent selon le
+ * système et le mode sombre. `color-scheme: light` (dans tokens.css) suffirait
+ * en théorie ; on garde la déclaration explicite parce qu'un jeu ne peut pas
+ * se permettre de dépendre d'un défaut de plateforme pour que son texte soit
+ * lisible.
+ */
 button {
   font-family: inherit;
+  color: var(--color-text);
 }
 
 img {

@@ -45,26 +45,44 @@
   border: 2px solid color-mix(in srgb, var(--color-domain-geographie) 25%, var(--color-surface));
 }
 
-/* Le mot flotte AU-DESSUS du décor peint : le z-index le sort du lavis.
-   Ses bords restent nets et sa zone tapable rectangulaire — c'est de
-   l'interface, elle échappe aux règles douces de l'aquarelle. */
+/*
+ * Le mot porté par le courant.
+ *
+ * Il était invisible sur certains navigateurs : « un carré blanc qui défile ».
+ * Cause, corrigée à la racine dans `tokens.css` et `global.css` — un `<button>`
+ * n'hérite pas de la couleur du texte, et sans `color-scheme` déclaré, un
+ * navigateur en mode sombre peignait ce texte en blanc sur le fond crème.
+ * `color` et `font-size` sont désormais explicites ici aussi : un jeu ne peut
+ * pas dépendre d'un défaut de plateforme pour que sa pièce maîtresse soit
+ * lisible.
+ *
+ * Il est aussi devenu beaucoup plus gros. Ce n'est pas un bouton de formulaire,
+ * c'est LA pièce du jeu : elle se lit d'un coup d'œil, en mouvement, sur un
+ * fond peint.
+ */
 .flottant {
   position: absolute;
   z-index: 1;
   top: -15%;
   left: 50%;
-  transform: translateX(-50%);
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-domain-sciences);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--violet-profond);
   border-radius: var(--radius-md);
   background: var(--color-surface);
+  color: var(--encre);
   cursor: pointer;
   font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
   white-space: nowrap;
-  animation-name: chute;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
+  /* L'ombre portée sur l'eau : c'est elle qui fait flotter le mot au lieu de
+     le coller au fond. Violette, jamais grise (skill `aquarelle`). */
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--violet-profond) 35%, transparent);
+  animation-name: chute, derive;
+  animation-timing-function: linear, ease-in-out;
+  animation-fill-mode: forwards, none;
+  animation-iteration-count: 1, infinite;
 }
 
 @keyframes chute {
@@ -76,10 +94,38 @@
   }
 }
 
+/*
+ * La dérive latérale : le mot n'est pas lâché dans le vide, il est PORTÉ par
+ * un courant. Deux ou trois degrés de roulis et une vingtaine de pixels de
+ * balancement suffisent — au-delà, la cible devient difficile à viser, et le
+ * jouable prime sur le joli.
+ *
+ * La durée de ce balancement est fixe (elle ne suit pas l'accélération de la
+ * chute) : c'est la rivière qui balance, pas le mot qui s'agite.
+ */
+@keyframes derive {
+  0% {
+    transform: translateX(-50%) translateX(-14px) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateX(-50%) translateX(14px) rotate(2.5deg);
+  }
+  100% {
+    transform: translateX(-50%) translateX(-14px) rotate(-2.5deg);
+  }
+}
+
 .flottantStatique {
   position: absolute;
   top: 40%;
+  transform: translateX(-50%);
   animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flottant {
+    animation-name: chute;
+  }
 }
 
 .selectionne {
