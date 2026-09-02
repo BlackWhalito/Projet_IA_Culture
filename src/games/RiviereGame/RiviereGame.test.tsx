@@ -60,7 +60,15 @@ describe('RiviereGame', () => {
     vi.useRealTimers()
   })
 
-  it('compte un mauvais dépôt comme une erreur sans faire avancer la file', () => {
+  /**
+   * Le test qui verrouille le correctif le plus important de cette mécanique.
+   *
+   * Avant, un mauvais dépôt ne consommait pas le mot et ne le désélectionnait
+   * pas : avec deux rives — le cas de cinq des huit Rivières du CP — taper
+   * l'une puis l'autre garantissait la bonne réponse. Une partie réelle a été
+   * gagnée 5/5 sans lire un seul mot. Le mot échoué doit donc disparaître.
+   */
+  it('fait échouer le mot sur la mauvaise rive, sans seconde chance', () => {
     vi.useFakeTimers()
     const onComplete = vi.fn()
     render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
@@ -71,8 +79,8 @@ describe('RiviereGame', () => {
     act(() => {
       vi.advanceTimersByTime(600)
     })
-    // Le mot est toujours là : un mauvais panier ne le consomme pas.
-    expect(motCourant()).toBe(mot)
+    // Le mot suivant est en jeu : celui d'avant s'est échoué.
+    expect(motCourant()).not.toBe(mot)
 
     for (let i = 0; i < CONTENU.objectif; i++) {
       const m = motCourant()
@@ -83,6 +91,27 @@ describe('RiviereGame', () => {
     })
 
     expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ correct: true, mistakes: 1 }))
+    vi.useRealTimers()
+  })
+
+  /** Trois mauvaises rives suffisent à perdre : la stratégie du tricheur meurt ici. */
+  it('perd la manche après trois mots échoués sur la mauvaise rive', () => {
+    vi.useFakeTimers()
+    const onComplete = vi.fn()
+    render(<RiviereGame content={CONTENU} onComplete={onComplete} />)
+
+    for (let i = 0; i < 3; i++) {
+      const m = motCourant()
+      classer(m, genreAttendu(m) === 'Masculin' ? 'Féminin' : 'Masculin')
+      act(() => {
+        vi.advanceTimersByTime(600)
+      })
+    }
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+
+    expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ correct: false, mistakes: 3 }))
     vi.useRealTimers()
   })
 

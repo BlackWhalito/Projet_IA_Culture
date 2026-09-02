@@ -17,8 +17,15 @@ interface QueueItem {
   flottantIndex: number
 }
 
-/** Tous les combien d'objets classés correctement la vitesse augmente. */
-const PALIER_ACCELERATION = 5
+/**
+ * Tous les combien d'objets classés correctement la vitesse augmente.
+ *
+ * À 5, la promesse « ça accélère » était creuse : les objectifs du contenu
+ * valent 4 à 8, donc trois des huit Rivières du CP ne franchissaient JAMAIS de
+ * palier, et les cinq autres en franchissaient exactement un, souvent au
+ * dernier mot. À 3, une manche de 6 en franchit deux.
+ */
+const PALIER_ACCELERATION = 3
 /** Nombre de mots ratés (sortis de l'écran) qui met fin à la manche. */
 const RATES_MAX = 3
 /** Durée plancher d'une chute, pour que l'accélération ne rende jamais le mot injouable. */
@@ -60,7 +67,10 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
   const startedAtRef = useRef(0)
   const finishedRef = useRef(false)
 
-  const finished = correctCount >= content.objectif || rateCount >= RATES_MAX
+  // Un mot perdu est un mot perdu, qu'il ait filé au bas de l'écran ou qu'il se
+  // soit échoué sur la mauvaise rive : les deux consomment la même réserve.
+  const perdus = rateCount + wrongTapCount
+  const finished = correctCount >= content.objectif || perdus >= RATES_MAX
   const current = finished ? null : (queue[0] ?? null)
   // Dérivée de correctCount plutôt que gardée en state : c'est une fonction pure du
   // nombre de paliers franchis, pas une valeur qui a besoin d'un effet pour se synchroniser.
@@ -87,7 +97,7 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
   }, [content.flottants.length])
 
   function handleWordTap(spawnId: number) {
-    if (finished || rejectPanierId) return
+    if (finished) return
     jouerSon('tap')
     setSelectedSpawnId(spawnId)
   }
@@ -104,9 +114,20 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
       return
     }
 
+    // Mauvaise rive : le mot s'y échoue et disparaît. Il n'y a PAS de seconde
+    // chance sur le même mot.
+    //
+    // C'est le correctif le plus important de cette mécanique. Avant, un
+    // mauvais dépôt ne consommait rien et ne désélectionnait pas le mot : avec
+    // deux rives — le cas de cinq des huit Rivières du CP — taper l'une puis
+    // l'autre garantissait la bonne réponse. Vérifié en jouant : manche gagnée
+    // 5/5 et « Bonne réponse ! » sans avoir lu un seul mot. La seule mécanique
+    // à tension du projet n'en avait aucune.
+    setSelectedSpawnId(null)
     setWrongTapCount((w) => w + 1)
     jouerSon('faux')
     setRejectPanierId(panierId)
+    avancerQueue()
     window.setTimeout(() => setRejectPanierId(null), REJET_DUREE_MS)
   }
 
@@ -123,17 +144,18 @@ export function RiviereGame({ content, onComplete }: RiviereGameProps) {
     return () => window.clearTimeout(timer)
   }, [current, vitesseSec, finished, avancerQueue])
 
-  // Fin de manche : objectif atteint (victoire) ou trois ratés (échec).
+  // Fin de manche : objectif atteint (victoire), ou trois mots perdus (échec),
+  // qu'ils aient filé ou se soient échoués sur la mauvaise rive.
   useEffect(() => {
     if (finishedRef.current || !finished) return
     finishedRef.current = true
     const succes = correctCount >= content.objectif
     const timeMs = elapsedSince(startedAtRef.current)
-    const mistakes = wrongTapCount + rateCount
+    const mistakes = perdus
     window.setTimeout(() => {
       onComplete({ correct: succes, timeMs, mistakes })
     }, FIN_DELAI_MS)
-  }, [finished, correctCount, rateCount, wrongTapCount, content.objectif, onComplete])
+  }, [finished, correctCount, perdus, content.objectif, onComplete])
 
   return (
     <div className={styles.game}>
