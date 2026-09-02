@@ -1,6 +1,12 @@
 import type { KeyboardEvent } from 'react'
 import clsx from 'clsx'
-import { FRANCE_CONTOUR_PATH, FRANCE_CORSE_PATH, FRANCE_VIEWBOX, FRANCE_ZONES } from '../../content/maps/france'
+import {
+  FRANCE_CONTOUR_PATH,
+  FRANCE_CORSE_PATH,
+  FRANCE_RELIEFS,
+  FRANCE_VIEWBOX,
+  FRANCE_ZONES,
+} from '../../content/maps/france'
 import type { MapZone } from '../../types/maps'
 import styles from './FranceMap.module.css'
 
@@ -75,11 +81,28 @@ export function FranceMap({
         `scale` d'un bord aquarelle doit rester bien en dessous de la plus
         petite dimension de la forme qu'il déforme.
       */}
+      {/* La mer, sous tout le reste : la France est posée dans quelque chose,
+          au lieu d'être découpée sur du vide. */}
+      <rect x="0" y="0" width="100%" height="100%" className={styles.mer} />
+
       <g className={styles.contourCouches}>
         <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-4)" opacity={0.42} />
         <path d={FRANCE_CONTOUR_PATH} className={styles.contourTrait} filter="url(#aq-bord-3)" opacity={0.32} />
         <path d={FRANCE_CORSE_PATH} className={styles.contourTrait} filter="url(#aq-bord-4)" opacity={0.42} />
         <path d={FRANCE_CORSE_PATH} className={styles.contourTrait} filter="url(#aq-bord-3)" opacity={0.32} />
+      </g>
+
+      {/* Le liseré de côte, par-dessus les lavis : c'est lui qui donne son
+          arête au pays et le sort de l'aplat. */}
+      <path d={FRANCE_CONTOUR_PATH} className={styles.cote} filter="url(#aq-bord-4)" />
+      <path d={FRANCE_CORSE_PATH} className={styles.cote} filter="url(#aq-bord-4)" />
+
+      {/* Le relief. Aucun filtre : ces traits font 2 à 3 unités d'épaisseur,
+          un déplacement de bord les effacerait purement et simplement. */}
+      <g className={styles.relief}>
+        {FRANCE_RELIEFS.map((hachure) => (
+          <path key={hachure.d} d={hachure.d} strokeWidth={hachure.epaisseur} />
+        ))}
       </g>
 
       {fleuves.map((zone) => (
@@ -133,6 +156,7 @@ export function FranceMap({
           onKeyDown={(e) => handleKeyDown(e, zone)}
         >
           <circle cx={zone.cx} cy={zone.cy} r={RAYON_ZONE_TAPABLE} className={styles.zoneHitArea} />
+          {labelVisible(zone.id) && <circle cx={zone.cx} cy={zone.cy} r={17} className={styles.villeHalo} />}
           <circle cx={zone.cx} cy={zone.cy} r={7} className={styles.pointVille} />
           {labelVisible(zone.id) && (
             <text x={zone.cx} y={(zone.cy ?? 0) - 12} className={styles.labelVille}>

@@ -167,6 +167,47 @@ export const FRANCE_CORSE_PATH =
   'M617,566 C625,572 626,588 621,606 C615,626 602,638 594,634 ' +
   'C588,628 590,610 596,592 C602,574 610,563 617,566 Z'
 
+
+/**
+ * Les reliefs, en hachures.
+ *
+ * Ils ne servent pas à enseigner la géologie : la carte était « un bloc de
+ * couleur avec des traits et des points », et un pays plat ne donne envie de
+ * rien. Trois massifs suffisent à faire lire un pays qui se soulève — Alpes,
+ * Pyrénées, Massif central — et ils tombent chacun à leur vraie place.
+ *
+ * Chaque entrée est une hachure : un trait court, incliné dans le sens de la
+ * pente, dont l'épaisseur dit la hauteur.
+ */
+export const FRANCE_RELIEFS: { d: string; epaisseur: number }[] = [
+  // Les Alpes : la chaîne la plus haute, du Léman à la Méditerranée.
+  { d: 'M474,352 l14,-9', epaisseur: 3.4 },
+  { d: 'M486,372 l15,-10', epaisseur: 3.6 },
+  { d: 'M492,396 l16,-10', epaisseur: 3.6 },
+  { d: 'M496,420 l15,-10', epaisseur: 3.2 },
+  { d: 'M500,444 l14,-9', epaisseur: 2.8 },
+  { d: 'M462,368 l12,-8', epaisseur: 2.4 },
+  { d: 'M470,392 l13,-8', epaisseur: 2.6 },
+  { d: 'M476,416 l12,-8', epaisseur: 2.4 },
+  // Les Pyrénées : une barre presque horizontale, d'Hendaye à Cerbère.
+  { d: 'M196,536 l13,-7', epaisseur: 3.2 },
+  { d: 'M226,542 l13,-7', epaisseur: 3.4 },
+  { d: 'M256,548 l13,-7', epaisseur: 3.4 },
+  { d: 'M286,552 l13,-7', epaisseur: 3.2 },
+  { d: 'M316,554 l13,-7', epaisseur: 2.8 },
+  // Le Massif central : un dôme au cœur du pays, plus bas et plus étalé.
+  { d: 'M330,392 l11,-7', epaisseur: 2.2 },
+  { d: 'M352,404 l11,-7', epaisseur: 2.4 },
+  { d: 'M340,424 l11,-7', epaisseur: 2.4 },
+  { d: 'M364,432 l11,-7', epaisseur: 2.2 },
+  { d: 'M348,452 l11,-7', epaisseur: 2 },
+  { d: 'M372,460 l10,-6', epaisseur: 1.9 },
+  // Les Vosges et le Jura, discrets, à l'est.
+  { d: 'M492,236 l11,-7', epaisseur: 2 },
+  { d: 'M498,262 l11,-7', epaisseur: 2.2 },
+  { d: 'M488,300 l11,-7', epaisseur: 2.2 },
+]
+
 /**
  * 5 des 8 pays frontaliers de la France (voir `cp-geographie-pays-voisins`) : Monaco,
  * l'Andorre et le Luxembourg sont réels mais trop petits pour rester lisibles comme

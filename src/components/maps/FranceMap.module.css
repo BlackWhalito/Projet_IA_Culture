@@ -15,6 +15,40 @@
   stroke: none;
 }
 
+/* La mer : un lavis qui déborde du cadre, pour que la France soit posée dans
+   quelque chose plutôt que découpée sur du vide. */
+.mer {
+  fill: var(--color-domain-geographie);
+  opacity: 0.14;
+}
+
+/* Le liseré de côte : un trait plus dense au bord du continent, comme une
+   aquarelle où le pigment s'accumule là où le papier sèche en dernier. */
+.cote {
+  fill: none;
+  stroke: var(--violet-profond);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  opacity: 0.32;
+}
+
+/* Le relief : des hachures là où le pays se soulève (Alpes, Pyrénées, Massif
+   central). Elles ne servent pas à enseigner la géologie, elles servent à ce
+   que la carte ne soit pas un aplat. */
+.relief {
+  fill: none;
+  stroke: var(--violet-profond);
+  stroke-linecap: round;
+  opacity: 0.42;
+}
+
+/* Le halo d'une ville trouvée : elle reste, et elle rayonne un peu. */
+.villeHalo {
+  fill: var(--color-domain-histoire);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
 .fleuveZoneHit {
   fill: none;
   stroke: transparent;
@@ -57,8 +91,8 @@
 
 .pointVille {
   fill: var(--color-domain-histoire);
-  stroke: var(--color-surface);
-  stroke-width: 2;
+  stroke: var(--papier);
+  stroke-width: 2.5;
   pointer-events: none;
 }
 
@@ -70,7 +104,8 @@
 }
 
 .labelVille {
-  font-size: 17px;
+  font-family: var(--font-family-heading);
+  font-size: 18px;
   font-weight: 700;
   fill: var(--encre);
   text-anchor: middle;
