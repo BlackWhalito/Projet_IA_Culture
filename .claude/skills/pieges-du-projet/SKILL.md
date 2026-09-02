@@ -78,6 +78,22 @@ Note utile : `element.click()` en JS fonctionne bien sur React (délégation d'�
 
 **Deux clics qui dépendent l'un de l'autre, tirés dans le même script, peuvent se rater.** `setState` est asynchrone : le second `handlePick` peut encore lire l'état d'avant le premier si rien ne force React à re-rendre entre les deux. Toujours séparer par un appel d'outil distinct (ou une lecture d'état) quand un clic dépend du résultat du précédent — jamais deux `.click()` liés dans le même `javascript_exec`.
 
+## `pkill -f` tue le shell qui le lance
+
+**Symptôme.** Une commande qui commence par `pkill -f "mon-script.mjs"` s'arrête net avec le code 144, et rien de ce qui suivait ne s'exécute — y compris l'écriture du fichier qu'on voulait ensuite relancer.
+
+**Cause.** `-f` compare le motif à la **ligne de commande entière** de chaque processus. La commande shell en cours contient le motif, puisqu'elle l'écrit ; `pkill` se tue donc lui-même, et emporte tout le reste de la ligne. Rencontré deux fois dans la même session.
+
+**Contournement.** Ne pas tuer : **changer de port**. Un `sed 's/5199/5201/'` sur le script de serveur coûte une seconde et ne risque rien. Si un arrêt est vraiment nécessaire, viser le PID (`lsof -t -i :5199 | xargs -r kill`) plutôt qu'un motif de ligne de commande.
+
+## Vérifier l'audio sans se mentir
+
+**Symptôme.** On lance Chromium avec `--autoplay-policy=no-user-gesture-required` pour tester du son, tout marche, et on annonce que ça marche. Mais l'utilisateur, lui, n'a pas ce drapeau.
+
+**La règle.** Ce drapeau sert à **isoler** une question (« les bonnes notes partent-elles ? ») en supprimant la politique d'autoplay. Il ne prouve pas que le son démarre chez le joueur. Toute annonce du type « la musique se lance » demande une seconde vérification **sans le drapeau**, avec de vrais clics : on compte les oscillateurs créés et on lit `new AudioContext().state`, qui doit valoir `running`.
+
+Dans cette app, le déblocage vient tout seul : on ne peut pas atteindre un niveau sans avoir cliqué deux liens. Mais c'est une propriété du parcours, pas une garantie — elle se vérifie, elle ne se suppose pas.
+
 ## Une forme dessinée à la main qui reste fausse — et le filtre accusé à tort
 
 **Symptôme.** Une forme SVG écrite à la main (une carte, une silhouette) ne ressemble pas à ce qu'elle devrait, on corrige les coordonnées, on recapture — et elle reste fausse. Comme le projet couvre tout de filtres aquarelle, on finit par soupçonner le filtre.
