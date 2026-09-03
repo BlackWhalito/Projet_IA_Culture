@@ -26,5 +26,6 @@ export const FICTIONS: Record<GameTypeId, string> = {
   qcm: 'Une question, trois pistes. Une seule tient debout.',
   chaine: 'Chaque phrase te rapporte le double — ou te ruine. Tu peux partir quand tu veux.',
   ponctuation: 'Les mêmes mots, deux sens opposés. Ce que tu poses entre eux décide lequel.',
+  vers: 'Trois vers sont écrits. Le quatrième t’attend, et il doit tomber juste.',
   fildesjours: 'Une journée, des choix, et des forces qui se nourrissent rarement l’une l’autre.',
 }

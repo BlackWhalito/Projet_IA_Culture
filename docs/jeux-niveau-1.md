@@ -6,7 +6,8 @@ Ce document est le pendant de [niveau-1.md](niveau-1.md). Celui-là traite de **
 
 ## Où en est ce plan
 
-*Mis à jour le 1er septembre 2026, après une première passe d'implémentation.*
+*Mis à jour le 3 septembre 2026. Deux mécaniques ont été supprimées et quatre
+ajoutées depuis la première passe — voir « Ce que le plan n'avait pas prévu » plus bas.*
 
 | Chantier | État |
 |---|---|
@@ -20,8 +21,8 @@ Ce document est le pendant de [niveau-1.md](niveau-1.md). Celui-là traite de **
 | — · Jouabilité sur téléphone | ✅ corrigé — les rives de La Rivière passaient sous la ligne de flottaison dès 390 × 664 |
 | C8 · Cap sur : une France reconnaissable | ✅ fait — 72 points réels + spline, Corse, brouillard, 4 cibles |
 | C9 · La Rivière : lui donner sa rivière | 🟡 partiel — le décor est fait, le passage à 2-3 mots simultanés non |
-| C10 · Association : tracer le lien au doigt | ⬜ à faire |
-| C11 · La Frise : de vraies dates | 🟡 partiel — le refus immédiat d'une carte hors tour est fait, le contenu daté non |
+| C10 · Association : tracer le lien au doigt | ❌ **abandonné — la mécanique est en cours de suppression** (voir plus bas) |
+| C11 · La Frise : de vraies dates | ❌ **abandonné — remplacée par « Entre deux »** |
 | C12 · Le Fil des jours : les trois correctifs | 🟡 partiel — on perd désormais 8,5 % des parties (Louis XIV) et 8,2 % (Colomb), mesuré par énumération exhaustive ; la règle affichée et les deltas de jauge restent à faire |
 
 **Ajouté hors plan : le son.** `src/engine/sound.ts`, entièrement synthétisé en Web
@@ -33,6 +34,36 @@ hors périmètre ; il ne l'est plus.
 réparés, mais **quatre jeux sur cinq restent non pertinents pour un adulte parce
 que leur contenu est trivial**. Le prochain chantier n'est pas visuel, il est
 éditorial — c'est celui de [niveau-1.md](niveau-1.md).
+
+## Ce que le plan n'avait pas prévu
+
+*Ajouté le 3 septembre 2026.*
+
+Le plan ci-dessus supposait qu'on réparerait les six mécaniques existantes. La
+question posée après la première passe — **« est-ce que ces cinq jeux donnent
+envie d'y revenir ? »** — a reçu un non, et le diagnostic a déplacé le chantier :
+le problème n'était pas la finition des mécaniques, c'était **lesquelles
+existaient**. Dix-sept notions sur quarante retombaient sur le QCM, non par
+choix mais parce qu'aucune autre mécanique n'acceptait leur contenu.
+
+**Supprimé** : la Frise, remplacée par « Entre deux ». Association suit : ses trois
+derniers créneaux ont reçu leur contenu « Je te crois pas », il reste à retirer la
+mécanique elle-même.
+
+**Ajouté**, chacune née de son sujet plutôt que plaquée dessus :
+
+| Mécanique | Ce qu'elle fait faire | Ce qu'elle enseigne, et qu'un QCM ne peut pas |
+|---|---|---|
+| **Je te crois pas** | Glisser vrai/faux, en misant une cagnotte qui double | Que la certitude se paie : on ne peut pas répondre « je ne sais pas » |
+| **La virgule qui sauve** | Poser la ponctuation dans les fentes d'une phrase | Que le sens bascule sous le doigt, avant toute correction |
+| **Entre deux** | Placer une carte entre deux repères déjà posés | L'ordre relatif, pas des dates récitées |
+| **Douze pieds** | Assembler le dernier vers d'un quatrain de Hugo | Le e muet et le h aspiré, **qui ne se constatent qu'en assemblant** |
+
+« Douze pieds » est le cas le plus net. La règle du e muet — trois pieds devant
+une consonne, deux devant une voyelle — ne s'énonce pas utilement : elle se voit,
+quand le peigne recule d'un cran alors qu'on n'a touché qu'au mot **suivant**.
+Le deuxième quatrain est même ingagnable tant qu'on ne l'a pas comprise.
+
 
 ## Ce que j'ai vu, jeu par jeu
 

@@ -163,6 +163,48 @@ export interface PonctuationContent extends AvecConsigne {
   }[]
 }
 
+/**
+ * « Douze pieds » — on est Hugo devant sa page : trois vers sont écrits, il
+ * faut finir le quatrième, en douze pieds exactement et sur la bonne rime.
+ *
+ * Ce que ça enseigne, et qu'aucun QCM ne peut enseigner : le vers est un
+ * **budget de syllabes qu'on dépense à l'unité près**, et le e muet ne se
+ * compte qu'en fonction du mot suivant. « Demeure » vaut trois pieds devant
+ * une consonne et deux devant une voyelle — la règle ne se constate qu'en
+ * assemblant. C'est pour cela que le compteur se recalcule sous les doigts du
+ * joueur : la mécanique EST la démonstration.
+ */
+export interface VersContent extends AvecConsigne {
+  auteur: string
+  oeuvre: string
+  annee: string
+  /** Chrono d'une strophe. Il ne tue pas la manche, il plafonne le score. */
+  secondesParStrophe?: number
+  strophes: {
+    /** Les vers déjà écrits, affichés en italique au-dessus de la ligne vide. */
+    amont: string[]
+    piedsCible: number
+    /** Clé de comparaison des rimes. Deux mots riment s'ils partagent la clé. */
+    rimeCle: string
+    /** Ce qu'on montre au joueur : « [ɑ̃] — comme « m’attends » ». */
+    rimeAffichee: string
+    /**
+     * Les mots disponibles. Aucun ne porte son nombre de pieds à l'écran :
+     * c'est au joueur de l'entendre, et c'est là qu'il apprend.
+     */
+    reserve: {
+      mot: string
+      pieds: number
+      /** Se termine par un e muet : perd un pied devant une voyelle, et en fin de vers. */
+      eFinal?: boolean
+      /** Absent = ce mot ne peut pas clore le vers. */
+      rimeCle?: string
+    }[]
+    versReel: string
+    commentaire: string
+  }[]
+}
+
 export interface CapSurContent extends AvecConsigne {
   carteId: 'france' | 'europe' | 'monde'
   /** Ids de zones de la carte, dans l'ordre où elles sont demandées. */

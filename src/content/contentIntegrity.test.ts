@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { compterPieds, versRecevable, type Tuile } from '../engine/metrique'
 import { ALL_NOTIONS, getNotionById } from './notions'
 import { ALL_LEVELS } from './levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
@@ -195,6 +196,65 @@ describe('intégrité du contenu', () => {
       const taux = perdues / total
       expect(taux, `${notion.id} : ${perdues} défaites sur ${total} parties`).toBeGreaterThanOrEqual(0.02)
       expect(taux, `${notion.id} : ${perdues} défaites sur ${total} parties`).toBeLessThanOrEqual(0.4)
+    }
+  })
+
+  /**
+   * « Douze pieds » : chaque quatrain doit être gagnable, et le vers de Hugo
+   * doit se trouver DANS la réserve.
+   *
+   * Ce n'est pas une précaution théorique. Une réserve où rien ne tombe sur
+   * douze pieds rimés laisse le bouton « Écrire » éteint pour toujours : le
+   * joueur cherche jusqu'à ce que la bougie s'éteigne, sans jamais savoir que
+   * c'était impossible. Et une réserve soluble d'où le vers réel est absent
+   * ment à la révélation, qui affirme « Hugo, lui, a écrit… » à côté de mots
+   * qu'on ne pouvait pas assembler.
+   *
+   * On énumère donc tous les arrangements — les réserves font moins de dix
+   * tuiles, c'est instantané — et on vérifie les deux bouts.
+   */
+  it('rend chaque quatrain de « Douze pieds » gagnable, avec le vers réel dedans', () => {
+    /** « Triste, et le jour… » et « triste et le jour » doivent se comparer. */
+    const nu = (texte: string) =>
+      texte
+        .toLowerCase()
+        .replace(/[.,;:!?«»…]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+    for (const notion of ALL_NOTIONS) {
+      const contenu = notion.games.vers
+      if (!contenu) continue
+
+      contenu.strophes.forEach((strophe, rang) => {
+        const ou = `${notion.id}, quatrain ${rang + 1}`
+        const solutions: string[] = []
+
+        const explorer = (choisis: number[]) => {
+          const tuiles = choisis.map((i) => strophe.reserve[i]) as Tuile[]
+          if (compterPieds(tuiles) > strophe.piedsCible) return
+          if (
+            versRecevable(tuiles, strophe.piedsCible, strophe.rimeCle, (tuile) =>
+              strophe.reserve.find((mot) => mot.mot === tuile.mot)?.rimeCle,
+            )
+          ) {
+            solutions.push(nu(tuiles.map((tuile) => tuile.mot).join(' ')))
+          }
+          for (let i = 0; i < strophe.reserve.length; i++) {
+            if (choisis.includes(i)) continue
+            explorer([...choisis, i])
+          }
+        }
+        explorer([])
+
+        expect(solutions.length, `${ou} : aucune combinaison ne fait ${strophe.piedsCible} pieds sur la rime`).toBeGreaterThan(0)
+        expect(solutions, `${ou} : « ${strophe.versReel} » ne s'assemble pas avec cette réserve`).toContain(nu(strophe.versReel))
+
+        // Une réserve trop permissive se gagne par accident, et le peigne
+        // n'apprend plus rien. Le seuil est empirique : au-delà, c'est que les
+        // tuiles ont toutes la même taille.
+        expect(new Set(solutions).size, `${ou} : réserve trop lâche, on tombe sur ${strophe.piedsCible} pieds par hasard`).toBeLessThanOrEqual(60)
+      })
     }
   })
 })

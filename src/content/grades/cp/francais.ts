@@ -139,6 +139,143 @@ export const CP_FRANCAIS: Notion[] = [
     summary: 'Le Petit Chaperon Rouge, Cendrillon et Blanche-Neige sont des contes que tout le monde connaît.',
     funFact: 'Beaucoup de contes classiques, comme Cendrillon, existent depuis des siècles dans plusieurs pays, sous des formes un peu différentes.',
     games: {
+      /*
+       * Ordre de perfidie croissante, jamais mélangé. Le piège posé une carte à
+       * l'avance est le couple 10 → 11 : le « vair » existe bel et bien comme
+       * fourrure (vrai), mais Perrault a écrit « verre » (faux).
+       *
+       * Faits vérifiés par recherche, ce domaine étant un nid à légendes
+       * recopiées : manuscrit de 1695 et édition de 1697 portent tous deux
+       * « verre », l'hypothèse du vair vient de Balzac (Sur Catherine de
+       * Médicis, 1841) puis de Littré et n'est appuyée par aucun texte ancien
+       * (Académie française, Wikipédia « Controverse sur la composition des
+       * pantoufles de Cendrillon ») ; Perrault meurt en 1703, Jacob Grimm naît
+       * en 1785 ; privilège et épître signés P. Darmancour, du nom du plus
+       * jeune fils de Perrault ; Petit Chaperon rouge dévoré sans secours chez
+       * Perrault, chasseur ajouté par les Grimm ; orteil et talon tranchés puis
+       * yeux crevés par les colombes dans Aschenputtel ; Dorothea Viehmann,
+       * principale conteuse des Grimm, veuve d'un maître tailleur et
+       * descendante de huguenots messins, présentée à tort en paysanne ; loi de
+       * Grimm publiée dans la Deutsche Grammatik en 1822 ; Deutsches Wörterbuch
+       * commencé en 1838 et achevé seulement en 1961 ; chez Perrault la
+       * princesse s'éveille seule à la fin de l'enchantement, et le conte
+       * continue sur la belle-mère ogresse.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'Dans Le Petit Chaperon rouge, le loup dévore la grand-mère avant la fillette.',
+            vrai: true,
+            verdict:
+              'Dans toutes les versions écrites, oui. Mais le conte circulait de bouche à ' +
+              'oreille bien avant d’être imprimé, et les versions orales relevées au XIXe siècle ' +
+              'dans les campagnes françaises sont autrement plus rudes : le loup y fait manger ' +
+              'à la fillette un morceau de sa propre grand-mère.',
+          },
+          {
+            texte: 'Cendrillon, La Belle au bois dormant et Le Chat botté sont des contes de Perrault.',
+            vrai: true,
+            verdict:
+              'Les trois figurent dans le même mince recueil de 1697, avec Le Petit Chaperon ' +
+              'rouge, Barbe bleue, Le Petit Poucet et deux autres. Huit contes en tout : ' +
+              'presque tout ce que la France sait des contes tient dans ce seul livre.',
+          },
+          {
+            texte: 'Perrault et les frères Grimm n’ont jamais pu se croiser, même de loin.',
+            vrai: true,
+            verdict:
+              'Perrault meurt en 1703 ; Jacob Grimm naît en 1785. Plus de quatre-vingts ans ' +
+              'de vide entre les deux — et pourtant on les cite toujours dans la même phrase, ' +
+              'comme s’ils avaient travaillé côte à côte.',
+          },
+          {
+            texte: 'Perrault a fait paraître ses contes sous le nom de son plus jeune fils.',
+            vrai: true,
+            verdict:
+              'L’épître et le privilège de 1697 sont signés P. Darmancour, du nom de Pierre. ' +
+              'Perrault approchait des soixante-dix ans, siégeait à l’Académie française, et ' +
+              'un académicien ne signait pas des histoires de fées.',
+          },
+          {
+            texte: 'Les frères Grimm étaient d’abord des savants, pas des conteurs.',
+            vrai: true,
+            verdict:
+              'Des philologues. Jacob a laissé son nom à une loi de linguistique, publiée en ' +
+              '1822, qui décrit comment les consonnes indo-européennes se sont déplacées en ' +
+              'germanique. Leur grande œuvre à leurs propres yeux n’était pas les contes, ' +
+              'mais un dictionnaire de l’allemand, commencé en 1838 — et terminé en 1961, un ' +
+              'siècle après leur mort.',
+          },
+          {
+            texte: 'Chez Perrault, personne ne sauve le Petit Chaperon rouge : elle meurt.',
+            vrai: true,
+            verdict:
+              'Le conte s’arrête sur le loup rassasié, puis sur une morale qui prévient les ' +
+              'jeunes filles contre les « loups doucereux ». Ce n’est pas une histoire pour ' +
+              'endormir un enfant : c’est un avertissement adressé à la cour de Versailles.',
+          },
+          {
+            texte: 'Le chasseur qui ouvre le ventre du loup n’apparaît que chez les Grimm.',
+            vrai: true,
+            verdict:
+              'Un siècle plus tard, et la fin change du tout au tout : on fend le loup, la ' +
+              'grand-mère et la fillette en sortent vivantes, on remplit la panse de pierres. ' +
+              'La version que tout le monde raconte n’est pas la française.',
+          },
+          {
+            texte: 'Chez les Grimm, les sœurs de Cendrillon se taillent le pied pour la pantoufle.',
+            vrai: true,
+            verdict:
+              'L’une se coupe un orteil, l’autre un morceau de talon ; le sang qui déborde de ' +
+              'la chaussure les trahit. Et le jour des noces, deux colombes leur crèvent les ' +
+              'yeux. Chez Perrault, à l’inverse, Cendrillon pardonne à ses sœurs et les marie ' +
+              'à deux seigneurs de la cour.',
+          },
+          {
+            texte: 'Les conteuses des frères Grimm étaient des paysannes de Hesse sans instruction.',
+            vrai: false,
+            verdict:
+              'C’est l’image que les Grimm ont eux-mêmes entretenue, et elle arrangeait leur ' +
+              'projet : recueillir la voix pure du peuple allemand. Leur principale conteuse, ' +
+              'Dorothea Viehmann, était la veuve cultivée d’un maître tailleur, descendante de ' +
+              'huguenots français. Beaucoup de leurs informatrices étaient des bourgeoises ' +
+              'lisant le français — ce qui explique que certains contes « bien allemands » ' +
+              'ressemblent tant à ceux de Perrault.',
+          },
+          {
+            texte: 'En ancien français, le « vair » désigne bien une fourrure d’écureuil.',
+            vrai: true,
+            verdict:
+              'Le petit-gris, gris dessus et blanc dessous, cousu en damier sur les manteaux ' +
+              'de la noblesse médiévale. Le mot existe, il est même en héraldique. Retiens-le : ' +
+              'la carte suivante en dépend.',
+          },
+          {
+            texte: 'La pantoufle était donc de vair, et « verre » n’est qu’une faute d’impression.',
+            vrai: false,
+            verdict:
+              'Le piège, et il est vieux de deux siècles. Le manuscrit de 1695, de la main ' +
+              'même de Perrault, et l’édition de 1697 portent tous deux « verre ». C’est ' +
+              'Balzac qui lance le vair en 1841, dans un roman, par la bouche d’un pelletier ; ' +
+              'Littré reprend l’idée et la range parmi les absurdités corrigées. Aucun texte ' +
+              'ancien ne l’appuie. Le verre était le point du conte : une chaussure qui ne ' +
+              's’étire pas, donc qui ne va qu’à un seul pied.',
+          },
+          {
+            texte: 'Chez Perrault, le conte de la Belle au bois dormant s’achève sur le baiser.',
+            vrai: false,
+            verdict:
+              'Deux erreurs d’un coup. Le prince ne l’embrasse pas : il s’agenouille, et elle ' +
+              's’éveille d’elle-même parce que les cent ans sont écoulés — le baiser vient des ' +
+              'Grimm. Et le mariage n’est que la moitié du conte : il reste une belle-mère ' +
+              'ogresse qui réclame les deux petits-enfants à la sauce Robert, un maître ' +
+              'd’hôtel qui les cache, et une cuve pleine de vipères. Disney a coupé au ' +
+              'meilleur moment.',
+          },
+        ],
+      },
       match: {
         pairs: [
           { left: 'Le Petit Chaperon Rouge', right: 'Le loup' },
@@ -364,9 +501,134 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 2,
     title: 'Les rimes',
-    summary: 'Deux mots riment quand ils se terminent par le même son.',
-    funFact: 'Les poèmes et les chansons utilisent souvent des rimes pour être plus faciles à retenir.',
+    /*
+     * Ces deux champs sont la récompense servie APRÈS la manche. « Deux mots
+     * riment quand ils se terminent par le même son » n'apprenait rien à
+     * personne, et surtout pas à quelqu'un qui venait de passer trois quatrains
+     * à découvrir que le e muet compte ou non selon la lettre suivante.
+     */
+    summary:
+      'Rimer, ce n’est pas seulement finir par le même son : en vers classiques, il faut aussi finir par la même lettre.',
+    funFact:
+      'Un singulier ne rime pas avec un pluriel, même quand l’oreille n’entend aucune différence : ' +
+      '« chemin » et « chemins » sont interdits ensemble. Les rimes de Hugo s’accordent toujours — ' +
+      '« m’attends » avec « longtemps », « pensées » avec « croisées ».',
     games: {
+      /*
+       * « Douze pieds ». Les trois quatrains sont ceux de Hugo, « Demain, dès
+       * l'aube… », publiés dans Les Contemplations en 1856 — domaine public,
+       * donc lus pour de bon plutôt que paraphrasés. Le poème est daté du
+       * 3 septembre 1847, veille de l'anniversaire de la noyade de Léopoldine ;
+       * Hugo l'a en réalité écrit le 4 octobre. La date est une mise en scène.
+       *
+       * Chaque quatrain enseigne une règle DIFFÉRENTE, et chacune ne se
+       * constate qu'en assemblant :
+       *   1. le e muet en fin de vers ne compte pas (« attendre », « davantage ») ;
+       *   2. le e muet s'élide devant une voyelle — « Triste, et » vaut 1 + 1,
+       *      et sans cette élision le vers de Hugo ferait treize pieds, donc
+       *      la manche est INGAGNABLE tant qu'on ne l'a pas comprise ;
+       *   3. le h aspiré bloque l'élision comme une consonne : dans le même
+       *      vers, « Un bouquet de » garde son e devant « houx » et le perd
+       *      devant « en fleur ».
+       *
+       * Les réserves sont écrites pour que plusieurs assemblages tombent juste
+       * et que plusieurs piègent : « attendre » a l'air de rimer avec
+       * « m'attends » mais ferme sur [ɑ̃dʁ]. Sans ces pièges, le hasard
+       * gagnerait et la manche ne vaudrait rien.
+       *
+       * Une limite assumée : le jeu compte les pieds et vérifie la rime, il ne
+       * lit pas la grammaire. Un assemblage bancal de douze pieds rimés passe.
+       * Les mots sont donc choisis pour que les lectures naturelles dominent —
+       * et de toute façon la révélation remet le vers de Hugo à côté.
+       */
+      vers: {
+        consigne: 'Finis le quatrain. Douze pieds, pas onze, pas treize.',
+        auteur: 'Victor Hugo',
+        oeuvre: 'Les Contemplations',
+        annee: '1856',
+        secondesParStrophe: 90,
+        strophes: [
+          {
+            amont: [
+              'Demain, dès l’aube, à l’heure où blanchit la campagne,',
+              'Je partirai. Vois-tu, je sais que tu m’attends.',
+              'J’irai par la forêt, j’irai par la montagne.',
+            ],
+            piedsCible: 12,
+            rimeCle: 'ɑ̃',
+            rimeAffichee: '[ɑ̃] — comme « m’attends »',
+            reserve: [
+              { mot: 'Je ne puis demeurer', pieds: 6 },
+              { mot: 'loin de toi', pieds: 3 },
+              { mot: 'plus longtemps', pieds: 3, rimeCle: 'ɑ̃' },
+              { mot: 'un instant', pieds: 3, rimeCle: 'ɑ̃' },
+              { mot: 'attendre', pieds: 3, eFinal: true, rimeCle: 'ɑ̃dʁ' },
+              { mot: 'davantage', pieds: 4, eFinal: true, rimeCle: 'aʒ' },
+            ],
+            versReel: 'Je ne puis demeurer loin de toi plus longtemps.',
+            commentaire:
+              'Hugo écrit ce poème pour l’anniversaire de la mort de sa fille Léopoldine, ' +
+              'noyée à dix-neuf ans dans la Seine à Villequier, le 4 septembre 1843. ' +
+              'Son nom n’apparaît jamais : on ne comprend qu’au dernier vers du poème ' +
+              'qu’il marche vers une tombe.',
+          },
+          {
+            amont: [
+              'Je marcherai les yeux fixés sur mes pensées,',
+              'Sans rien voir au dehors, sans entendre aucun bruit,',
+              'Seul, inconnu, le dos courbé, les mains croisées,',
+            ],
+            piedsCible: 12,
+            rimeCle: 'ɥi',
+            rimeAffichee: '[ɥi] — comme « bruit »',
+            reserve: [
+              { mot: 'Triste', pieds: 2, eFinal: true },
+              { mot: 'et le jour', pieds: 3 },
+              { mot: 'pour moi sera', pieds: 4 },
+              { mot: 'comme la nuit', pieds: 4, rimeCle: 'ɥi' },
+              { mot: 'Sombre', pieds: 2, eFinal: true },
+              { mot: 'jusqu’à l’aube', pieds: 4, eFinal: true, rimeCle: 'ob' },
+            ],
+            versReel: 'Triste, et le jour pour moi sera comme la nuit.',
+            commentaire:
+              'Ce vers est ingagnable tant qu’on compte « Tris-te » pour deux pieds : ' +
+              'devant « et », le e tombe, on dit « Trist’ et » et le vers retombe à douze. ' +
+              'C’est la règle que tout le monde a oubliée, et c’est pour ça que les vers ' +
+              'sonnent faux quand on les lit comme on parle.',
+          },
+          {
+            amont: [
+              'Je ne regarderai ni l’or du soir qui tombe,',
+              'Ni les voiles au loin descendant vers Harfleur,',
+              'Et quand j’arriverai, je mettrai sur ta tombe',
+            ],
+            piedsCible: 12,
+            rimeCle: 'œʁ',
+            rimeAffichee: '[œʁ] — comme « Harfleur »',
+            reserve: [
+              // « Un bouquet de » porte le e muet, et c'est ce qui rend le h
+              // aspiré JOUABLE : devant « houx » le e tient (quatre pieds),
+              // devant « en fleur » ou « et des roses » il tombe (trois). Le
+              // joueur voit donc la différence entre « de houx » et « d'honneur »
+              // sur le peigne, au lieu de la lire dans une leçon.
+              { mot: 'Un bouquet de', pieds: 4, eFinal: true },
+              { mot: 'houx vert', pieds: 2 },
+              { mot: 'et de bruyère', pieds: 5, eFinal: true, rimeCle: 'ɛʁ' },
+              { mot: 'en fleur', pieds: 2, rimeCle: 'œʁ' },
+              { mot: 'et des roses', pieds: 4, eFinal: true, rimeCle: 'oz' },
+              { mot: 'du soir qui meurt', pieds: 4, rimeCle: 'œʁ' },
+            ],
+            versReel: 'Un bouquet de houx vert et de bruyère en fleur.',
+            commentaire:
+              'Le h de « houx » est aspiré : il se comporte comme une consonne, on dit ' +
+              '« de houx » et jamais « d’houx », et le e de « de » garde son pied. Le ' +
+              'premier vers du poème, lui, dit « à l’heure » : ce h-là est muet. Rien ne ' +
+              'les distingue à l’oreille, ça s’apprend mot par mot — et les poètes s’en ' +
+              'servent pour gagner ou perdre un pied.',
+          },
+        ],
+      },
+
       qcm: {
         question: "Quel mot rime avec « maison » ?",
         choices: ['Poisson', 'Table', 'Voiture'],

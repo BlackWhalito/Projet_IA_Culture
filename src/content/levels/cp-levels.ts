@@ -86,7 +86,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 7',
     notionIds: [
       { notionId: 'cp-sciences-jour-nuit', gameType: 'qcm' },
-      { notionId: 'cp-francais-rimes', gameType: 'qcm' },
+      { notionId: 'cp-francais-rimes', gameType: 'vers' },
       { notionId: 'cp-histoire-jours-semaine', gameType: 'chaine' },
       { notionId: 'cp-geographie-tour-eiffel-monuments', gameType: 'qcm' },
       { notionId: 'cp-sciences-vivipares-ovipares', gameType: 'riviere' },

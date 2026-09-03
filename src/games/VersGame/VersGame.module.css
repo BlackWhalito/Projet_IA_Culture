@@ -1,0 +1,229 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.auteur {
+  margin: 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.bougie {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-domain-histoire);
+}
+
+/* Les vers déjà écrits : c'est le contexte sonore dont dépend la rime, donc
+   ils se lisent, mais ils ne concurrencent pas la ligne en cours. */
+.amont {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--violet-brume);
+}
+
+.versAmont {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+/* La ligne en cours d'écriture. */
+.ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 60px;
+  padding: var(--space-2);
+  border-bottom: 2px solid var(--encre);
+  background: var(--papier);
+}
+
+.lignePlaceholder {
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.motPose {
+  min-height: var(--touch-target-min);
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.motPose:active {
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+}
+
+/*
+ * Le peigne : un trait par pied.
+ *
+ * C'est le seul endroit où l'élision se VOIT. Poser un mot commençant par une
+ * voyelle vide le dernier trait du mot précédent — la règle du e muet se
+ * constate ici, sous le doigt, et nulle part ailleurs.
+ */
+.peigne {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  height: 26px;
+}
+
+.dent {
+  flex: 1 1 0;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--papier-ombre);
+  transition: height 140ms ease, background-color 140ms ease;
+}
+
+.dentPleine {
+  height: 26px;
+  background: var(--violet);
+}
+
+/* Trop de pieds : tout le peigne vire, pas seulement les traits en trop. */
+.dentTrop {
+  background: var(--color-error);
+}
+
+.compte {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.compteTrop {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+/*
+ * La réserve de mots. Aucun ne porte son nombre de pieds : c'est au joueur de
+ * l'entendre, et c'est là qu'il apprend.
+ */
+.reserve {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tuile {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--violet-brume);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
+.tuile:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.tuileUtilisee {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Éteint tant que le vers boite ou ne rime pas : on ne peut pas valider un
+   vers faux, on peut seulement rester bloqué — donc on cherche. */
+.ecrire {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--violet);
+  color: var(--color-surface);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ecrire:disabled {
+  background: var(--color-locked);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.ecrire:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.revelation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.versJoueur {
+  margin: 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.2rem;
+  color: var(--encre);
+}
+
+.libelleReel {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.versReel {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--violet-profond);
+}
+
+.commentaire {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--encre);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dent {
+    transition: none;
+  }
+}
+
+.rang {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}

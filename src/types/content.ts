@@ -1,6 +1,7 @@
 import type {
   ChaineContent,
   PonctuationContent,
+  VersContent,
   FilDesJoursContent,
   CapSurContent,
   MatchContent,
@@ -29,12 +30,13 @@ export interface GradeLevel {
 
 export type Difficulty = 1 | 2 | 3
 
-export type GameTypeId = 'qcm' | 'match' | 'timeline' | 'capsur' | 'riviere' | 'fildesjours' | 'chaine' | 'ponctuation'
+export type GameTypeId = 'qcm' | 'match' | 'timeline' | 'capsur' | 'riviere' | 'fildesjours' | 'chaine' | 'ponctuation' | 'vers'
 
 export interface NotionGames {
   qcm?: QcmContent
   chaine?: ChaineContent
   ponctuation?: PonctuationContent
+  vers?: VersContent
   match?: MatchContent
   timeline?: TimelineContent
   capsur?: CapSurContent
