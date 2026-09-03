@@ -22,7 +22,7 @@ export const FICTIONS: Record<GameTypeId, string> = {
   riviere: 'Le fleuve charrie des mots. Deux rives, un courant — et il ne repasse pas.',
   capsur: 'Le brouillard se referme sur la carte. Trouve avant qu’il ne recouvre tout.',
   match: 'Deux colonnes, une seule bonne façon de les relier.',
-  timeline: 'Le temps se remet en place une carte à la fois. Une carte hors tour te revient.',
+  timeline: 'Une carte à la fois, et jamais la suivante en vue. Tu n’as pas besoin de la date : trouve son voisin.',
   qcm: 'Une question, trois pistes. Une seule tient debout.',
   chaine: 'Chaque phrase te rapporte le double — ou te ruine. Tu peux partir quand tu veux.',
   ponctuation: 'Les mêmes mots, deux sens opposés. Ce que tu poses entre eux décide lequel.',

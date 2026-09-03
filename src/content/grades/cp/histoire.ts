@@ -233,15 +233,41 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 1,
     title: 'La frise du temps',
-    summary: "Le temps se découpe en trois grandes périodes : le passé, le présent et le futur.",
-    funFact: "Les historiens utilisent des frises chronologiques pour ranger les événements du plus ancien au plus récent.",
+    summary:
+      'Une frise ne sert pas à retenir des dates, mais à voir les écarts : ce qui ' +
+      'paraît « ancien » l’est rarement autant qu’on le croit.',
+    funFact:
+      'Entre les peintures de Lascaux et les premières écritures, il s’écoule plus de ' +
+      'temps qu’entre les premières écritures et nous. Et Lascaux a été retrouvée en ' +
+      '1940 par quatre adolescents qui cherchaient leur chien.',
     games: {
       timeline: {
-        consigne: 'Range ces trois moments du plus ancien au plus récent.',
+        consigne: 'Place chaque événement entre ceux qui y sont déjà.',
+        /*
+         * L'ancienne version faisait ordonner « Le passé », « Le présent » et
+         * « Le futur » : la réponse était dans les mots, il n'y avait rien à
+         * trouver. C'était la mécanique la plus creuse du projet.
+         *
+         * Une vraie frise ne demande pas de connaître les dates : elle demande
+         * de situer les choses les unes par rapport aux autres. Les repères
+         * sont choisis pour que l'écart soit la leçon — entre Lascaux et
+         * l'écriture, il s'écoule plus de temps qu'entre l'écriture et nous.
+         *
+         * Dates arrondies et vérifiables : Lascaux ~17 000 ans avant nous,
+         * premières tablettes d'Uruk vers 3300 av. n. è., Versailles cour
+         * installée en 1682, Colomb 1492, Bastille 1789, tour Eiffel 1889,
+         * redécouverte de Lascaux 1940.
+         */
+        cartesDeDepart: 1,
+        secondesTotal: 75,
         events: [
-          { label: 'Le passé', sortValue: 1 },
-          { label: 'Le présent', sortValue: 2 },
-          { label: 'Le futur', sortValue: 3 },
+          { label: 'Les peintures de Lascaux', sortValue: -15000, repere: 'il y a 17 000 ans' },
+          { label: 'Les premières écritures', sortValue: -3300, repere: '3300 av. J.-C.' },
+          { label: 'Christophe Colomb atteint l’Amérique', sortValue: 1492, repere: '1492' },
+          { label: 'Louis XIV installe sa cour à Versailles', sortValue: 1682, repere: '1682' },
+          { label: 'La prise de la Bastille', sortValue: 1789, repere: '1789' },
+          { label: 'La tour Eiffel', sortValue: 1889, repere: '1889' },
+          { label: 'Quatre enfants redécouvrent Lascaux', sortValue: 1940, repere: '1940' },
         ],
       },
       qcm: {

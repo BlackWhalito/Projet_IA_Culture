@@ -50,8 +50,36 @@ export interface MatchContent extends AvecConsigne {
   pairs: { left: string; right: string; leftImage?: string }[]
 }
 
+/**
+ * « Entre deux » — on reçoit une carte à la fois et on tape la fente où elle
+ * va, parmi celles déjà posées.
+ *
+ * La forme est restée `timeline`, mais le jeu n'est plus le même. L'ancien
+ * demandait d'ordonner trois cartes toutes visibles — et sur la notion de la
+ * frise du temps, ces trois cartes étaient « Le passé », « Le présent » et
+ * « Le futur » : la réponse était dans les mots.
+ *
+ * Ici on ne voit jamais la suite, et l'on n'a pas besoin de connaître la date :
+ * il suffit de connaître **un voisin**. C'est de la chronologie relative, ce
+ * que fait réellement un historien. Et chaque insertion réussie ouvre une fente
+ * de plus, donc la chance au hasard s'effondre à mesure qu'on avance : de une
+ * sur deux au départ à une sur sept en fin de manche.
+ */
 export interface TimelineContent extends AvecConsigne {
-  events: { label: string; sortValue: number; image?: string }[]
+  events: {
+    label: string
+    sortValue: number
+    image?: string
+    /** Affiché quand la carte se pose définitivement. C'est la récompense. */
+    repere?: string
+  }[]
+  /** Cartes déjà en place au départ. 1 par défaut : il faut un premier voisin. */
+  cartesDeDepart?: number
+  /**
+   * Chrono de toute la manche, jamais réinitialisé entre deux cartes : chaque
+   * hésitation mange le temps des suivantes. Absent = pas de chrono.
+   */
+  secondesTotal?: number
 }
 
 export interface RiviereContent extends AvecConsigne {

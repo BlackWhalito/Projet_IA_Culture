@@ -1,85 +1,177 @@
 .game {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-}
-
-.slots {
-  display: flex;
-  flex-direction: column;
   gap: var(--space-2);
 }
 
-.slot {
+.entete {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
-  border: 2px dashed var(--color-locked);
-  border-radius: var(--radius-md);
+  justify-content: space-between;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
-.filled {
-  border-style: solid;
-  border-color: var(--color-domain-sciences);
-  color: var(--color-text);
+.compteur {
+  font-variant-numeric: tabular-nums;
 }
 
-.slotNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  border-radius: var(--radius-pill);
-  background: var(--color-locked);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.tray {
+.droite {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
 }
 
-.trayCard {
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-locked);
+.chrono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--violet-profond);
+}
+
+.lanternes {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.lanterne {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-domain-histoire);
+}
+
+.lanterneEteinte {
+  background: var(--color-locked);
+}
+
+/*
+ * La carte en main, et le repère qui la remplace après la pose.
+ *
+ * Hauteur fixe : sans elle, la frise sautait de plusieurs dizaines de pixels
+ * entre la carte et le repère, et la fente qu'on visait se dérobait sous le
+ * doigt au moment de reposer la main.
+ */
+.main {
+  display: grid;
+  place-items: center;
+  min-height: 84px;
+  padding: var(--space-2);
+}
+
+.carteEnMain {
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--violet-profond);
   border-radius: var(--radius-md);
   background: var(--color-surface);
+  color: var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--violet-profond) 30%, transparent);
+}
+
+.repere {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--color-success);
+}
+
+.repereFaux {
+  color: var(--color-error);
+}
+
+.frise {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupe {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * La fente. C'est la cible du jeu : 44 px de haut comme tout ce qui se tape,
+ * pleine largeur pour qu'on ne puisse pas la manquer, et marquée d'un trait
+ * qui dit « ici, il y a une place ».
+ */
+.fente {
+  min-height: var(--touch-target-min);
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
+  display: grid;
+  place-items: center;
 }
 
-.trayCard:active {
-  transform: scale(0.98);
+.fenteTrait {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--violet-brume) 0 10px,
+    transparent 10px 18px
+  );
 }
 
-.rejete {
-  border-color: var(--color-error);
-  background: color-mix(in srgb, var(--color-error) 15%, var(--color-surface));
-  animation: secousse 0.3s ease;
+.fente:not(:disabled):hover .fenteTrait,
+.fente:not(:disabled):active .fenteTrait {
+  background: var(--violet);
+  height: 4px;
 }
 
-@keyframes secousse {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  75% {
-    transform: translateX(4px);
-  }
+.fente:disabled {
+  cursor: default;
+}
+
+.fente:disabled .fenteTrait {
+  opacity: 0.35;
+}
+
+.carte {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--papier-ombre);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+/* La carte qui vient d'être posée : elle se signale, puis se fond aux autres. */
+.carteNeuve {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 12%, var(--color-surface));
+}
+
+/* Le libellé prime sur le repère : c'est lui qu'on relit pour se situer.
+   Sans ce `flex`, « La graine » se cassait en deux lignes pour laisser la
+   place à son repère. */
+.carteLabel {
+  flex: 1 1 auto;
+  font-size: 1rem;
+  color: var(--encre);
+}
+
+.carteRepere {
+  flex: none;
+  font-family: var(--font-family-heading);
+  font-style: italic;
+  font-size: 0.82rem;
+  text-align: right;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rejete {
-    animation: none;
+  .carteNeuve {
+    transition: none;
   }
 }

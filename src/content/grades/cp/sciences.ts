@@ -174,11 +174,14 @@ export const CP_SCIENCES: Notion[] = [
     funFact: "À l'intérieur de la chrysalide, la chenille se transforme presque entièrement.",
     games: {
       timeline: {
+        consigne: 'Place chaque étape entre celles qui y sont déjà.',
+        cartesDeDepart: 1,
+        secondesTotal: 45,
         events: [
-          { label: 'Œuf', sortValue: 1 },
-          { label: 'Chenille', sortValue: 2 },
-          { label: 'Chrysalide', sortValue: 3 },
-          { label: 'Papillon', sortValue: 4 },
+          { label: 'L’œuf', sortValue: 1, repere: 'quelques jours' },
+          { label: 'La chenille', sortValue: 2, repere: 'elle multiplie son poids par mille' },
+          { label: 'La chrysalide', sortValue: 3, repere: 'presque tout se dissout' },
+          { label: 'Le papillon', sortValue: 4, repere: 'quelques semaines à vivre' },
         ],
       },
       qcm: {
@@ -231,11 +234,14 @@ export const CP_SCIENCES: Notion[] = [
     funFact: "Certaines graines peuvent attendre des dizaines d'années dans le sol avant de germer.",
     games: {
       timeline: {
+        consigne: 'Place chaque étape entre celles qui y sont déjà.',
+        cartesDeDepart: 1,
+        secondesTotal: 45,
         events: [
-          { label: 'Graine', sortValue: 1 },
-          { label: 'Pousse', sortValue: 2 },
-          { label: 'Fleur', sortValue: 3 },
-          { label: 'Fruit', sortValue: 4 },
+          { label: 'La graine', sortValue: 1, repere: 'elle peut attendre des années' },
+          { label: 'La pousse', sortValue: 2, repere: 'la racine sort avant la tige' },
+          { label: 'La fleur', sortValue: 3, repere: 'elle attend les insectes' },
+          { label: 'Le fruit', sortValue: 4, repere: 'il contient la graine suivante' },
         ],
       },
       qcm: {
