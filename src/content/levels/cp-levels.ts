@@ -74,7 +74,7 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-geographie-points-cardinaux', gameType: 'qcm' },
       { notionId: 'cp-sciences-cycle-plante', gameType: 'timeline' },
-      { notionId: 'cp-francais-ponctuation', gameType: 'qcm' },
+      { notionId: 'cp-francais-ponctuation', gameType: 'ponctuation' },
       { notionId: 'cp-histoire-christophe-colomb', gameType: 'fildesjours' },
       { notionId: 'cp-geographie-pays-voisins', gameType: 'capsur' },
     ],
@@ -102,7 +102,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
       { notionId: 'cp-geographie-loire', gameType: 'capsur' },
       { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
-      { notionId: 'cp-francais-expressions-imagees', gameType: 'qcm' },
+      { notionId: 'cp-francais-expressions-imagees', gameType: 'chaine' },
     ],
   },
 ]
