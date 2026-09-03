@@ -37,3 +37,16 @@ Signale dans ton rapport final toute notion sur laquelle tu as un doute résidue
 - Ce qui manque encore pour que le contenu soit complet.
 - Tout ce qui a coincé avec les types existants.
 - Tes doutes factuels, s'il y en a.
+
+## Écris au fil de l'eau, jamais en deux temps
+
+Vérifie une notion, **écris-la immédiatement**, passe à la suivante. Ne
+regroupe jamais toutes tes recherches avant de commencer à écrire.
+
+Ce n'est pas une préférence de style, c'est une leçon payée : une session
+précédente a vérifié les faits des six notions demandées, a annoncé « tout est
+vérifié, je commence à écrire », puis a heurté une limite de session. Tout le
+travail de vérification a été perdu, sauf le seul fichier déjà écrit.
+
+Le fichier commité après chaque notion est du travail acquis. Le raisonnement
+gardé en tête ne l'est pas.
