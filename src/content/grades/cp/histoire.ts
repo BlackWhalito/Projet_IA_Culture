@@ -473,9 +473,151 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 2,
     title: 'Les symboles de la France',
-    summary: 'La Marianne, La Marseillaise et le coq gaulois sont des symboles de la France.',
-    funFact: "Le coq est devenu un symbole de la France à cause d'un jeu de mots en latin : « gallus » veut dire à la fois « coq » et « Gaulois ».",
+    /*
+     * Le `summary` disait « La Marianne », avec un article que le français
+     * n'admet pas devant ce prénom, et rangeait sur le même plan trois symboles
+     * dont un seul est officiel. Le `funFact` reprenait le jeu de mots sur
+     * gallus, qui est désormais la carte 4 de la chaîne : servi en récompense
+     * après la manche, il n'aurait rien appris de neuf.
+     */
+    summary:
+      'Trois symboles seulement sont inscrits dans la Constitution : le drapeau, La Marseillaise ' +
+      'et la devise. Ni Marianne ni le coq n’y figurent.',
+    funFact:
+      'La fête nationale française ne commémore officiellement aucun événement précis. La loi du ' +
+      '6 juillet 1880 tient en une phrase : « La République adopte le 14 juillet comme jour de ' +
+      'fête nationale annuelle. » Aucune année. L’ambiguïté est calculée — une partie des ' +
+      'députés jugeait la prise de la Bastille de 1789 trop sanglante pour être célébrée, et ' +
+      'visait plutôt la fête de la Fédération du 14 juillet 1790, journée de réconciliation ' +
+      'nationale. Faute de trancher, on a laissé chacun fêter le 14 juillet qu’il préférait.',
     games: {
+      /*
+       * Ordre de perfidie croissante, jamais mélangé. Le piège posé une carte à
+       * l'avance est le couple 9 → 10 : le buste de Marianne est bien partout
+       * (vrai), mais aucun modèle n'est officiel (faux).
+       *
+       * Faits vérifiés par recherche : décret du 15 février 1794 (27 pluviôse
+       * an II) plaçant le bleu à la hampe, le blanc au milieu, le rouge
+       * flottant, l'attribution à Jacques-Louis David étant traditionnelle et
+       * non prouvée ; La Marseillaise écrite à Strasbourg dans la nuit du 25 au
+       * 26 avril 1792 par Rouget de Lisle sous le titre « Chant de guerre pour
+       * l'armée du Rhin », hymne national par décret du 14 juillet 1795 puis
+       * définitivement en 1879 ; jeu de mots sur gallus ; projet d'emblème au
+       * coq écarté et aigle impériale substituée par Napoléon ; article 2 de la
+       * Constitution de 1958 ne citant que le drapeau, l'hymne et la devise ;
+       * aucun buste officiel de Marianne, le choix du modèle appartenant à
+       * chaque commune ; loi du 6 juillet 1880 ne mentionnant aucune année.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'La devise de la République française est « Liberté, Égalité, Fraternité ».',
+            vrai: true,
+            verdict:
+              'Les trois mots figurent bien dans la Constitution — mais la formule a mis un ' +
+              'demi-siècle à s’imposer. Elle circule sous la Révolution au milieu de beaucoup ' +
+              'd’autres, et il faut attendre la Constitution de 1848 pour la voir inscrite noir ' +
+              'sur blanc comme principe de la République.',
+          },
+          {
+            texte: 'Sur le drapeau, le bleu est côté mât et le rouge côté flottant.',
+            vrai: true,
+            verdict:
+              'Le décret du 15 février 1794 le dit mot pour mot : le bleu attaché à la hampe, ' +
+              'le blanc au milieu, le rouge flottant au vent. Il fallait bien trancher, car les ' +
+              'premiers drapeaux tricolores mettaient le rouge côté mât.',
+          },
+          {
+            texte: 'La Marseillaise a été écrite en 1792, en pleine Révolution française.',
+            vrai: true,
+            verdict:
+              'Dans la nuit du 25 au 26 avril 1792, quelques jours après la déclaration de ' +
+              'guerre à l’Autriche. Elle devient hymne national par décret le 14 juillet 1795, ' +
+              'puis Napoléon l’écarte et la Restauration l’interdit. Il faudra attendre 1879 ' +
+              'pour qu’elle retrouve officiellement ce rang.',
+          },
+          {
+            texte: 'Le coq français vient d’un jeu de mots latin : gallus, coq et Gaulois.',
+            vrai: true,
+            verdict:
+              'Le même mot désignait en latin l’oiseau et l’habitant de la Gaule. C’était une ' +
+              'moquerie de Romains, pas un compliment — et la France a fini par en faire un ' +
+              'emblème de fierté nationale.',
+          },
+          {
+            texte: 'Le bleu et le rouge du drapeau sont les couleurs de la ville de Paris.',
+            vrai: true,
+            verdict:
+              'Celles de la milice parisienne, portées sur la cocarde de 1789. Le blanc était la ' +
+              'couleur du roi. Le drapeau tricolore est donc, à l’origine, une poignée de main ' +
+              'entre Paris et la monarchie — un compromis dont il ne reste plus qu’un dessin.',
+          },
+          {
+            texte: 'La Marseillaise n’a pas été écrite à Marseille, mais à Strasbourg.',
+            vrai: true,
+            verdict:
+              'À plus de huit cents kilomètres. Rouget de Lisle, officier du génie, la compose ' +
+              'chez le maire de Strasbourg. Elle doit son nom aux volontaires marseillais qui ' +
+              'l’ont chantée en montant sur Paris quelques mois plus tard : ils ne l’ont pas ' +
+              'écrite, ils l’ont rendue célèbre.',
+          },
+          {
+            texte: 'Elle s’est d’abord appelée « Chant de guerre pour l’armée du Rhin ».',
+            vrai: true,
+            verdict:
+              'Un titre de circonstance pour une armée précise, sur une frontière précise. Rien ' +
+              'n’y annonçait un hymne national : c’était une chanson de marche, écrite en une ' +
+              'nuit, pour des soldats qui partaient le lendemain.',
+          },
+          {
+            texte: 'Napoléon a fait du coq gaulois l’emblème des drapeaux de ses armées.',
+            vrai: false,
+            verdict:
+              'Il l’a écarté, et lui a substitué l’aigle, empruntée aux légions romaines. On lui ' +
+              'prête ce jugement sans ménagement : « Le coq n’a point de force, il ne peut être ' +
+              'l’image d’un empire tel que la France. » Le coq revient sous la monarchie de ' +
+              'Juillet, puis sur les maillots de sport — mais jamais sur un drapeau d’Empire.',
+          },
+          {
+            texte: 'Un buste de Marianne trône dans presque toutes les mairies de France.',
+            vrai: true,
+            verdict:
+              'Dans la salle des mariages, le plus souvent. Retiens-le : la carte suivante en ' +
+              'dépend.',
+          },
+          {
+            texte: 'Il existe donc un modèle officiel de Marianne, fixé par l’État.',
+            vrai: false,
+            verdict:
+              'Aucun. Il n’y a jamais eu de buste officiel de la République : chaque sculpteur ' +
+              'la représente à sa façon, chaque maire choisit le modèle qui lui plaît — et rien ' +
+              'n’oblige même une mairie à en posséder un. C’est ainsi qu’on a pu donner à ' +
+              'Marianne les traits de Brigitte Bardot en 1969, puis ceux de Laetitia Casta en ' +
+              '2000 : par vote des maires, pas par décision de l’État.',
+          },
+          {
+            texte: 'Le coq et Marianne sont, avec le drapeau, des emblèmes officiels de la France.',
+            vrai: false,
+            verdict:
+              'Ni l’un ni l’autre. L’article 2 de la Constitution ne cite que trois choses : le ' +
+              'drapeau tricolore, La Marseillaise et la devise. Marianne et le coq sont des ' +
+              'symboles d’usage, installés par l’habitude et par l’image — assez puissants pour ' +
+              'qu’on les croie inscrits dans la loi, et ils ne le sont pas.',
+          },
+          {
+            texte: 'La loi qui fait du 14 juillet la fête nationale désigne la prise de la Bastille.',
+            vrai: false,
+            verdict:
+              'Le piège, et il est massif : la loi du 6 juillet 1880 ne mentionne aucune année. ' +
+              'Une phrase, rien de plus. Le flou est délibéré — une partie des députés trouvait ' +
+              '1789 trop sanglant à célébrer et pensait à la fête de la Fédération du 14 juillet ' +
+              '1790, journée de réconciliation nationale. Faute d’accord, on n’a rien précisé. ' +
+              'La France fête donc tous les ans une date dont elle n’a jamais tranché le sens.',
+          },
+        ],
+      },
       match: {
         pairs: [
           { left: 'Marianne', right: 'Figure de la République' },

@@ -376,9 +376,171 @@ export const CP_SCIENCES: Notion[] = [
     domainId: 'sciences',
     difficulty: 1,
     title: "D'où viennent nos aliments",
-    summary: 'Le lait, le miel, les œufs et la laine viennent tous des animaux.',
-    funFact: "Une seule abeille produit, à elle seule, à peine une cuillère à café de miel dans toute sa vie.",
+    /*
+     * Le `summary` rangeait la laine parmi les aliments, et le `funFact`
+     * annonçait « à peine une cuillère à café de miel » par abeille : le chiffre
+     * documenté est un douzième de cuillère à café sur toute une vie d'ouvrière,
+     * soit douze fois moins. Plutôt que de corriger un ordre de grandeur pour le
+     * garder à côté d'une chaîne qui parle d'autre chose, les deux champs
+     * répondent désormais à la question du titre — d'où viennent nos aliments,
+     * géographiquement — qui est aussi le sujet de la chaîne.
+     */
+    summary:
+      'Les cuisines qu’on croit éternelles sont récentes : pas une tomate en Italie, pas un ' +
+      'piment en Asie, pas une pomme de terre en Europe avant 1492.',
+    funFact:
+      'La vanille est une orchidée mexicaine, et pendant vingt ans on n’a pas su la faire ' +
+      'fructifier ailleurs : sa fleur n’est fécondée, au Mexique, que par une abeille du genre ' +
+      'Melipona qui ne vit nulle part ailleurs. En 1841, sur l’île de La Réunion, un garçon de ' +
+      'douze ans réduit en esclavage, Edmond Albius, trouve le geste : soulever avec une pointe ' +
+      'la fine membrane qui sépare le pollen du stigmate, puis presser les deux ensemble du ' +
+      'pouce. Aujourd’hui encore, chaque gousse de vanille du monde est fécondée à la main, ' +
+      'fleur par fleur, selon le geste de cet enfant.',
     games: {
+      /*
+       * Ordre de perfidie croissante, jamais mélangé. Le piège posé une carte à
+       * l'avance est le couple 11 → 12 : la carotte a bien changé de couleur aux
+       * Pays-Bas (vrai), mais l'hommage à Guillaume d'Orange n'a aucune source
+       * (faux). L'histoire hollandaise n'est donc utilisée que par sa moitié
+       * documentée.
+       *
+       * Faits vérifiés par recherche : pomme de terre, tomate, maïs, piment,
+       * dinde, cacao et vanille sont américains et ne franchissent l'Atlantique
+       * qu'après 1492 ; Coffea arabica originaire des hauts plateaux d'Éthiopie,
+       * culture organisée d'abord au Yémen ; blé, orge et lentille domestiqués
+       * dans le Croissant fertile ; Malus sieversii du Tian Shan kazakh reconnu
+       * ancêtre du pommier, hypothèse de Vavilov en 1929 confirmée par le
+       * séquençage du génome en 2010 ; tomate classée près de la mandragore par
+       * Matthioli en 1544 et longtemps ornementale ; Faculté de médecine de
+       * Paris déclarant la pomme de terre comestible en 1772 ; graines de kiwi
+       * rapportées de Chine en Nouvelle-Zélande en 1904, rebaptisage commercial
+       * par Turners & Growers en 1959 ; pâtes sèches siciliennes décrites par
+       * al-Idrisi en 1154, soit près d'un siècle et demi avant le retour de
+       * Marco Polo en 1295, la légende venant d'un article promotionnel du
+       * Macaroni Journal en 1929 ; carottes blanches, jaunes et violettes
+       * antérieures à la sélection orange néerlandaise du XVIIe siècle, aucune
+       * source historique n'attestant l'hommage à Guillaume d'Orange.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'La pomme de terre, la tomate et le maïs sont arrivés d’Amérique après 1492.',
+            vrai: true,
+            verdict:
+              'Tous les trois, avec le piment, le haricot, la courge, le cacao, l’ananas, ' +
+              'l’avocat, la vanille et la dinde. Retirez d’un potager français tout ce qui a ' +
+              'traversé l’Atlantique, il ne reste plus grand-chose à manger.',
+          },
+          {
+            texte: 'Le café ne vient pas d’Amérique du Sud mais des hauts plateaux d’Éthiopie.',
+            vrai: true,
+            verdict:
+              'Le caféier arabica y pousse à l’état sauvage. La culture organisée commence au ' +
+              'Yémen, de l’autre côté de la mer Rouge — d’où le nom du port de Moka. Le Brésil, ' +
+              'premier producteur mondial aujourd’hui, n’en a pas vu un plant avant le XVIIIe siècle.',
+          },
+          {
+            texte: 'Le blé, l’orge et la lentille ont été domestiqués au Proche-Orient.',
+            vrai: true,
+            verdict:
+              'Dans le Croissant fertile, il y a environ dix mille ans. Le pain, la bière et la ' +
+              'soupe de lentilles sortent tous du même petit coin de terre entre le Jourdain et ' +
+              'le Tigre.',
+          },
+          {
+            texte: 'La pomme ne vient pas d’Europe : son ancêtre principal pousse au Kazakhstan.',
+            vrai: true,
+            verdict:
+              'Malus sieversii, dans les forêts du Tian Shan. La plus grande ville du pays ' +
+              's’appelle Almaty, un nom qui signifie à peu près « riche en pommes ». Le botaniste ' +
+              'russe Vavilov l’avait deviné dès 1929 ; le séquençage du génome de la pomme ' +
+              'cultivée l’a confirmé en 2010.',
+          },
+          {
+            texte: 'La vanille est une orchidée africaine, arrivée à Madagascar avec les colons.',
+            vrai: false,
+            verdict:
+              'Elle est mexicaine, et l’on a longtemps été incapable de la faire fructifier ' +
+              'ailleurs : sa fleur n’est fécondée, chez elle, que par une abeille du genre ' +
+              'Melipona, qui ne vit nulle part ailleurs. Transplantée, la liane fleurissait ' +
+              'magnifiquement sans jamais donner de ' +
+              'gousse. Il a fallu qu’en 1841, à La Réunion, un garçon de douze ans réduit en ' +
+              'esclavage, Edmond Albius, trouve le geste qui remplace l’abeille. Toute la vanille ' +
+              'du monde est encore fécondée à la main, fleur par fleur, de cette façon.',
+          },
+          {
+            texte: 'Les Européens ont cultivé la tomate en plante d’ornement avant d’oser la manger.',
+            vrai: true,
+            verdict:
+              'Elle appartient à la famille des solanacées, celle de la belladone et de la ' +
+              'mandragore. En 1544, l’Italien Matthioli la range d’ailleurs auprès de la ' +
+              'mandragore. On l’a donc fait grimper le long des murs pendant près de deux siècles ' +
+              'avant de la mettre dans une assiette : la sauce tomate n’entre vraiment dans la ' +
+              'cuisine italienne qu’au XVIIIe siècle.',
+          },
+          {
+            texte: 'Il a fallu un avis officiel de médecins pour que la France mange des pommes de terre.',
+            vrai: true,
+            verdict:
+              'En 1772, la Faculté de médecine de Paris délibère plusieurs semaines et déclare le ' +
+              'tubercule sans danger — on l’accusait jusque-là de donner la lèpre. Parmentier fera ' +
+              'le reste. L’histoire du champ gardé le jour et laissé libre la nuit pour qu’on ' +
+              'vienne voler les plants est jolie, mais elle relève de la légende plus que de ' +
+              'l’archive.',
+          },
+          {
+            texte: 'Le kiwi n’a de néo-zélandais que le nom : la plante est chinoise.',
+            vrai: true,
+            verdict:
+              'Les graines y ont été rapportées de Chine en 1904 par une directrice d’école. On ' +
+              'l’appelait « groseille de Chine » — un nom invendable aux États-Unis en pleine ' +
+              'guerre froide, et taxé comme une baie à la douane. En 1959, un exportateur ' +
+              'd’Auckland le rebaptise du nom de l’oiseau national. Un fruit chinois porte donc ' +
+              'un nom maori pour des raisons de tarif douanier.',
+          },
+          {
+            texte: 'Marco Polo a rapporté les pâtes de Chine et les a fait connaître en Italie.',
+            vrai: false,
+            verdict:
+              'La plus tenace des légendes culinaires. Le géographe arabe al-Idrisi décrit dès ' +
+              '1154 des pâtes sèches fabriquées près de Palerme et exportées dans toute la ' +
+              'Méditerranée — cent quarante ans avant le retour de Marco Polo, en 1295. L’histoire ' +
+              'vient d’un article promotionnel paru en 1929 dans le Macaroni Journal, la revue des ' +
+              'industriels américains des pâtes. Une publicité devenue un fait.',
+          },
+          {
+            texte: 'Le piment est arrivé en Asie dans les cales des bateaux européens.',
+            vrai: true,
+            verdict:
+              'Ni curry brûlant, ni cuisine sichuanaise piquante, ni kimchi rouge avant le ' +
+              'XVIe siècle : le piment est américain, et ce sont les Portugais qui l’ont porté à ' +
+              'Goa, puis de là dans toute l’Asie. Le mot « dinde » garde la trace de la même ' +
+              'confusion — poule d’Inde, alors que l’oiseau est mexicain et que les « Indes » en ' +
+              'question sont occidentales.',
+          },
+          {
+            texte: 'Avant le XVIIe siècle, les carottes étaient surtout blanches, jaunes ou violettes.',
+            vrai: true,
+            verdict:
+              'La carotte vient d’Asie centrale et se cultivait dans toutes ces couleurs. C’est ' +
+              'aux Pays-Bas, au XVIIe siècle, que la variété orange est sélectionnée et finit par ' +
+              'éliminer les autres. Retiens-le : la carte suivante en dépend.',
+          },
+          {
+            texte: 'Les Hollandais les ont faites orange en hommage à Guillaume d’Orange.',
+            vrai: false,
+            verdict:
+              'Le piège, et il est irrésistible : la coïncidence est trop belle pour qu’on la ' +
+              'vérifie. Aucun document ne relie pourtant la sélection de la carotte orange à la ' +
+              'maison d’Orange-Nassau. Les raisons connues sont agricoles : la variété orange ' +
+              'poussait mieux sous ce climat, donnait davantage et avait moins d’amertume. Le ' +
+              'rapprochement avec la dynastie est venu après coup — parce qu’il fait une bonne ' +
+              'histoire, exactement comme le vair de Cendrillon ou le Marco Polo des pâtes.',
+          },
+        ],
+      },
       match: {
         pairs: [
           { left: 'Le lait', right: 'La vache' },
