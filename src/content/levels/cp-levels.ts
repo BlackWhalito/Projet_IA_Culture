@@ -9,7 +9,7 @@ export const CP_LEVELS: LevelDef[] = [
     notionIds: [
       { notionId: 'cp-histoire-prehistoire', gameType: 'qcm' },
       { notionId: 'cp-geographie-france-paris', gameType: 'capsur' },
-      { notionId: 'cp-sciences-cinq-sens', gameType: 'match' },
+      { notionId: 'cp-sciences-cinq-sens', gameType: 'chaine' },
       { notionId: 'cp-francais-voyelles-consonnes', gameType: 'riviere' },
       { notionId: 'cp-histoire-frise-temps', gameType: 'timeline' },
     ],
@@ -20,7 +20,7 @@ export const CP_LEVELS: LevelDef[] = [
     order: 2,
     title: 'Niveau 2',
     notionIds: [
-      { notionId: 'cp-geographie-oceans-mers', gameType: 'qcm' },
+      { notionId: 'cp-geographie-oceans-mers', gameType: 'chaine' },
       { notionId: 'cp-sciences-etats-eau', gameType: 'riviere' },
       { notionId: 'cp-francais-masculin-feminin', gameType: 'riviere' },
       { notionId: 'cp-histoire-chateaux-chevaliers', gameType: 'qcm' },
@@ -59,8 +59,8 @@ export const CP_LEVELS: LevelDef[] = [
     order: 5,
     title: 'Niveau 5',
     notionIds: [
-      { notionId: 'cp-histoire-grandes-inventions', gameType: 'match' },
-      { notionId: 'cp-geographie-continents', gameType: 'match' },
+      { notionId: 'cp-histoire-grandes-inventions', gameType: 'chaine' },
+      { notionId: 'cp-geographie-continents', gameType: 'chaine' },
       { notionId: 'cp-sciences-cycle-papillon', gameType: 'timeline' },
       { notionId: 'cp-francais-nom-verbe', gameType: 'riviere' },
       { notionId: 'cp-histoire-symboles-france', gameType: 'match' },

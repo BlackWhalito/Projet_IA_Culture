@@ -7,9 +7,146 @@ export const CP_SCIENCES: Notion[] = [
     domainId: 'sciences',
     difficulty: 1,
     title: 'Les 5 sens',
-    summary: 'Le corps humain perçoit le monde grâce à 5 sens.',
-    funFact: 'La peau, organe du toucher, est le plus grand organe du corps humain.',
+    /*
+     * Le compte de cinq ne vient pas de la physiologie mais d'Aristote : les
+     * physiologistes en distinguent aujourd'hui entre neuf et une vingtaine,
+     * selon la façon de les découper (équilibre, proprioception, température,
+     * douleur, intéroception). D'où le `summary` réécrit — l'ancien posait
+     * « 5 sens » comme un fait mesuré.
+     */
+    summary:
+      'Le compte de cinq sens vient d’Aristote, pas de la physiologie — et la carte des ' +
+      'saveurs de la langue n’a jamais existé.',
+    funFact:
+      'La carte du goût, apprise par des générations d’écoliers, est née d’un malentendu. En ' +
+      '1901, l’Allemand David Hänig mesure que la sensibilité aux quatre saveurs varie ' +
+      'légèrement d’une zone de la langue à l’autre — légèrement. En 1942, le psychologue ' +
+      'américain Edwin Boring reprend ses données brutes et les transforme en un graphique ' +
+      'aux frontières nettes. Le dessin a fait le tour du monde ; la nuance, non. Il aura ' +
+      'fallu les travaux de Virginia Collings en 1974 puis de Linda Bartoshuk pour le ' +
+      'démonter — et il figure encore dans des manuels.',
     games: {
+      /*
+       * Ordre de perfidie croissante, jamais mélangé. Deux pièges posés une carte
+       * à l'avance : 7 → 8 (la proprioception n'est pas le seul sens manquant) et
+       * 11 → 12 (la thèse de 1901 est vraie, la carte qu'on en a tirée est fausse).
+       *
+       * Faits vérifiés par recherche : liste des cinq sens dans le De Anima
+       * d'Aristote ; umami nommé par Kikunae Ikeda en 1908, récepteur confirmé
+       * au début des années 2000 ; capsaïcine et récepteur TRPV1 de la chaleur
+       * douloureuse, menthol et TRPM8 du froid, prix Nobel de médecine 2021 à
+       * David Julius et Ardem Patapoutian ; McGann, « Poor human olfaction is a
+       * 19th-century myth », Science, 2017, remontant à Paul Broca ; thèse de
+       * David Hänig (1901) réinterprétée par Edwin Boring (1942), réfutée par
+       * Virginia Collings (1974) et Linda Bartoshuk.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'Le plus grand organe du corps humain n’est pas interne : c’est la peau.',
+            vrai: true,
+            verdict:
+              'Environ deux mètres carrés déployés, plusieurs kilos. C’est aussi le seul organe ' +
+              'des sens qu’on ne peut pas fermer : on ferme les yeux, on se bouche le nez, on ' +
+              'ne débranche pas sa peau.',
+          },
+          {
+            texte: 'Une bonne part de ce qu’on appelle le goût est en réalité perçue par le nez.',
+            vrai: true,
+            verdict:
+              'La langue ne distingue que quelques saveurs de base. Tout le reste — la fraise, ' +
+              'le café, la truffe — remonte de la bouche vers le nez par l’arrière-gorge. ' +
+              'Pincez-vous les narines et croquez un oignon : vous ne le reconnaîtrez pas.',
+          },
+          {
+            texte: 'C’est Aristote qui a fixé la liste des cinq sens, il y a plus de 2 300 ans.',
+            vrai: true,
+            verdict:
+              'Dans le De Anima, vers 350 avant notre ère. Vue, ouïe, toucher, goût, odorat : ' +
+              'la physiologie a depuis longtemps allongé la liste, l’école non.',
+          },
+          {
+            texte: 'Il existe une cinquième saveur de base à côté du sucré, salé, acide et amer.',
+            vrai: true,
+            verdict:
+              'L’umami, « savoureux » en japonais. Le chimiste Kikunae Ikeda le nomme en 1908 ' +
+              'après avoir isolé le glutamate d’une algue de bouillon. L’Occident a mis ' +
+              'presque un siècle à l’admettre : le récepteur n’a été identifié qu’au début des ' +
+              'années 2000.',
+          },
+          {
+            texte: 'Le piquant du piment n’est pas une saveur, mais une sensation de brûlure.',
+            vrai: true,
+            verdict:
+              'La capsaïcine ne se fixe pas sur des récepteurs du goût, mais sur ceux qui ' +
+              'signalent la chaleur douloureuse. Votre bouche ne trouve pas le plat « fort » : ' +
+              'elle croit sincèrement être en train de brûler.',
+          },
+          {
+            texte: 'Chaque œil a une zone aveugle, et le cerveau bouche le trou sans prévenir.',
+            vrai: true,
+            verdict:
+              'À l’endroit où le nerf optique quitte la rétine, il n’y a aucun capteur. Vous ' +
+              'avez donc en permanence un trou dans chaque champ visuel — et vous ne l’avez ' +
+              'jamais vu, parce que votre cerveau invente ce qui devrait s’y trouver.',
+          },
+          {
+            texte: 'Nous avons un sens qui nous dit où sont nos membres, les yeux fermés.',
+            vrai: true,
+            verdict:
+              'La proprioception. C’est elle qui vous permet de porter la main à votre nez dans ' +
+              'le noir. Retiens-le : la carte suivante en dépend.',
+          },
+          {
+            texte: 'C’est d’ailleurs le seul sens qu’Aristote avait oublié dans sa liste.',
+            vrai: false,
+            verdict:
+              'Il en manque bien d’autres : l’équilibre, logé dans l’oreille interne ; la ' +
+              'température ; la douleur, qui a ses propres capteurs ; la faim, la soif, la ' +
+              'position du corps dans l’espace. Selon la façon de les découper, les ' +
+              'physiologistes en comptent entre neuf et une vingtaine. Cinq est un héritage, ' +
+              'pas un résultat.',
+          },
+          {
+            texte: 'La fraîcheur de la menthe n’est pas une vraie baisse de température.',
+            vrai: true,
+            verdict:
+              'Le menthol se fixe sur le récepteur du froid et l’allume sans qu’un seul degré ' +
+              'ne bouge. Symétriquement, le piment allume celui du chaud. C’est en cherchant ' +
+              'comment le piment brûle que David Julius a mis la main sur le capteur de ' +
+              'température du corps — ce qui lui a valu le prix Nobel de médecine 2021.',
+          },
+          {
+            texte: 'Comparé aux autres mammifères, l’odorat humain est un sens médiocre.',
+            vrai: false,
+            verdict:
+              'Une revue parue dans Science en 2017 a retracé l’origine de cette idée : elle ne ' +
+              'vient d’aucune mesure, mais d’une hypothèse du médecin Paul Broca au XIXe siècle, ' +
+              'selon laquelle le libre arbitre humain aurait exigé un bulbe olfactif réduit. ' +
+              'Notre bulbe olfactif contient en fait autant de neurones que celui des autres ' +
+              'mammifères, et nous battons le chien sur certaines odeurs.',
+          },
+          {
+            texte: 'Une thèse allemande de 1901 a bien mesuré des différences selon les zones de la langue.',
+            vrai: true,
+            verdict:
+              'David Hänig a trouvé de légers écarts de sensibilité entre la pointe, les bords ' +
+              'et le fond. Légers. Retiens-le : la carte suivante en dépend.',
+          },
+          {
+            texte: 'D’où la carte du goût : le sucré à la pointe, l’amer tout au fond.',
+            vrai: false,
+            verdict:
+              'Le piège, et il a tenu un siècle. En 1942, le psychologue américain Edwin Boring ' +
+              'a converti les données de Hänig en un schéma aux zones découpées au couteau, ' +
+              'là où l’original ne montrait que des nuances. Toutes les saveurs se perçoivent ' +
+              'sur toute la langue. Vérifiez-le : posez du sucre au fond de votre langue, il ' +
+              'sera sucré.',
+          },
+        ],
+      },
       match: {
         consigne: "Relie chaque sens à l’organe qui le porte.",
         pairs: [

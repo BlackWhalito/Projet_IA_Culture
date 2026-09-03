@@ -257,13 +257,163 @@ export const CP_HISTOIRE: Notion[] = [
     domainId: 'histoire',
     difficulty: 2,
     title: 'Les grandes inventions de la Préhistoire',
-    summary: "Le feu, la roue, l'écriture et l'agriculture ont transformé la vie des humains.",
-    funFact: "L'écriture est apparue il y a environ 5000 ans, bien après la maîtrise du feu.",
+    /*
+     * Le `summary` rangeait l'écriture parmi les inventions de la Préhistoire,
+     * ce qui contredit frontalement `cp-histoire-prehistoire` : « la période
+     * avant l'invention de l'écriture ». L'écriture n'est pas la dernière
+     * invention de la Préhistoire, c'est sa borne — le premier document de
+     * l'Histoire. Corrigé ici, et c'est la carte 12 de la chaîne.
+     *
+     * Le `match` ci-dessous garde l'écriture dans la même liste que le feu et
+     * l'agriculture ; il faudrait un arbitrage sur le titre et sur ce payload
+     * pour lever complètement la contradiction.
+     */
+    summary:
+      'Le feu, l’agriculture et la roue appartiennent à la Préhistoire. L’écriture, non : ' +
+      'c’est elle qui y met fin.',
+    funFact:
+      'Les plus anciens textes du monde ne racontent rien. Les milliers de tablettes d’argile ' +
+      'retrouvées à Uruk, en Mésopotamie, autour de 3300 avant notre ère, sont des ' +
+      'inventaires : tant de moutons, tant de mesures d’orge, tant de jarres d’huile. ' +
+      'L’humanité n’a pas inventé l’écriture pour prier ni pour raconter des histoires, mais ' +
+      'pour tenir ses comptes. Et c’est cette invention de comptable qui referme la ' +
+      'Préhistoire : l’Histoire commence, par définition, là où apparaissent des sources ' +
+      'écrites.',
     games: {
+      /*
+       * Ordre de perfidie croissante, jamais mélangé. Deux pièges posés une carte
+       * à l'avance : 8 → 9 (connaître la roue ne suffit pas à s'en servir) et
+       * 11 → 12 (l'écriture date bien de 5 000 ans, mais elle n'est pas une
+       * invention de la Préhistoire — elle en marque la fin).
+       *
+       * Faits vérifiés par recherche : usage régulier du feu attesté depuis
+       * environ 400 000 ans ; néolithisation vers 10 000 avant notre ère dans
+       * au moins sept ou huit foyers indépendants ; premiers agriculteurs
+       * européens environ 4 cm plus petits et en moins bonne santé ; roue vers
+       * 3500 avant notre ère ; aucune roue parmi le million d'objets
+       * inventoriés à Gizeh, char introduit en Égypte vers 1600 avant notre
+       * ère ; jouets à roulettes de Mésoamérique (Tres Zapotes) sans animaux de
+       * trait disponibles ; tablettes comptables d'Uruk vers 3300 avant notre
+       * ère ; écriture inventée indépendamment à Sumer, en Chine et en
+       * Mésoamérique, l'Égypte étant très probablement un quatrième foyer.
+       */
+      chaine: {
+        consigne: 'Vrai ou faux ? Glisse à droite pour vrai, à gauche pour faux.',
+        secondesParCarte: 8,
+        affirmations: [
+          {
+            texte: 'Le feu est de très loin la plus ancienne de ces grandes inventions.',
+            vrai: true,
+            verdict:
+              'Son usage régulier est attesté depuis environ 400 000 ans, et certains sites ' +
+              'suggèrent bien plus tôt encore. Entre le feu et les premiers champs, il s’écoule ' +
+              'quarante fois plus de temps qu’entre les premiers champs et vous.',
+          },
+          {
+            texte: 'L’agriculture est apparue il y a environ dix mille ans, à la fin de la Préhistoire.',
+            vrai: true,
+            verdict:
+              'Le Néolithique. On l’appelle « révolution », mais elle a pris près de quatre ' +
+              'mille ans au Proche-Orient : on a récolté du blé sauvage bien avant de le semer.',
+          },
+          {
+            texte: 'La roue est une invention bien plus récente que l’agriculture.',
+            vrai: true,
+            verdict:
+              'Vers 3500 avant notre ère, soit six mille ans après les premières cultures. On ' +
+              'sait cuire le pain, tisser et bâtir des villages bien avant de savoir faire ' +
+              'tourner quoi que ce soit sur un axe.',
+          },
+          {
+            texte: 'Les premiers agriculteurs étaient plus petits et moins bien portants que les chasseurs.',
+            vrai: true,
+            verdict:
+              'Environ quatre centimètres de moins, plus de caries, plus de carences, plus ' +
+              'd’épidémies — un régime concentré sur deux ou trois céréales, des villages ' +
+              'denses, des animaux à demeure. L’agriculture n’a pas amélioré les vies : elle a ' +
+              'permis d’en nourrir beaucoup plus.',
+          },
+          {
+            texte: 'L’agriculture a été inventée plusieurs fois, séparément, sur plusieurs continents.',
+            vrai: true,
+            verdict:
+              'Au moins sept ou huit foyers indépendants : le Proche-Orient, la Chine du Nord ' +
+              'et celle du Sud, la Nouvelle-Guinée, l’Afrique, les Andes, la Mésoamérique. ' +
+              'Personne n’a copié personne — la même idée est venue à des gens qui ignoraient ' +
+              'jusqu’à l’existence les uns des autres.',
+          },
+          {
+            texte: 'Les plus anciens textes du monde ne sont ni des poèmes ni des lois, mais des comptes.',
+            vrai: true,
+            verdict:
+              'Des milliers de tablettes d’argile à Uruk : tant de moutons, tant d’orge, tant ' +
+              'de jarres d’huile. La littérature viendra des siècles plus tard. L’écriture est ' +
+              'née dans un entrepôt.',
+          },
+          {
+            texte: 'Les Égyptiens ont bâti les grandes pyramides en faisant rouler les blocs sur des roues.',
+            vrai: false,
+            verdict:
+              'Plus d’un million d’objets inventoriés à Gizeh, et pas un fragment de roue, pas ' +
+              'une représentation. On tirait les charges sur des traîneaux — une peinture de ' +
+              'tombe montre même un homme qui verse de l’eau devant le patin, et l’expérience ' +
+              'a confirmé que mouiller le sable divise le frottement par deux. La roue n’arrive ' +
+              'en Égypte qu’avec le char, vers 1600 avant notre ère : près de mille ans après ' +
+              'Khéops.',
+          },
+          {
+            texte: 'Les peuples d’Amérique connaissaient la roue avant l’arrivée des Européens.',
+            vrai: true,
+            verdict:
+              'On a retrouvé en Mésoamérique de petits animaux de terre cuite montés sur ' +
+              'essieux, considérés comme des jouets d’enfants. Retiens-le : la carte suivante ' +
+              'en dépend.',
+          },
+          {
+            texte: 'Ils s’en servaient donc pour transporter marchandises et matériaux.',
+            vrai: false,
+            verdict:
+              'Jamais. Il leur manquait ce qui tire : ni cheval, ni bœuf, ni âne sur le ' +
+              'continent — le lama porte, il ne tracte pas. Une roue qu’aucune bête n’attelle, ' +
+              'sur des sentiers de montagne et de forêt, ne sert à rien. L’invention ne suffit ' +
+              'pas : il faut aussi le monde qui la rend utile.',
+          },
+          {
+            texte: 'L’écriture a été inventée une seule fois, puis s’est répandue de proche en proche.',
+            vrai: false,
+            verdict:
+              'C’est ce qu’on a longtemps cru, et c’est faux. Sumer vers 3300 avant notre ère, ' +
+              'la Chine sur des os divinatoires vers le XIIIe siècle avant notre ère, la ' +
+              'Mésoamérique quelques siècles avant notre ère — et très probablement l’Égypte, ' +
+              'de son côté. Aucun de ces peuples n’avait entendu parler des autres.',
+          },
+          {
+            texte: 'L’écriture est apparue il y a un peu plus de cinq mille ans, en Mésopotamie.',
+            vrai: true,
+            verdict:
+              'Vers 3300 avant notre ère, dans la cité d’Uruk. Retiens-le : la carte suivante ' +
+              'en dépend.',
+          },
+          {
+            texte: 'C’est donc la dernière des grandes inventions de la Préhistoire.',
+            vrai: false,
+            verdict:
+              'Le piège, et il tient à un mot. La Préhistoire n’est pas une époque qui ' +
+              'contiendrait l’écriture parmi ses trouvailles : c’est, par définition, le temps ' +
+              'sans sources écrites. L’écriture n’en est pas la dernière invention, elle en est ' +
+              'la borne, et le premier document de l’Histoire. La borne se déplace d’ailleurs ' +
+              'd’une région à l’autre : quand on grave les premières tablettes à Uruk, ' +
+              'l’Europe de l’Ouest a encore des millénaires de Préhistoire devant elle.',
+          },
+        ],
+      },
       match: {
         pairs: [
           { left: 'La roue', right: 'Se déplacer plus facilement' },
-          { left: "L'écriture", right: 'Garder une trace de ce que l\'on pense' },
+          // L'écriture est SORTIE de cette liste : elle ne fait pas partie des
+          // inventions de la Préhistoire, elle en marque la fin. La laisser ici
+          // contredisait la notion `cp-histoire-prehistoire` du même fichier.
+          { left: 'La poterie', right: 'Conserver et transporter les récoltes' },
           { left: 'Le feu', right: 'Se chauffer et cuisiner' },
           { left: "L'agriculture", right: 'Cultiver la terre pour se nourrir' },
         ],
