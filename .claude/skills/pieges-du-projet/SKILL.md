@@ -138,6 +138,14 @@ Un script d'une vingtaine de lignes suffit : `chromium.launch({ executablePath }
 
 Pour l'app elle-même, lancer `npm run dev` en tâche de fond et viser `http://127.0.0.1:5173`. Pour un fichier HTML isolé, servir le dossier par un petit serveur local plutôt que d'ouvrir en `file://` : les ressources relatives et la CSP se comportent autrement.
 
+**Traverser plusieurs jeux d'un niveau : ne jamais conclure « bloqué » au
+premier échec de clic.** Les mécaniques à verdict (Entre deux, Je te crois pas)
+éteignent toutes leurs cibles pendant l'animation de correction, une seconde
+environ. Un parcours automatique qui cherche « le dernier bouton actif » tombe
+alors sur zéro candidat et s'arrête — deux fois de suite dans la même session,
+avant qu'un simple `for (essai < 6) { attendre 700 ms ; réessayer }` ne
+débloque tout. Prévois cette reprise dès le premier script de parcours.
+
 Un fichier pensé pour un runtime absent ne s'ouvre pas nu. Une planche de maquette Claude Design (`.dc.html`) référence `./support.js`, injecté seulement par l'éditeur : ouverte seule, elle échoue sur `DCLogic is not defined` et ne rend rien. Poser à côté un bouchon de trois lignes — `window.DCLogic = class {}`, plus une règle `x-dc { display: block }` — rend la planche en taille réelle, ce que le canevas ne permet pas (il la réduit à environ un tiers, illisible pour juger un dessin).
 
 ## Voir réellement ce qu'on dessine, quand la capture d'écran refuse
@@ -155,6 +163,28 @@ Un fichier pensé pour un runtime absent ne s'ouvre pas nu. Une planche de maque
 5. Le serveur de capture ne survit pas à un redémarrage de session (processus arrière-plan perdu) : le relancer avant la première capture d'une nouvelle session, avec le dev server, plutôt que de découvrir la connexion refusée au milieu d'un test.
 
 Sans ce contournement, on code des formes à l'aveugle, on livre, l'utilisateur renvoie « c'est moche », et on recommence sans jamais avoir vu ce qu'il a vu.
+
+## Deux boutons à la même place de part et d'autre d'un changement de phase
+
+**Symptôme.** Un double tap — ou simplement un joueur impatient — saute une
+phase entière du jeu, sans erreur ni trace. Trouvé sur « Douze pieds » : le
+second tap sur « Écrire » atterrissait sur « Vers suivant », qui venait
+d'apparaître exactement au même endroit, et le joueur passait au quatrain
+suivant sans jamais voir le vers de Hugo — la seule récompense de la manche.
+
+**Cause.** Une mécanique à phases (`ecriture` → `revelation` → suivant) rend
+souvent un bouton unique en bas de carte, avec le même style et donc la même
+position. Le changement de phase est synchrone : le nouveau bouton est sous le
+doigt avant la fin du double clic.
+
+**Contournement.** Le bouton qui ouvre la phase suivante reste `disabled`
+pendant 600 à 700 ms après l'arrivée dans la phase. C'est aussi un gain de
+lecture : une révélation qu'on peut fermer instantanément ne se lit pas.
+
+**Portée.** Ce n'est pas une bizarrerie de ce jeu-là : toute mécanique à phases
+du projet est concernée. À vérifier sur chaque nouvelle mécanique, en jouant le
+double clic dans le navigateur — un test unitaire seul ne le trouve pas, parce
+qu'on n'écrit pas spontanément deux clics d'affilée sur deux boutons différents.
 
 ## `window.matchMedia` absent en test
 
