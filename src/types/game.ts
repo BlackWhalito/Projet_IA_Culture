@@ -97,6 +97,37 @@ export interface TelegrammeContent extends AvecConsigne {
   }[]
 }
 
+/**
+ * « Maître Renard » — on est le renard, et on n'a que des mots.
+ *
+ * Deux jauges : la vanité du corbeau, qu'il faut remplir, et sa méfiance, qui
+ * monte dès qu'un compliment sonne faux ou arrive trop tôt. Quand la vanité
+ * est pleine, un dernier cartouche s'allume — et c'est celui qui gagne la
+ * partie qui surprend tout le monde : **ne rien dire.**
+ */
+export interface FlatterieContent extends AvecConsigne {
+  fable: { auteur: string; titre: string; annee: string }
+  cible: { nom: string; possede: string; vaniteDepart: number; mefianceDepart: number }
+  repliques: {
+    id: string
+    texte: string
+    /** Vers de la fable, ou réplique écrite pour le jeu. Révélé à la fin. */
+    authentique: boolean
+    vanite: number
+    mefiance: number
+    /** Effet plein seulement si ces répliques ont déjà été dites. */
+    exige?: string[]
+    /** Effets dégradés et réaction quand la condition n'est pas remplie. */
+    siPrecoce?: { vanite: number; mefiance: number; reaction: string }
+    reaction: string
+  }[]
+  /** S'allume à vanité pleine. C'est ce qui fait ouvrir le bec. */
+  declencheur: { texte: string; reaction: string }
+  moraleReussite: string
+  moraleEchec: string
+  secondes: number
+}
+
 export interface TimelineContent extends AvecConsigne {
   events: {
     label: string

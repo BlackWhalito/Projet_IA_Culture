@@ -50,10 +50,10 @@ choix mais parce qu'aucune autre mécanique n'acceptait leur contenu.
 sept payloads sont partis avec elle. Ses trois derniers créneaux jouent désormais
 « Je te crois pas ».
 
-Répartition des quarante créneaux du CP après ce remaniement : `qcm` 13,
-`chaine` 9, `riviere` 8, `capsur` 3, `timeline` 3, `fildesjours` 2,
-`ponctuation` 1, `vers` 1. Le QCM était sur dix-sept créneaux et n'est plus
-majoritaire nulle part.
+Répartition des quarante créneaux du CP, mise à jour : `qcm` **10**, `chaine` 9,
+`riviere` 8, `capsur` 3, `timeline` 3, `telegramme` 2, `fildesjours` 2,
+`ponctuation` 1, `vers` 1, `flatterie` 1. Le QCM était sur dix-sept créneaux ; il
+en occupe dix, et plus un seul par défaut faute de mieux.
 
 **Ajouté**, chacune née de son sujet plutôt que plaquée dessus :
 
@@ -63,6 +63,8 @@ majoritaire nulle part.
 | **La virgule qui sauve** | Poser la ponctuation dans les fentes d'une phrase | Que le sens bascule sous le doigt, avant toute correction |
 | **Entre deux** | Placer une carte entre deux repères déjà posés | L'ordre relatif, pas des dates récitées |
 | **Douze pieds** | Assembler le dernier vers d'un quatrain de Hugo | Le e muet et le h aspiré, **qui ne se constatent qu'en assemblant** |
+| **STOP** | Faire tenir un télégramme dans un tarif, au mot près | Quels mots portent une information — on ne le sait qu'en devant les payer |
+| **Maître Renard** | Flatter un corbeau jusqu'à ce qu'il ouvre le bec | Que l'ordre des compliments *est* la fable, et que le coup gagnant est de se taire |
 
 « Douze pieds » est le cas le plus net. La règle du e muet — trois pieds devant
 une consonne, deux devant une voyelle — ne s'énonce pas utilement : elle se voit,

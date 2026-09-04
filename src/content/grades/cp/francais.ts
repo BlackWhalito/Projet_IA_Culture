@@ -71,9 +71,139 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 3,
     title: 'Le Corbeau et le Renard',
-    summary: 'Une célèbre fable de Jean de La Fontaine, avec une morale sur la flatterie.',
-    funFact: "La morale de la fable est : « Tout flatteur vit aux dépens de celui qui l'écoute. »",
+    /*
+     * L'ancien contenu demandait qui avait écrit la fable, et servait la morale
+     * en récompense. C'est du trivia et une citation : personne n'apprend rien.
+     * Ce que la fable enseigne vraiment est une MÉCANIQUE, et elle est dans
+     * l'ordre des vers — d'où le jeu.
+     */
+    summary:
+      'La flatterie qui marche commence par une chose vraie, et ne demande jamais rien.',
+    funFact:
+      'Relis la fable : le renard ne demande pas une seule fois au corbeau de chanter. Il dit ' +
+      '« si votre ramage se rapporte à votre plumage » — une condition, pas une demande — et il ' +
+      'laisse le corbeau vouloir la vérifier lui-même. C’est tout l’art, et c’est ce qui rend la ' +
+      'morale plus dure qu’elle n’en a l’air : le flatteur n’a rien réclamé.',
     games: {
+      /*
+       * « Maître Renard ». Les six répliques sont calibrées pour qu'une seule
+       * ligne gagne : les quatre vers de La Fontaine, dans SON ordre.
+       *
+       *   Monsieur (+20) → plumage (+25) → ramage (+35) → phénix (+20) = 100.
+       *
+       * Retirer n'importe lequel des quatre laisse la vanité sous 100, et les
+       * intervertir déclenche les effets « précoces » : « si votre ramage se
+       * rapporte à votre plumage » ne veut rien dire tant qu'on n'a pas parlé
+       * du plumage, et le corbeau se demande d'où sort cette histoire de voix.
+       *
+       * Les deux dernières répliques ne sont pas de La Fontaine, et ce sont
+       * exactement les deux gestes que le renard ne fait jamais : nommer le
+       * fromage, et demander à entendre. Elles coûtent 55 et 60 de méfiance
+       * pour un départ à 20 — une seule suffit à condamner la manche, et c'est
+       * voulu : le test d'intégrité vérifie qu'AUCUNE partie gagnante ne
+       * contient une phrase qui ne soit pas de La Fontaine.
+       *
+       * La vérification chiffrée de tout ceci est dans engine/flatterie.test.ts
+       * et dans contentIntegrity.test.ts, qui rejoue les ordres possibles.
+       */
+      flatterie: {
+        consigne: 'Fais-lui ouvrir le bec. Il n’est pas si sot, et tu n’as que des mots.',
+        fable: { auteur: 'Jean de La Fontaine', titre: 'Le Corbeau et le Renard', annee: '1668' },
+        cible: {
+          nom: 'Maître Corbeau',
+          possede: 'un fromage',
+          vaniteDepart: 0,
+          mefianceDepart: 20,
+        },
+        repliques: [
+          {
+            id: 'monsieur',
+            texte: 'Hé ! bonjour, Monsieur du Corbeau.',
+            authentique: true,
+            vanite: 20,
+            mefiance: 0,
+            reaction:
+              'Monsieur. Et « du » Corbeau, comme un nom de terre. Il ne répond pas, mais il ne ' +
+              's’est pas envolé non plus.',
+          },
+          {
+            id: 'plumage',
+            texte: 'Que vous êtes joli ! que vous me semblez beau !',
+            authentique: true,
+            vanite: 25,
+            mefiance: 5,
+            reaction:
+              'Il gonfle son plumage. Celui-là est vrai et il le sait : ses plumes sont noires et ' +
+              'luisantes. On se méfie mal d’un compliment exact.',
+          },
+          {
+            id: 'ramage',
+            texte: 'Sans mentir, si votre ramage se rapporte à votre plumage…',
+            authentique: true,
+            vanite: 35,
+            mefiance: 10,
+            exige: ['plumage'],
+            siPrecoce: {
+              vanite: 5,
+              mefiance: 30,
+              reaction:
+                'Mon ramage ? Il n’a rien dit de mes plumes et le voilà qui parle de ma voix. Le ' +
+                'corbeau resserre son bec sur le fromage.',
+            },
+            reaction:
+              'Il penche la tête. On vient de lui promettre quelque chose sans rien affirmer : ' +
+              'c’est une condition, pas un compliment — et c’est à lui de la remplir.',
+          },
+          {
+            id: 'phenix',
+            texte: 'Vous êtes le Phénix des hôtes de ces bois.',
+            authentique: true,
+            vanite: 20,
+            mefiance: 15,
+            exige: ['ramage'],
+            siPrecoce: {
+              vanite: 0,
+              mefiance: 35,
+              reaction: 'Le Phénix ? D’un coup, comme ça ? Le corbeau recule d’un pas sur la branche.',
+            },
+            reaction: 'Il ne se sent plus de joie. Le bec est toujours fermé, mais plus pour longtemps.',
+          },
+          {
+            id: 'fromage',
+            texte: 'Voilà un fromage qui doit être excellent.',
+            authentique: false,
+            vanite: 0,
+            mefiance: 55,
+            reaction:
+              'Le fromage. Tu as dit le fromage. Le corbeau referme le bec d’un cran et te regarde ' +
+              'autrement.',
+          },
+          {
+            id: 'chante',
+            texte: 'Chantez-moi donc quelque chose.',
+            authentique: false,
+            vanite: 0,
+            mefiance: 60,
+            reaction:
+              'Une demande directe. Il se demande aussitôt pourquoi tu la fais — et dans la fable, ' +
+              'le renard ne la fait jamais.',
+          },
+        ],
+        declencheur: {
+          texte: '(Ne rien dire. Attendre.)',
+          reaction:
+            'Et pour montrer sa belle voix, il ouvre un large bec, laisse tomber sa proie.',
+        },
+        moraleReussite:
+          'Tu n’as rien demandé. C’est lui qui a voulu prouver quelque chose — et « tout flatteur ' +
+          'vit aux dépens de celui qui l’écoute ».',
+        moraleEchec:
+          'Le renard de La Fontaine ne demande jamais au corbeau de chanter. Il dit « si votre ' +
+          'ramage se rapporte à votre plumage », et il laisse le corbeau vouloir le prouver. ' +
+          'Flatter, c’est créer un manque, pas réclamer.',
+        secondes: 60,
+      },
+
       qcm: {
         question: 'Qui a écrit la fable Le Corbeau et le Renard ?',
         choices: ['Jean de La Fontaine', 'Victor Hugo', 'Charles Perrault'],

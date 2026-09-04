@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { compterPieds, versRecevable, type Tuile } from '../engine/metrique'
 import { compterMots, evaluerMessage } from '../engine/telegramme'
+import { dire, issue, type EtatFlatterie } from '../engine/flatterie'
 import { ALL_NOTIONS, getNotionById } from './notions'
 import { ALL_LEVELS } from './levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
@@ -310,6 +311,61 @@ describe('intégrité du contenu', () => {
         const decision = message.budget < complet || (message.stopsFautifs ?? []).length > 0
         expect(decision, `${ou} : rien à couper et aucun STOP à placer, le tour se gagne tout seul`).toBe(true)
       })
+    }
+  })
+
+  /**
+   * « Maître Renard » : la scène doit être gagnable, elle ne doit pas se gagner
+   * au hasard, et surtout — c'est la leçon même — **aucune partie gagnante ne
+   * doit contenir une phrase que La Fontaine n'a pas écrite.**
+   *
+   * Cette dernière assertion est le contenu de la fable, pas une préférence de
+   * game design : le renard ne nomme jamais le fromage et ne demande jamais au
+   * corbeau de chanter. Si un joueur pouvait gagner en le faisant, le jeu
+   * enseignerait le contraire de ce qu'il prétend enseigner.
+   *
+   * On énumère toutes les suites ordonnées de répliques — six répliques, moins
+   * de deux mille suites, c'est instantané.
+   */
+  it('rend « Maître Renard » gagnable, rare, et jamais gagnant sur une phrase apocryphe', () => {
+    for (const notion of ALL_NOTIONS) {
+      const contenu = notion.games.flatterie
+      if (!contenu) continue
+
+      let total = 0
+      let gagnantes = 0
+      const apocryphes: string[][] = []
+
+      const explorer = (etat: EtatFlatterie, suite: string[]) => {
+        total += 1
+        if (issue(etat) === 'pret') {
+          gagnantes += 1
+          const inventees = suite.filter(
+            (id) => !contenu.repliques.find((r) => r.id === id)?.authentique,
+          )
+          if (inventees.length > 0) apocryphes.push(suite)
+          return
+        }
+        if (issue(etat) === 'perdu') return
+        for (const replique of contenu.repliques) {
+          if (suite.includes(replique.id)) continue
+          explorer(dire(etat, replique), [...suite, replique.id])
+        }
+      }
+      explorer(
+        {
+          vanite: contenu.cible.vaniteDepart,
+          mefiance: contenu.cible.mefianceDepart,
+          dites: [],
+        },
+        [],
+      )
+
+      expect(gagnantes, `${notion.id} : aucune suite de répliques ne fait ouvrir le bec`).toBeGreaterThan(0)
+      expect(gagnantes / total, `${notion.id} : ${gagnantes} suites gagnantes sur ${total}, on gagne au hasard`)
+        .toBeLessThan(0.1)
+      expect(apocryphes, `${notion.id} : on peut gagner en disant une phrase qui n'est pas de La Fontaine`)
+        .toEqual([])
     }
   })
 })

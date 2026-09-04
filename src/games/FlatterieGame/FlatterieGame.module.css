@@ -1,0 +1,232 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fable {
+  margin: 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+/* Le décor : peint, contemplatif, et immobile pendant qu'on joue. */
+.scene {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.fromage {
+  transition: none;
+}
+
+/*
+ * La chute. Deux secondes, et c'est le seul mouvement de tout l'écran — il
+ * n'arrive qu'une fois la partie gagnée, donc jamais pendant qu'on décide.
+ * Pas de filtre sur cet élément : un feTurbulence recalculé à chaque image
+ * fait tomber le framerate sur téléphone.
+ */
+.fromageTombe {
+  animation: chute 1.4s cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+
+@keyframes chute {
+  from { transform: translateY(0) rotate(0deg); }
+  to { transform: translateY(70px) rotate(24deg); opacity: 0.2; }
+}
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.cible {
+  font-style: italic;
+}
+
+.horloge {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-domain-histoire);
+}
+
+/*
+ * Les jauges. Bords nets et contraste franc : c'est de l'interface, pas du
+ * décor — un lavis baveux ici serait joli et illisible.
+ */
+.jauges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.jauge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.jaugeNom {
+  flex: 0 0 8.5rem;
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+}
+
+.piste {
+  flex: 1 1 auto;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--papier-ombre);
+  overflow: hidden;
+}
+
+.remplissage,
+.remplissageMefiance {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 260ms ease;
+}
+
+.remplissage {
+  background: var(--violet);
+}
+
+/* Se tromper enseigne, ça ne sanctionne pas : un ocre, jamais un rouge vif. */
+.remplissageMefiance {
+  background: var(--color-error);
+}
+
+/* Ce que le corbeau fait. C'est le seul retour du jeu, il doit se lire. */
+.reaction {
+  margin: 0;
+  min-height: 3.4em;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--violet-brume);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--encre);
+}
+
+.reactionRatee {
+  border-left-color: var(--color-error);
+}
+
+.repliques {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.replique {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--violet-brume);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.replique:not(:disabled):active {
+  transform: scale(0.99);
+}
+
+/* Un compliment ne se répète pas. */
+.replique:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.declencheur {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--violet);
+  color: var(--color-surface);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.declencheur:disabled {
+  background: var(--color-locked);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.declencheur:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.epilogue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.morale {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* Le relevé : lesquelles de ces phrases étaient vraiment de La Fontaine. */
+.releve {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.releveLigne {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--papier-ombre);
+}
+
+.releveTexte {
+  font-family: var(--font-family-heading);
+  font-size: 0.95rem;
+  color: var(--encre);
+}
+
+.sceau {
+  flex: none;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--violet-profond);
+}
+
+.sceauFaux {
+  color: var(--color-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fromageTombe {
+    animation: none;
+    opacity: 0.2;
+  }
+  .remplissage,
+  .remplissageMefiance {
+    transition: none;
+  }
+}

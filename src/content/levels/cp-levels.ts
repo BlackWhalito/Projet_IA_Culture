@@ -98,7 +98,7 @@ export const CP_LEVELS: LevelDef[] = [
     order: 8,
     title: 'Niveau 8',
     notionIds: [
-      { notionId: 'cp-francais-corbeau-renard', gameType: 'qcm' },
+      { notionId: 'cp-francais-corbeau-renard', gameType: 'flatterie' },
       { notionId: 'cp-histoire-revolution-francaise', gameType: 'qcm' },
       { notionId: 'cp-geographie-loire', gameType: 'capsur' },
       { notionId: 'cp-sciences-squelette', gameType: 'qcm' },
