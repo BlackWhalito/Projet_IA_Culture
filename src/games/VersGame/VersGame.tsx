@@ -16,6 +16,16 @@ type Phase = 'ecriture' | 'revelation' | 'fini'
 
 const FIN_DELAI_MS = 500
 
+/**
+ * Le bouton de la révélation reste éteint ce temps-là.
+ *
+ * Sans ce délai, un double tap sur « Écrire » sautait la manche entière : le
+ * second tap tombait sur « Vers suivant », qui venait d'apparaître exactement
+ * au même endroit, et le joueur passait au quatrain suivant sans avoir vu le
+ * vers de Hugo — la seule récompense du jeu. Un tap impatient suffisait.
+ */
+const DELAI_ARMEMENT_MS = 700
+
 /** « Triste, et le jour… » et « triste et le jour » sont le même vers. */
 function nu(texte: string): string {
   return texte
@@ -50,6 +60,7 @@ export function VersGame({ content, onComplete }: VersGameProps) {
   const [reussies, setReussies] = useState(0)
   const [ratees, setRatees] = useState(0)
   const [restant, setRestant] = useState(content.secondesParStrophe ?? 0)
+  const [arme, setArme] = useState(false)
   const startedAtRef = useRef(0)
   const finishedRef = useRef(false)
 
@@ -90,10 +101,17 @@ export function VersGame({ content, onComplete }: VersGameProps) {
       setReussies((r) => (gagnee ? r + 1 : r))
       setRatees((e) => (gagnee ? e : e + 1))
       jouerSon(gagnee ? 'victoire' : 'defaite')
+      setArme(false)
       setPhase('revelation')
     },
     [],
   )
+
+  useEffect(() => {
+    if (phase !== 'revelation') return
+    const timer = window.setTimeout(() => setArme(true), DELAI_ARMEMENT_MS)
+    return () => window.clearTimeout(timer)
+  }, [phase, index])
 
   /**
    * La révélation attend qu'on la quitte. Elle défilait toute seule en cinq
@@ -101,6 +119,7 @@ export function VersGame({ content, onComplete }: VersGameProps) {
    * l'a écrit — or c'est la récompense de la manche, pas une transition.
    */
   function continuer() {
+    if (!arme) return
     if (index + 1 >= content.strophes.length) {
       terminer(reussies, ratees)
       return
@@ -194,7 +213,12 @@ export function VersGame({ content, onComplete }: VersGameProps) {
             </>
           )}
           <p className={styles.commentaire}>{strophe.commentaire}</p>
-          <button type="button" className={styles.ecrire} onClick={continuer}>
+          <button
+            type="button"
+            className={styles.ecrire}
+            disabled={!arme}
+            onClick={continuer}
+          >
             {index + 1 >= content.strophes.length ? 'Fermer le recueil' : 'Vers suivant'}
           </button>
         </div>

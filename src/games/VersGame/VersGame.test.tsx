@@ -137,6 +137,7 @@ describe('VersGame', () => {
       // La révélation ne défile plus toute seule : c'est la récompense de la
       // manche, elle attend qu'on la quitte.
       expect(onComplete).not.toHaveBeenCalled()
+      act(() => void vi.advanceTimersByTime(800))
       fireEvent.click(screen.getByRole('button', { name: 'Fermer le recueil' }))
       act(() => void vi.advanceTimersByTime(1000))
       expect(onComplete).toHaveBeenCalledWith(
@@ -163,6 +164,7 @@ describe('VersGame', () => {
       expect(screen.getByText(CONTENU.strophes[0].versReel)).toBeInTheDocument()
       expect(screen.getByText(/La bougie s’est éteinte/)).toBeInTheDocument()
 
+      act(() => void vi.advanceTimersByTime(800))
       fireEvent.click(screen.getByRole('button', { name: 'Fermer le recueil' }))
       act(() => void vi.advanceTimersByTime(1000))
       expect(onComplete).toHaveBeenCalledWith(
@@ -190,21 +192,27 @@ describe('VersGame', () => {
         },
       ],
     }
-    const onComplete = vi.fn()
-    render(<VersGame content={deux} onComplete={onComplete} />)
-    expect(screen.getByText('Quatrain 1 / 2')).toBeInTheDocument()
+    vi.useFakeTimers()
+    try {
+      const onComplete = vi.fn()
+      render(<VersGame content={deux} onComplete={onComplete} />)
+      expect(screen.getByText('Quatrain 1 / 2')).toBeInTheDocument()
 
-    poser('Je ne puis demeurer')
-    poser('loin de toi')
-    poser('plus longtemps')
-    fireEvent.click(screen.getByRole('button', { name: 'Écrire' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Vers suivant' }))
+      poser('Je ne puis demeurer')
+      poser('loin de toi')
+      poser('plus longtemps')
+      fireEvent.click(screen.getByRole('button', { name: 'Écrire' }))
+      act(() => void vi.advanceTimersByTime(800))
+      fireEvent.click(screen.getByRole('button', { name: 'Vers suivant' }))
 
-    expect(screen.getByText('Quatrain 2 / 2')).toBeInTheDocument()
-    expect(pieds()).toBe('0 pieds sur 12')
-    expect(screen.getByText('90 s')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Écrire' })).toBeDisabled()
-    expect(onComplete).not.toHaveBeenCalled()
+      expect(screen.getByText('Quatrain 2 / 2')).toBeInTheDocument()
+      expect(pieds()).toBe('0 pieds sur 12')
+      expect(screen.getByText('90 s')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Écrire' })).toBeDisabled()
+      expect(onComplete).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('remet Hugo à côté quand le vers du joueur diffère du sien', () => {
@@ -218,5 +226,39 @@ describe('VersGame', () => {
     expect(screen.getByText(/Victor Hugo, lui, a écrit/)).toBeInTheDocument()
     expect(screen.getByText(CONTENU.strophes[0].versReel)).toBeInTheDocument()
     expect(screen.queryByText(/Mot pour mot/)).not.toBeInTheDocument()
+  })
+
+  /**
+   * Le bug que la vérification a trouvé : « Écrire » et le bouton de la
+   * révélation occupent la même place. Un double tap — ou simplement un joueur
+   * impatient — sautait le quatrain sans jamais voir le vers de Hugo.
+   */
+  it('ne laisse pas un double tap sur « Écrire » sauter la révélation', () => {
+    vi.useFakeTimers()
+    try {
+      const deux: VersContent = {
+        ...CONTENU,
+        strophes: [CONTENU.strophes[0], { ...CONTENU.strophes[0], amont: ['Deuxième.'] }],
+      }
+      render(<VersGame content={deux} onComplete={vi.fn()} />)
+      poser('Je ne puis demeurer')
+      poser('loin de toi')
+      poser('plus longtemps')
+
+      const ecrire = screen.getByRole('button', { name: 'Écrire' })
+      fireEvent.click(ecrire)
+      // Le second tap du double clic, immédiatement après, tombe sur le bouton
+      // qui vient de prendre la place : il doit être inerte.
+      fireEvent.click(screen.getByRole('button', { name: 'Vers suivant' }))
+      expect(screen.getByText('Quatrain 1 / 2')).toBeInTheDocument()
+      expect(screen.getByText(CONTENU.strophes[0].commentaire)).toBeInTheDocument()
+
+      // Une fois le délai passé, le bouton répond.
+      act(() => void vi.advanceTimersByTime(800))
+      fireEvent.click(screen.getByRole('button', { name: 'Vers suivant' }))
+      expect(screen.getByText('Quatrain 2 / 2')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
