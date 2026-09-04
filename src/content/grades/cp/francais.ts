@@ -120,9 +120,115 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 1,
     title: 'Singulier et pluriel',
-    summary: 'Le singulier désigne une seule chose, le pluriel en désigne plusieurs.',
-    funFact: "La plupart des noms français prennent un « s » au pluriel, mais certains, comme « un chou » / « des choux », prennent un « x ».",
+    /*
+     * L'ancien summary disait « le singulier désigne une seule chose ». Personne
+     * ne l'ignore. Le fait qu'un adulte a vraiment perdu est ailleurs : le
+     * nombre n'est presque jamais porté par le nom, ni à l'oreille (« enfant »
+     * et « enfants » se prononcent pareil) ni même à l'œil pour les noms qui
+     * finissent déjà par s, x ou z — fils, voix, prix, nez, temps.
+     */
+    summary:
+      'Le nombre n’est presque jamais porté par le nom : c’est le petit mot devant lui qui dit combien.',
+    funFact:
+      'Les noms qui finissent déjà par s, x ou z ne changent pas au pluriel — « le fils » et « les fils » ' +
+      's’écrivent exactement pareil, et se prononcent pareil. Pour ceux-là, le déterminant est le seul ' +
+      'témoin qui reste. C’est pour cette raison qu’un télégramme économe pouvait devenir indéchiffrable.',
     games: {
+      /*
+       * « STOP ». Trois messages, et une progression voulue :
+       *   1. « LES FILS » — le déterminant est le SEUL mot qui dit combien,
+       *      puisque « fils » s'écrit pareil au singulier et au pluriel ;
+       *   2. « LES TROIS FILS » — la règle s'inverse : le nombre est ailleurs,
+       *      donc le déterminant redevient sacrifiable. Ce n'est pas « garde le
+       *      déterminant », c'est « garde le seul porteur » ;
+       *   3. « LE FILS AINE SEUL » — la même leçon dans l'autre sens, où c'est
+       *      le singulier qu'on perd.
+       *
+       * Les télégrammes s'écrivaient en capitales sans accents : c'est pour ça
+       * que les mots sont écrits ainsi, et non par effet de style.
+       */
+      telegramme: {
+        consigne: 'Fais tenir le message dans le tarif. Le destinataire fera ce qui est écrit.',
+        bureau: {
+          qui: 'Employé du télégraphe',
+          lieu: 'Bureau de Tours',
+          annee: '1889',
+          tarif: 'La ponctuation ne se transmet pas. Un STOP se paie comme un mot.',
+        },
+        messages: [
+          {
+            mots: ['ENVOIE', 'LES', 'FILS', 'PAR', 'LE', 'TRAIN', 'DE', 'MARDI', 'MATIN'],
+            budget: 5,
+            intention: 'Ses trois fils doivent monter dans le train de mardi matin.',
+            porteurs: [
+              {
+                index: 1,
+                scene:
+                  'Ta sœur relit le ruban trois fois. Un fils, ou les fils ? Le mot s’écrit pareil ' +
+                  'dans les deux cas, et plus rien ne dit combien. Elle met l’aîné dans le train et ' +
+                  'garde les deux petits.',
+              },
+              { index: 2, scene: 'Elle met quoi dans le train, au juste ?' },
+              { index: 5, scene: 'Elle les met dans quoi ? Personne n’a parlé de train.' },
+              { index: 7, scene: 'Quel jour ? Elle attend une deuxième dépêche qui ne vient pas.' },
+            ],
+            stops: [],
+            reception:
+              'Mardi matin, trois garçons montent dans le train. Tu as gardé « LES » et sacrifié des ' +
+              'mots qui avaient l’air bien plus importants : le nombre valait son mot, le verbe non.',
+            revelation:
+              'On croit que « les » est un mot vide. C’est ici le seul mot du message qui dise ' +
+              'combien : « fils » ne prend pas de s au pluriel, il en a déjà un. Ni l’œil ni ' +
+              'l’oreille ne peuvent trancher sans le déterminant.',
+            secondes: 45,
+          },
+          {
+            mots: ['ENVOIE', 'LES', 'TROIS', 'FILS', 'PAR', 'LE', 'TRAIN'],
+            budget: 4,
+            intention: 'Les trois mêmes garçons, par le train, peu importe lequel.',
+            porteurs: [
+              { index: 2, scene: 'Combien ? Elle en envoie un, au hasard.' },
+              { index: 3, scene: 'Trois quoi ? Elle relit dix fois et ne comprend pas.' },
+              { index: 6, scene: 'Par quel moyen ? Elle les garde.' },
+            ],
+            stops: [],
+            reception:
+              'Trois garçons, un train. Cette fois « LES » pouvait partir sans dommage — ' +
+              '« TROIS » disait déjà combien, et payer les deux, c’était payer deux fois.',
+            revelation:
+              'La règle n’est donc pas « garde le déterminant ». Elle est : garde le seul mot qui ' +
+              'porte l’information. Au message précédent c’était « LES » ; ici c’est « TROIS », et ' +
+              '« LES » devient un doublon qu’on paie pour rien.',
+            secondes: 40,
+          },
+          {
+            mots: ['ENVOIE', 'LE', 'FILS', 'AINE', 'SEUL', 'PAR', 'LE', 'TRAIN'],
+            budget: 5,
+            intention: 'Cette fois, l’aîné seulement, et il voyage sans personne.',
+            porteurs: [
+              {
+                index: 1,
+                scene:
+                  'Elle hésite, puis se dit qu’on n’écrit pas « aîné » pour un enfant unique. Elle ' +
+                  'comprend « les fils, l’aîné d’abord ». Trois garçons arrivent, le grand devant.',
+              },
+              { index: 3, scene: 'Lequel ? Elle envoie le plus jeune, qui réclamait depuis un mois.' },
+              { index: 4, scene: 'Elle fait accompagner le garçon par sa cousine. Deux billets.' },
+              { index: 7, scene: 'Par quel moyen ? Elle les garde.' },
+            ],
+            stops: [],
+            reception:
+              'Un garçon, seul, dans le train. Tu as payé « LE » — une lettre de moins que « LES », ' +
+              'le même prix, et l’inverse exact.',
+            revelation:
+              'Le singulier se perd aussi facilement que le pluriel, et pour la même raison. Entre ' +
+              '« le fils » et « les fils », toute la différence tient dans un mot qu’on prend pour ' +
+              'du remplissage.',
+            secondes: 45,
+          },
+        ],
+      },
+
       qcm: {
         question: 'Lequel de ces mots est écrit au pluriel ?',
         choices: ['Des chats', 'Un chat', 'Le chat'],
@@ -634,9 +740,124 @@ export const CP_FRANCAIS: Notion[] = [
     domainId: 'francais',
     difficulty: 1,
     title: 'La majuscule et le point',
-    summary: 'Une phrase commence par une majuscule et se termine par un point.',
-    funFact: "Les noms propres, comme les prénoms ou les pays, prennent toujours une majuscule, même au milieu d'une phrase.",
+    /*
+     * Ce que la notion enseignait — « une phrase commence par une majuscule » —
+     * n'apprend rien à personne. Le vrai sujet du point, c'est qu'il marque une
+     * FRONTIÈRE entre deux ordres, et que sans elle deux phrases se soudent en
+     * une troisième qui dit autre chose. Le télégraphe l'a démontré à ses
+     * frais : le morse ne transmettait pas la ponctuation.
+     */
+    summary:
+      'Le point n’est pas une décoration de fin : c’est la frontière qui empêche deux phrases de se souder.',
+    funFact:
+      'Les télégrammes se facturaient au mot, et le morse ne transmettait pas la ponctuation — un point ' +
+      'risquait de se perdre en route. On a donc écrit le mot STOP à la place, et il se payait comme ' +
+      'n’importe quel autre mot. C’est sans doute le seul moment de l’histoire où la ponctuation a eu ' +
+      'un prix affiché, et où l’on a pu vérifier qu’elle les valait.',
     games: {
+      /*
+       * « STOP ». Trois messages, trois usages du point :
+       *   1. il faut en poser un, sinon deux ordres se soudent ;
+       *   2. il faut le poser AU BON ENDROIT — cinq mots, deux sens opposés ;
+       *   3. il ne faut pas en poser du tout, parce qu'il n'y a qu'une phrase
+       *      et que le budget ne le permet pas. Sans ce troisième cas, le
+       *      joueur apprendrait « pose toujours un STOP », ce qui est faux.
+       *
+       * Le cas « GRACIER IMPOSSIBLE » est un exercice classique d'ambiguïté,
+       * pas un fait historique : il est présenté comme une commande que
+       * l'employé reçoit, jamais comme un événement qui a eu lieu.
+       */
+      telegramme: {
+        consigne: 'Fais tenir le message dans le tarif. Le destinataire fera ce qui est écrit.',
+        bureau: {
+          qui: 'Employé du télégraphe',
+          lieu: 'Bureau de Rouen',
+          annee: '1891',
+          tarif: 'La ponctuation ne se transmet pas. Un STOP se paie comme un mot.',
+        },
+        messages: [
+          {
+            mots: ['NE', 'PARS', 'PAS', 'SANS', 'MOI', 'JE', 'TE', 'REJOINS', 'DEMAIN'],
+            budget: 7,
+            intention: 'Deux choses à lui dire : qu’il ne parte pas, et que tu arrives demain.',
+            porteurs: [
+              { index: 1, scene: 'Sans le verbe, il ne reste qu’une négation. Il part.' },
+              { index: 2, scene: 'Tu viens de lui écrire « PARS ». Il part.' },
+              { index: 3, scene: 'Ne pars pas… quoi ? Il comprend « ne pars pas maintenant » et part le soir.' },
+              { index: 4, scene: 'Il ne part pas — et il n’a aucune idée que tu comptais le rejoindre.' },
+              { index: 7, scene: 'Tu le rejoins ? tu l’attends ? Il part, pour ne pas se tromper.' },
+              { index: 8, scene: 'Quand ? Il attend deux jours, puis part.' },
+            ],
+            stops: [{
+              apres: 4,
+              sansLui:
+                'Il lit le ruban d’une traite, sans frontière nulle part. « sans moi je te rejoins » : ' +
+                'il bute là-dessus, relit, ne comprend rien, hausse les épaules. Il part.',
+            }],
+            reception:
+              'Il ne part pas. Le STOP a coûté un mot, et ce mot a acheté une frontière : deux ordres ' +
+              'au lieu d’une bouillie.',
+            revelation:
+              'Sans point, deux phrases voisines n’en font qu’une, et le lecteur recolle les morceaux ' +
+              'comme il peut. C’est exactement ce que fait le point à l’écrit : il n’ajoute rien, il ' +
+              'sépare — et séparer est une information.',
+            secondes: 45,
+          },
+          {
+            mots: ['GRACIER', 'IMPOSSIBLE', 'ENVOYER', 'AU', 'BAGNE'],
+            budget: 6,
+            intention: 'Le condamné doit être gracié. Il ne part pas au bagne.',
+            porteurs: [
+              { index: 0, scene: 'Il ne reste qu’un ordre, et c’est le bagne.' },
+              { index: 1, scene: 'Le greffier lit « GRACIER ENVOYER AU BAGNE » et convoque son chef.' },
+              { index: 2, scene: 'Impossible de quoi ? Le greffier range la dépêche et attend.' },
+              { index: 4, scene: 'Impossible de l’envoyer où ? Rien ne se passe.' },
+            ],
+            stops: [{
+              apres: 0,
+              sansLui:
+                'Rien ne sépare les deux ordres. Le greffier lit « gracier impossible » d’un seul ' +
+                'souffle, referme le registre, et met l’homme dans la charrette.',
+            }],
+            stopsFautifs: [{
+              apres: 1,
+              scene:
+                'Un mot trop loin. La frontière tombe après « impossible » au lieu de tomber avant, ' +
+                'et le greffier lit exactement l’ordre inverse du tien : l’homme part au bagne.',
+            }],
+            reception:
+              'La frontière tombe juste après le premier mot. Le greffier lit « gracier », puis ' +
+              '« impossible envoyer au bagne », et va ouvrir la porte de la cellule.',
+            revelation:
+              'Cinq mots, un seul STOP, deux ordres opposés — et le même prix. Ce n’est pas le point ' +
+              'qui porte le sens, c’est sa place. C’est le genre d’ambiguïté qu’on donne en exercice ' +
+              'depuis que la ponctuation existe, et le télégraphe en a fait un risque de métier.',
+            secondes: 50,
+          },
+          {
+            mots: ['ARRIVE', 'DEMAIN', 'A', 'MIDI', 'GARE', 'DU', 'NORD'],
+            budget: 5,
+            intention: 'Une seule chose à dire : viens me chercher demain midi, gare du Nord.',
+            porteurs: [
+              { index: 0, scene: 'Tu arrives ? tu pars ? Il reste chez lui.' },
+              { index: 1, scene: 'Quel jour ? Il y va le lendemain, tu attends seul.' },
+              { index: 3, scene: 'À quelle heure ? Il passe à huit heures, puis renonce.' },
+              { index: 4, scene: 'Où ça ? Il t’attend devant chez lui.' },
+              { index: 6, scene: 'Il y a six gares à Paris. Il choisit mal.' },
+            ],
+            stops: [],
+            reception:
+              'Il est sur le quai à midi. Cinq mots : tu as coupé « A » et « DU », et tu n’as posé ' +
+              'aucun STOP — il n’y avait qu’une phrase.',
+            revelation:
+              'Un STOP se paie. Ici il n’y a qu’un seul ordre, donc aucune frontière à marquer, et ' +
+              'chaque STOP posé aurait coûté un mot porteur. La ponctuation ne s’ajoute pas par ' +
+              'réflexe : elle sert à séparer ce qui doit l’être, et rien d’autre.',
+            secondes: 45,
+          },
+        ],
+      },
+
       qcm: {
         question: 'Par quoi commence toujours une phrase ?',
         choices: ['Une majuscule', 'Un point', 'Une virgule'],

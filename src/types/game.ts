@@ -62,6 +62,41 @@ export interface QcmContent extends AvecConsigne {
  * de plus, donc la chance au hasard s'effondre à mesure qu'on avance : de une
  * sur deux au départ à une sur sept en fin de manche.
  */
+/**
+ * « STOP » — l'employé du télégraphe.
+ *
+ * Le message du client coûte trop cher. Il faut le faire tenir dans un budget
+ * de mots, et le destinataire, à l'autre bout, fera **exactement** ce que le
+ * papier dira.
+ *
+ * Ce que la mécanique enseigne, et qu'un questionnaire sur la ponctuation ne
+ * peut pas enseigner : quels mots portent une information et lesquels n'en
+ * portent pas. On ne le découvre qu'en devant payer — et en voyant le
+ * destinataire faire la bêtise.
+ */
+export interface TelegrammeContent extends AvecConsigne {
+  bureau: { qui: string; lieu: string; annee: string; tarif: string }
+  messages: {
+    /** Le message du client, mot par mot. Les STOP ne sont pas dedans : on les pose. */
+    mots: string[]
+    /** Nombre de mots payés. Un STOP posé compte dedans. */
+    budget: number
+    /** Ce que le client veut obtenir. C'est la seule consigne du tour. */
+    intention: string
+    /** Mots dont la suppression casse le sens, et ce que le destinataire fait alors. */
+    porteurs: { index: number; scene: string }[]
+    /** Interstices où un STOP est indispensable — index du mot qui le précède. */
+    stops: { apres: number; sansLui: string }[]
+    /** STOP posés au mauvais endroit dont on connaît la conséquence exacte. */
+    stopsFautifs?: { apres: number; scene: string }[]
+    /** Servi quand tout est juste. */
+    reception: string
+    /** La leçon, servie dans tous les cas. */
+    revelation: string
+    secondes: number
+  }[]
+}
+
 export interface TimelineContent extends AvecConsigne {
   events: {
     label: string

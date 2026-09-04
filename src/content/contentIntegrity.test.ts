@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { compterPieds, versRecevable, type Tuile } from '../engine/metrique'
+import { compterMots, evaluerMessage } from '../engine/telegramme'
 import { ALL_NOTIONS, getNotionById } from './notions'
 import { ALL_LEVELS } from './levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
@@ -254,6 +255,60 @@ describe('intégrité du contenu', () => {
         // n'apprend plus rien. Le seuil est empirique : au-delà, c'est que les
         // tuiles ont toutes la même taille.
         expect(new Set(solutions).size, `${ou} : réserve trop lâche, on tombe sur ${strophe.piedsCible} pieds par hasard`).toBeLessThanOrEqual(60)
+      })
+    }
+  })
+
+  /**
+   * « STOP » : chaque message doit être expédiable, et il doit y avoir une
+   * décision à prendre.
+   *
+   * Le premier point n'est pas théorique. Le bouton « Expédier » reste éteint
+   * tant que le compte dépasse le tarif : un message dont les mots porteurs et
+   * les STOP obligatoires coûtent déjà plus que le budget ne peut **jamais**
+   * partir. Le joueur barrerait des mots jusqu'à ce que l'horloge s'épuise,
+   * sans savoir que c'était impossible — et le jeu lui compterait une défaite.
+   *
+   * Le second point attrape l'inverse : un message qu'on gagne en n'y touchant
+   * pas. Une décision existe s'il faut couper (le tarif est plus petit que le
+   * message complet, STOP compris) ou s'il faut choisir où poser un STOP.
+   */
+  it('rend chaque message de « STOP » expédiable, et jamais gagnable sans rien faire', () => {
+    for (const notion of ALL_NOTIONS) {
+      const contenu = notion.games.telegramme
+      if (!contenu) continue
+
+      contenu.messages.forEach((message, rang) => {
+        const ou = `${notion.id}, message ${rang + 1}`
+
+        for (const p of message.porteurs) {
+          expect(p.index, `${ou} : porteur hors du message`).toBeLessThan(message.mots.length)
+        }
+        const porteurs = message.porteurs.map((p) => p.index)
+        for (const s of message.stops) {
+          expect(s.apres, `${ou} : STOP attendu hors du message`).toBeLessThan(message.mots.length - 1)
+          // Une frontière obligatoire doit se poser derrière un mot qu'on ne
+          // peut pas barrer : l'interstice qui suit un mot barré est éteint,
+          // donc un STOP attendu derrière un mot sacrifiable serait
+          // impossible à poser dès que le joueur barre ce mot-là.
+          expect(porteurs, `${ou} : STOP attendu derrière « ${message.mots[s.apres]} », qui n'est pas porteur`)
+            .toContain(s.apres)
+        }
+
+        // Le message le moins cher qui puisse partir : on garde les porteurs,
+        // on pose les STOP obligatoires, on sacrifie tout le reste.
+        const gardes = message.porteurs.map((p) => p.index)
+        const barres = message.mots.map((_, i) => i).filter((i) => !gardes.includes(i))
+        const stops = message.stops.map((s) => s.apres)
+
+        const cout = compterMots(message, barres, stops)
+        expect(cout, `${ou} : le message le moins cher coûte ${cout} pour un tarif de ${message.budget}`)
+          .toBeLessThanOrEqual(message.budget)
+        expect(evaluerMessage(message, barres, stops).recu, `${ou} : refusé alors qu'il est minimal`).toBe(true)
+
+        const complet = message.mots.length + message.stops.length
+        const decision = message.budget < complet || (message.stopsFautifs ?? []).length > 0
+        expect(decision, `${ou} : rien à couper et aucun STOP à placer, le tour se gagne tout seul`).toBe(true)
       })
     }
   })

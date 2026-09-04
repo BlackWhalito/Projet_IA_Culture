@@ -8,6 +8,7 @@ import { CapSurGame } from './CapSurGame/CapSurGame'
 import { ChaineGame } from './ChaineGame/ChaineGame'
 import { PonctuationGame } from './PonctuationGame/PonctuationGame'
 import { VersGame } from './VersGame/VersGame'
+import { TelegrammeGame } from './TelegrammeGame/TelegrammeGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -16,6 +17,8 @@ interface GameRouterProps {
 
 export function GameRouter({ selected, onComplete }: GameRouterProps) {
   switch (selected.gameType) {
+    case 'telegramme':
+      return <TelegrammeGame content={selected.content} onComplete={onComplete} />
     case 'qcm':
       return <QcmGame content={selected.content} onComplete={onComplete} />
     case 'timeline':

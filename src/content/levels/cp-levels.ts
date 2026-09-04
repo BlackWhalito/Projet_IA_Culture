@@ -34,7 +34,7 @@ export const CP_LEVELS: LevelDef[] = [
     title: 'Niveau 3',
     notionIds: [
       { notionId: 'cp-sciences-quatre-saisons', gameType: 'riviere' },
-      { notionId: 'cp-francais-singulier-pluriel', gameType: 'qcm' },
+      { notionId: 'cp-francais-singulier-pluriel', gameType: 'telegramme' },
       { notionId: 'cp-histoire-lascaux', gameType: 'qcm' },
       { notionId: 'cp-geographie-drapeau-france', gameType: 'qcm' },
       { notionId: 'cp-sciences-vivant-non-vivant', gameType: 'riviere' },
@@ -50,7 +50,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
       { notionId: 'cp-geographie-ile', gameType: 'qcm' },
       { notionId: 'cp-sciences-origine-aliments', gameType: 'chaine' },
-      { notionId: 'cp-francais-majuscule-point', gameType: 'qcm' },
+      { notionId: 'cp-francais-majuscule-point', gameType: 'telegramme' },
     ],
   },
   {

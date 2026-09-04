@@ -1,0 +1,205 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bureau {
+  margin: 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.rang {
+  font-variant-numeric: tabular-nums;
+}
+
+.horloge {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-domain-histoire);
+}
+
+/* Ce que le client veut. C'est la seule consigne du tour, elle doit se lire. */
+.intention {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--violet-brume);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--encre);
+}
+
+/*
+ * Le formulaire. Papier jauni, capitales : c'est ce qu'on tendait au guichet.
+ */
+.formulaire {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--papier);
+  box-shadow: inset 0 0 0 1px var(--papier-ombre);
+}
+
+.groupe {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mot {
+  min-height: var(--touch-target-min);
+  padding: var(--space-1) 6px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--encre);
+  font-family: var(--font-family-heading);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+/* Barré au crayon, pas effacé : on doit pouvoir revenir dessus. */
+.motBarre {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-error);
+  text-decoration-thickness: 2px;
+  opacity: 0.55;
+}
+
+/*
+ * L'interstice. Vide, c'est un point discret ; plein, c'est un STOP qui prend
+ * la place d'un mot — et qui en coûte un.
+ */
+.fente {
+  min-width: 22px;
+  min-height: var(--touch-target-min);
+  padding: 0 2px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--violet-brume);
+  font-family: var(--font-family-heading);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.fente:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.fentePleine {
+  padding: 0 6px;
+  background: var(--violet);
+  color: var(--color-surface);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.compte {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.compteTrop {
+  color: var(--color-error);
+}
+
+.compteTrop strong {
+  font-weight: 700;
+}
+
+.expedier {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--violet);
+  color: var(--color-surface);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.expedier:disabled {
+  background: var(--color-locked);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.expedier:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.tarif {
+  margin: 0;
+  font-size: 0.76rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.reception {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.libelleReel,
+.libelleRuban {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+/* Le ruban qui sort de la machine : espacé, en capitales, sans ponctuation. */
+.ruban {
+  margin: 0;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--papier);
+  box-shadow: inset 0 0 0 1px var(--papier-ombre);
+  font-family: var(--font-family-heading);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  color: var(--encre);
+}
+
+/* Ce que le destinataire fait. Jamais « faux » : une scène. */
+.scene {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--encre);
+}
+
+.sceneRatee {
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-error);
+}
+
+.revelation {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
