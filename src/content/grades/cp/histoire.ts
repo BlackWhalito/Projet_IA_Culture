@@ -433,17 +433,6 @@ export const CP_HISTOIRE: Notion[] = [
           },
         ],
       },
-      match: {
-        pairs: [
-          { left: 'La roue', right: 'Se déplacer plus facilement' },
-          // L'écriture est SORTIE de cette liste : elle ne fait pas partie des
-          // inventions de la Préhistoire, elle en marque la fin. La laisser ici
-          // contredisait la notion `cp-histoire-prehistoire` du même fichier.
-          { left: 'La poterie', right: 'Conserver et transporter les récoltes' },
-          { left: 'Le feu', right: 'Se chauffer et cuisiner' },
-          { left: "L'agriculture", right: 'Cultiver la terre pour se nourrir' },
-        ],
-      },
       qcm: {
         question: 'À quoi sert la roue ?',
         choices: ['À se déplacer plus facilement', 'À écrire', 'À cuisiner'],
@@ -616,14 +605,6 @@ export const CP_HISTOIRE: Notion[] = [
               '1790, journée de réconciliation nationale. Faute d’accord, on n’a rien précisé. ' +
               'La France fête donc tous les ans une date dont elle n’a jamais tranché le sens.',
           },
-        ],
-      },
-      match: {
-        pairs: [
-          { left: 'Marianne', right: 'Figure de la République' },
-          { left: 'La Marseillaise', right: 'Hymne national' },
-          { left: 'Liberté, Égalité, Fraternité', right: 'Devise de la France' },
-          { left: 'Le coq', right: 'Symbole animal de la France' },
         ],
       },
       qcm: {
@@ -937,15 +918,6 @@ export const CP_HISTOIRE: Notion[] = [
               'Dies Solis. Il l’était — et c’est justement ce que le christianisme a ' +
               'recouvert. Le Soleil n’a pas disparu du calendrier par hasard.',
           },
-        ],
-      },
-      match: {
-        pairs: [
-          { left: 'Lundi', right: 'La Lune' },
-          { left: 'Mardi', right: 'Mars' },
-          { left: 'Mercredi', right: 'Mercure' },
-          { left: 'Jeudi', right: 'Jupiter' },
-          { left: 'Vendredi', right: 'Vénus' },
         ],
       },
       qcm: {

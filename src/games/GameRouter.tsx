@@ -1,7 +1,6 @@
 import type { SelectedGame } from '../engine/selectGameForNotion'
 import type { GameCompleteResult } from '../types/game'
 import { QcmGame } from './QcmGame/QcmGame'
-import { MatchGame } from './MatchGame/MatchGame'
 import { TimelineGame } from './TimelineGame/TimelineGame'
 import { RiviereGame } from './RiviereGame/RiviereGame'
 import { FilDesJoursGame } from './FilDesJoursGame/FilDesJoursGame'
@@ -19,8 +18,6 @@ export function GameRouter({ selected, onComplete }: GameRouterProps) {
   switch (selected.gameType) {
     case 'qcm':
       return <QcmGame content={selected.content} onComplete={onComplete} />
-    case 'match':
-      return <MatchGame content={selected.content} onComplete={onComplete} />
     case 'timeline':
       return <TimelineGame content={selected.content} onComplete={onComplete} />
     case 'riviere':

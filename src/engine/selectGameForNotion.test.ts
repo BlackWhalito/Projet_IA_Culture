@@ -18,7 +18,7 @@ describe('selectGameForNotion', () => {
   it('uses the pinned game type when its content exists', () => {
     const notion = makeNotion({
       qcm: { question: 'Q?', choices: ['A', 'B'], correctIndex: 0 },
-      match: { pairs: [{ left: 'A', right: 'B' }] },
+      chaine: { affirmations: [{ texte: 'A', vrai: true, verdict: 'V' }], secondesParCarte: 8 },
     })
     const selected = selectGameForNotion(notion, 'qcm')
     expect(selected.gameType).toBe('qcm')
@@ -27,17 +27,17 @@ describe('selectGameForNotion', () => {
   it('falls back to priority order when no pin is given', () => {
     const notion = makeNotion({
       qcm: { question: 'Q?', choices: ['A', 'B'], correctIndex: 0 },
-      match: { pairs: [{ left: 'A', right: 'B' }] },
+      chaine: { affirmations: [{ texte: 'A', vrai: true, verdict: 'V' }], secondesParCarte: 8 },
     })
     const selected = selectGameForNotion(notion)
-    expect(selected.gameType).toBe('match')
+    expect(selected.gameType).toBe('chaine')
   })
 
   it('falls back to an available game type when the pin has no content', () => {
     const notion = makeNotion({
       qcm: { question: 'Q?', choices: ['A', 'B'], correctIndex: 0 },
     })
-    const selected = selectGameForNotion(notion, 'match')
+    const selected = selectGameForNotion(notion, 'chaine')
     expect(selected.gameType).toBe('qcm')
   })
 

@@ -46,9 +46,6 @@ export interface QcmContent extends AvecConsigne {
   timeLimitSec?: number
 }
 
-export interface MatchContent extends AvecConsigne {
-  pairs: { left: string; right: string; leftImage?: string }[]
-}
 
 /**
  * « Entre deux » — on reçoit une carte à la fois et on tape la fente où elle

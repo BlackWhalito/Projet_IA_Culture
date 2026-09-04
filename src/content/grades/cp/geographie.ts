@@ -149,15 +149,6 @@ export const CP_GEOGRAPHIE: Notion[] = [
           },
         ],
       },
-      match: {
-        pairs: [
-          { left: 'Europe', right: 'France, Espagne...' },
-          { left: 'Afrique', right: 'Égypte, Kenya...' },
-          { left: 'Asie', right: 'Chine, Japon...' },
-          { left: 'Amérique', right: 'Canada, Brésil...' },
-          { left: 'Océanie', right: 'Australie...' },
-        ],
-      },
       qcm: {
         /*
          * L'ancien QCM demandait « combien y a-t-il de continents ? » et comptait

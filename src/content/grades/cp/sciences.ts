@@ -147,16 +147,6 @@ export const CP_SCIENCES: Notion[] = [
           },
         ],
       },
-      match: {
-        consigne: "Relie chaque sens à l’organe qui le porte.",
-        pairs: [
-          { left: 'La vue', right: 'Les yeux' },
-          { left: "L'ouïe", right: 'Les oreilles' },
-          { left: "L'odorat", right: 'Le nez' },
-          { left: 'Le goût', right: 'La langue' },
-          { left: 'Le toucher', right: 'La peau' },
-        ],
-      },
       qcm: {
         question: 'Avec quel organe sent-on les odeurs ?',
         choices: ['Le nez', 'La langue', 'La peau'],
@@ -539,14 +529,6 @@ export const CP_SCIENCES: Notion[] = [
               'rapprochement avec la dynastie est venu après coup — parce qu’il fait une bonne ' +
               'histoire, exactement comme le vair de Cendrillon ou le Marco Polo des pâtes.',
           },
-        ],
-      },
-      match: {
-        pairs: [
-          { left: 'Le lait', right: 'La vache' },
-          { left: 'Le miel', right: "L'abeille" },
-          { left: 'Les œufs', right: 'La poule' },
-          { left: 'La laine', right: 'Le mouton' },
         ],
       },
       qcm: {

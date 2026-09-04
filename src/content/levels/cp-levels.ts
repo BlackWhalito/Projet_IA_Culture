@@ -46,10 +46,10 @@ export const CP_LEVELS: LevelDef[] = [
     order: 4,
     title: 'Niveau 4',
     notionIds: [
-      { notionId: 'cp-francais-contes-classiques', gameType: 'match' },
+      { notionId: 'cp-francais-contes-classiques', gameType: 'chaine' },
       { notionId: 'cp-histoire-louis-xiv', gameType: 'fildesjours' },
       { notionId: 'cp-geographie-ile', gameType: 'qcm' },
-      { notionId: 'cp-sciences-origine-aliments', gameType: 'match' },
+      { notionId: 'cp-sciences-origine-aliments', gameType: 'chaine' },
       { notionId: 'cp-francais-majuscule-point', gameType: 'qcm' },
     ],
   },
@@ -63,7 +63,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-geographie-continents', gameType: 'chaine' },
       { notionId: 'cp-sciences-cycle-papillon', gameType: 'timeline' },
       { notionId: 'cp-francais-nom-verbe', gameType: 'riviere' },
-      { notionId: 'cp-histoire-symboles-france', gameType: 'match' },
+      { notionId: 'cp-histoire-symboles-france', gameType: 'chaine' },
     ],
   },
   {

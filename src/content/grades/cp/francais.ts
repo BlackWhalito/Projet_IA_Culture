@@ -276,14 +276,6 @@ export const CP_FRANCAIS: Notion[] = [
           },
         ],
       },
-      match: {
-        pairs: [
-          { left: 'Le Petit Chaperon Rouge', right: 'Le loup' },
-          { left: 'Cendrillon', right: 'La pantoufle de verre' },
-          { left: 'Blanche-Neige', right: 'Les sept nains' },
-          { left: 'La Belle au Bois Dormant', right: 'Le fuseau qui pique le doigt' },
-        ],
-      },
       qcm: {
         question: 'Dans Cendrillon, que perd-elle à minuit en quittant le bal ?',
         choices: ['Sa pantoufle de verre', 'Sa couronne', 'Son manteau'],

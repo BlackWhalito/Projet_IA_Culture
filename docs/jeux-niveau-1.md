@@ -21,7 +21,7 @@ ajoutées depuis la première passe — voir « Ce que le plan n'avait pas prév
 | — · Jouabilité sur téléphone | ✅ corrigé — les rives de La Rivière passaient sous la ligne de flottaison dès 390 × 664 |
 | C8 · Cap sur : une France reconnaissable | ✅ fait — 72 points réels + spline, Corse, brouillard, 4 cibles |
 | C9 · La Rivière : lui donner sa rivière | 🟡 partiel — le décor est fait, le passage à 2-3 mots simultanés non |
-| C10 · Association : tracer le lien au doigt | ❌ **abandonné — la mécanique est en cours de suppression** (voir plus bas) |
+| C10 · Association : tracer le lien au doigt | ❌ **abandonné — la mécanique est supprimée** (voir plus bas) |
 | C11 · La Frise : de vraies dates | ❌ **abandonné — remplacée par « Entre deux »** |
 | C12 · Le Fil des jours : les trois correctifs | 🟡 partiel — on perd désormais 8,5 % des parties (Louis XIV) et 8,2 % (Colomb), mesuré par énumération exhaustive ; la règle affichée et les deltas de jauge restent à faire |
 
@@ -46,9 +46,14 @@ le problème n'était pas la finition des mécaniques, c'était **lesquelles
 existaient**. Dix-sept notions sur quarante retombaient sur le QCM, non par
 choix mais parce qu'aucune autre mécanique n'acceptait leur contenu.
 
-**Supprimé** : la Frise, remplacée par « Entre deux ». Association suit : ses trois
-derniers créneaux ont reçu leur contenu « Je te crois pas », il reste à retirer la
-mécanique elle-même.
+**Supprimé** : la Frise, remplacée par « Entre deux », et Association, dont les
+sept payloads sont partis avec elle. Ses trois derniers créneaux jouent désormais
+« Je te crois pas ».
+
+Répartition des quarante créneaux du CP après ce remaniement : `qcm` 13,
+`chaine` 9, `riviere` 8, `capsur` 3, `timeline` 3, `fildesjours` 2,
+`ponctuation` 1, `vers` 1. Le QCM était sur dix-sept créneaux et n'est plus
+majoritaire nulle part.
 
 **Ajouté**, chacune née de son sujet plutôt que plaquée dessus :
 
