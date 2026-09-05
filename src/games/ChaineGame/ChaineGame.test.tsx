@@ -15,12 +15,25 @@ const CONTENU: ChaineContent = {
   ],
 }
 
-/** Répond à la carte courante et laisse passer le verdict. */
+/**
+ * Répond à la carte courante, puis quitte le verdict.
+ *
+ * Le verdict ne défile plus tout seul : il attend qu'on le referme. C'est ce
+ * que le propriétaire a demandé après avoir joué — les verdicts font deux ou
+ * trois phrases et personne n'avait le temps de les lire.
+ */
 function repondre(vrai: boolean) {
   fireEvent.click(screen.getByRole('button', { name: vrai ? 'C’est vrai' : 'Je te crois pas' }))
+  passerLeVerdict()
+}
+
+/** Laisse le bouton s'armer, puis referme le verdict. */
+function passerLeVerdict() {
   act(() => {
-    vi.advanceTimersByTime(2700)
+    vi.advanceTimersByTime(600)
   })
+  const bouton = screen.queryByRole('button', { name: /Carte suivante|Ramasser la mise/ })
+  if (bouton) fireEvent.click(bouton)
 }
 
 describe('ChaineGame', () => {
@@ -56,9 +69,7 @@ describe('ChaineGame', () => {
     fireEvent.click(screen.getByRole('button', { name: 'C’est vrai' }))
     expect(screen.getByText('Bien vu.')).toBeInTheDocument()
     expect(screen.getByText('Oui, évidemment.')).toBeInTheDocument()
-    act(() => {
-      vi.advanceTimersByTime(2700)
-    })
+    passerLeVerdict()
 
     // Une erreur donne aussi son verdict : on n'apprend jamais moins en ratant.
     fireEvent.click(screen.getByRole('button', { name: 'Je te crois pas' }))
@@ -90,9 +101,9 @@ describe('ChaineGame', () => {
 
     repondre(false) // carte 1 vraie → erreur
     repondre(false) // carte 2 vraie → erreur
-    repondre(true) // carte 3 fausse → erreur
+    repondre(true) // carte 3 fausse → erreur : la manche s'arrête là
     act(() => {
-      vi.advanceTimersByTime(200)
+      vi.advanceTimersByTime(600)
     })
 
     expect(onComplete).toHaveBeenCalledWith(
@@ -129,5 +140,44 @@ describe('ChaineGame', () => {
     repondre(true)
     expect(screen.getByText('Un piège.')).toBeInTheDocument()
     vi.useRealTimers()
+  })
+
+  /**
+   * Le défaut signalé en jouant : « je n'ai même pas le temps de lire
+   * l'explication ». Le verdict ne doit plus disparaître tout seul, quel que
+   * soit le temps qui passe.
+   */
+  it('garde le verdict à l’écran tant qu’on ne l’a pas refermé', () => {
+    vi.useFakeTimers()
+    try {
+      render(<ChaineGame content={CONTENU} onComplete={vi.fn()} />)
+      fireEvent.click(screen.getByRole('button', { name: 'C’est vrai' }))
+
+      act(() => void vi.advanceTimersByTime(30_000))
+      expect(screen.getByText('Oui, évidemment.')).toBeInTheDocument()
+
+      // Et les commandes de jeu ont disparu : trois boutons éteints sous une
+      // explication qu'on lit, c'est du bruit.
+      expect(screen.queryByRole('button', { name: 'C’est vrai' })).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Carte suivante' }))
+      expect(screen.getByText('Une deuxième évidence.')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('n’arme le bouton du verdict qu’après un court délai', () => {
+    vi.useFakeTimers()
+    try {
+      render(<ChaineGame content={CONTENU} onComplete={vi.fn()} />)
+      fireEvent.click(screen.getByRole('button', { name: 'C’est vrai' }))
+      // Le tap qui a validé la carte ne doit pas traverser le verdict.
+      expect(screen.getByRole('button', { name: 'Carte suivante' })).toBeDisabled()
+      act(() => void vi.advanceTimersByTime(600))
+      expect(screen.getByRole('button', { name: 'Carte suivante' })).toBeEnabled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

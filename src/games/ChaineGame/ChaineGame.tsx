@@ -16,8 +16,17 @@ const MISE_INITIALE = 100
 const ERREURS_MAX = 3
 /** Déplacement horizontal, en pixels, au-delà duquel la carte est validée. */
 const SEUIL_VALIDATION = 60
-/** Temps de lecture du verdict avant la carte suivante. */
-const VERDICT_MS = 2600
+/**
+ * Le bouton du verdict reste éteint ce temps-là.
+ *
+ * Le verdict défilait tout seul au bout de 2,6 secondes, et le propriétaire
+ * l'a signalé en jouant : « je n'ai même pas le temps de lire l'explication ».
+ * Il avait raison — les verdicts font deux ou trois phrases, et ce sont elles
+ * qui portent tout ce qu'on apprend ici. La carte suivante attend donc qu'on
+ * la demande. Le délai d'armement empêche le tap qui valide la carte de
+ * traverser le verdict au passage (voir la skill `pieges-du-projet`).
+ */
+const DELAI_ARMEMENT_MS = 500
 
 type Phase = 'carte' | 'verdict' | 'fini'
 
@@ -49,6 +58,7 @@ export function ChaineGame({ content, onComplete }: ChaineGameProps) {
   const [erreurs, setErreurs] = useState(0)
   const [reponses, setReponses] = useState<{ juste: boolean; expire: boolean }[]>([])
   const [glissement, setGlissement] = useState(0)
+  const [arme, setArme] = useState(false)
   const [prefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
@@ -111,21 +121,25 @@ export function ChaineGame({ content, onComplete }: ChaineGameProps) {
     return () => window.clearTimeout(timer)
   }, [phase, carte, content.secondesParCarte, repondre])
 
-  // Passage à la carte suivante, ou fin de manche.
   useEffect(() => {
     if (phase !== 'verdict') return
-    const timer = window.setTimeout(() => {
-      const troisErreurs = erreurs >= ERREURS_MAX
-      const plusDeCartes = index + 1 >= content.affirmations.length
-      if (troisErreurs || plusDeCartes) {
-        terminer(encaisse)
-        return
-      }
-      setIndex((i) => i + 1)
-      setPhase('carte')
-    }, VERDICT_MS)
+    const timer = window.setTimeout(() => setArme(true), DELAI_ARMEMENT_MS)
     return () => window.clearTimeout(timer)
-  }, [phase, erreurs, index, content.affirmations.length, encaisse, terminer])
+  }, [phase, index])
+
+  const derniereCarte = index + 1 >= content.affirmations.length || erreurs >= ERREURS_MAX
+
+  /** Passage à la carte suivante, ou fin de manche. C'est le joueur qui décide. */
+  function continuer() {
+    if (phase !== 'verdict' || !arme) return
+    if (derniereCarte) {
+      terminer(encaisse)
+      return
+    }
+    setIndex((i) => i + 1)
+    setArme(false)
+    setPhase('carte')
+  }
 
   function handleEncaisser() {
     if (phase !== 'carte') return
@@ -213,38 +227,45 @@ export function ChaineGame({ content, onComplete }: ChaineGameProps) {
         </div>
       </div>
 
-      {/*
-        Les deux boutons doublent le balayage, ils ne le remplacent pas : le
-        geste est le plaisir, les boutons sont l'accessibilité (clavier, et
-        joueur qui n'a pas compris qu'on pouvait glisser).
-      */}
-      <div className={styles.reponses}>
-        <button
-          type="button"
-          className={clsx(styles.bouton, styles.boutonFaux)}
-          disabled={phase !== 'carte'}
-          onClick={() => repondre(false)}
-        >
-          Je te crois pas
+      {phase === 'verdict' ? (
+        /*
+          Pendant le verdict, les commandes de jeu disparaissent au lieu d'être
+          simplement éteintes : trois boutons gris sous une explication qu'on
+          essaie de lire, c'est du bruit, et ça donne l'impression que l'écran
+          est bloqué.
+        */
+        <button type="button" className={styles.encaisser} disabled={!arme} onClick={continuer}>
+          {derniereCarte ? 'Ramasser la mise' : 'Carte suivante'}
         </button>
-        <button
-          type="button"
-          className={clsx(styles.bouton, styles.boutonVrai)}
-          disabled={phase !== 'carte'}
-          onClick={() => repondre(true)}
-        >
-          C’est vrai
-        </button>
-      </div>
+      ) : (
+        <>
+          {/*
+            Les deux boutons doublent le balayage, ils ne le remplacent pas : le
+            geste est le plaisir, les boutons sont l'accessibilité (clavier, et
+            joueur qui n'a pas compris qu'on pouvait glisser).
+          */}
+          <div className={styles.reponses}>
+            <button
+              type="button"
+              className={clsx(styles.bouton, styles.boutonFaux)}
+              onClick={() => repondre(false)}
+            >
+              Je te crois pas
+            </button>
+            <button
+              type="button"
+              className={clsx(styles.bouton, styles.boutonVrai)}
+              onClick={() => repondre(true)}
+            >
+              C’est vrai
+            </button>
+          </div>
 
-      <button
-        type="button"
-        className={styles.encaisser}
-        disabled={phase !== 'carte'}
-        onClick={handleEncaisser}
-      >
-        J’encaisse {encaisse + mise}
-      </button>
+          <button type="button" className={styles.encaisser} onClick={handleEncaisser}>
+            J’encaisse {encaisse + mise}
+          </button>
+        </>
+      )}
     </div>
   )
 }
