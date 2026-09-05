@@ -333,8 +333,16 @@ Donc :
 
 **Tu n'écris que là.** Ne touche jamais à `src/`, ni à un fichier de contenu, ni
 à un fichier de code — même pour « juste ajouter l'interface ». Tu conçois, tu
-ne codes pas. Si tu as besoin d'un dossier `docs/jeux/` qui n'existe pas encore,
-crée simplement le fichier dedans.
+ne codes pas. Si le dossier `docs/jeux/` n'existe pas encore, crée simplement le
+fichier dedans.
+
+**Si `Write` n'est pas disponible dans ta session** — c'est arrivé au premier
+essai, l'outil était désactivé côté harnais malgré la déclaration ci-dessus —
+n'insiste pas et ne perds pas de tours : **rends le dossier entier dans ton
+rapport**, précédé de la synthèse, et **dis en première ligne que le fichier n'a
+pas pu être créé** ainsi que le chemin qu'il aurait dû avoir. La session
+principale l'écrira. Ne rends jamais un dossier tronqué ou résumé sous prétexte
+que tu ne peux pas l'écrire dans un fichier.
 
 # 13. Méthode
 

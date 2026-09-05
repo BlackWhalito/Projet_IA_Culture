@@ -72,6 +72,12 @@ lignes.
 Deuxième garde, gratuite : quand un rapport te paraît commencer au milieu d'une
 phrase ou d'une section, **ne fais pas comme si**. Redemande-le.
 
+**Attention : les outils déclarés dans le fichier d'agent ne sont pas toujours
+accordés.** Le `game-designer` a été relancé avec `Write` dans sa liste `tools:`
+et l'a trouvé désactivé dans sa session. Un brief qui *repose* sur un outil doit
+donc prévoir le repli, et le dire à l'agent — sinon il perd son tour, ou pire,
+il rend un travail amputé pour tenir dans ce qu'il peut faire.
+
 ## Ne jamais croire un agent sur parole
 
 Un agent qui écrit « tout passe » a pu se tromper, ou tester autre chose que ce que tu crois. **Rejoue les vérifications toi-même** : `npm run build`, `npm run lint`, `npm run test`, et le parcours dans le navigateur.
