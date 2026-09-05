@@ -6,6 +6,7 @@ import { GameRouter } from './GameRouter'
 import { definirActif, estActif, jouerSon } from '../engine/sound'
 import { arreterMusique, demarrerMusique } from '../engine/musique'
 import { FICTIONS } from './consignes'
+import { DecorDeJeu } from './DecorDeJeu'
 import type { GameCompleteResult, NotionResult } from '../types/game'
 import styles from './GameShell.module.css'
 
@@ -50,6 +51,10 @@ export function GameShell({ notion, pinnedGameType, levelId, onContinue }: GameS
 
   return (
     <div className={styles.shell}>
+      {/* Chaque mécanique a sa scène. Voir `DecorDeJeu` : c'est un bandeau, pas
+          un fond — un lavis chargé sous une consigne la rend illisible. */}
+      <DecorDeJeu gameType={selected.gameType} couleurDomaine={domain.color} />
+
       <div className={styles.entete}>
         <div className={styles.domainBadge} style={{ '--_domain-color': domain.color } as CSSProperties}>
           <span aria-hidden="true">{domain.icon}</span> {domain.label}

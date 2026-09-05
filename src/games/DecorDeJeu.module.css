@@ -1,0 +1,25 @@
+/*
+ * Le bandeau déborde de la carte : la scène touche les bords, comme une
+ * enluminure en tête de page. Le rayon du haut suit celui de la carte, sinon
+ * deux angles carrés dépassent des coins arrondis.
+ */
+.cadre {
+  margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+  background: var(--papier);
+}
+
+/*
+ * Le rapport du dessin, pas une hauteur arbitraire.
+ *
+ * La première version fixait `height: clamp(...)` avec un `slice` : le SVG se
+ * recadrait sur le bas, le ciel disparaissait et l'horizon se retrouvait
+ * collé au bord. Un décor se cadre par son ratio, jamais par une hauteur.
+ */
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 400 / 150;
+}
