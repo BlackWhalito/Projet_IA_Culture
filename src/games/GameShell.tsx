@@ -7,6 +7,7 @@ import { definirActif, estActif, jouerSon } from '../engine/sound'
 import { arreterMusique, demarrerMusique } from '../engine/musique'
 import { FICTIONS } from './consignes'
 import { DecorDeJeu } from './DecorDeJeu'
+import { useModeTest } from '../state/modeTest'
 import type { GameCompleteResult, NotionResult } from '../types/game'
 import styles from './GameShell.module.css'
 
@@ -16,6 +17,8 @@ interface GameShellProps {
   /** Sert à relancer l'ambiance du niveau quand on rallume le son en pleine partie. */
   levelId?: string
   onContinue: (result: NotionResult) => void
+  /** Bac à sable seulement : avance sans jouer, et sans rien enregistrer. */
+  onPasser?: () => void
 }
 
 type Phase = 'playing' | 'feedback'
@@ -26,10 +29,11 @@ type Phase = 'playing' | 'feedback'
  * demander (le résumé et la phrase à trous étaient parfois identiques).
  * Le savoir est désormais la récompense, pas la consigne.
  */
-export function GameShell({ notion, pinnedGameType, levelId, onContinue }: GameShellProps) {
+export function GameShell({ notion, pinnedGameType, levelId, onContinue, onPasser }: GameShellProps) {
   const [phase, setPhase] = useState<Phase>('playing')
   const [result, setResult] = useState<GameCompleteResult | null>(null)
   const [sonActif, setSonActif] = useState(() => estActif())
+  const modeTest = useModeTest((etat) => etat.actif)
   const selected = selectGameForNotion(notion, pinnedGameType)
   const domain = DOMAINS[notion.domainId]
 
@@ -77,6 +81,17 @@ export function GameShell({ notion, pinnedGameType, levelId, onContinue }: GameS
           {selected.content.consigne && <p className={styles.objectif}>{selected.content.consigne}</p>}
         </div>
       )}
+
+      {/*
+        Le bouton du bac à sable. Il n'apparaît que si le mode est allumé ET
+        si l'écran parent sait quoi en faire — deux conditions, pour qu'il ne
+        puisse pas fuiter dans le jeu réel.
+      */}
+      {phase === 'playing' && modeTest && onPasser ? (
+        <button type="button" className={styles.passer} onClick={onPasser}>
+          Passer ce jeu →
+        </button>
+      ) : null}
 
       {phase === 'playing' && (
         <GameRouter

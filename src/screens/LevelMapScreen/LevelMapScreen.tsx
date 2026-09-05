@@ -7,6 +7,7 @@ import { getLevelsByGrade } from '../../content/levels'
 import { getNotionById } from '../../content/notions'
 import { DOMAINS } from '../../content/domains'
 import { useProgressStore } from '../../state/progressStore'
+import { useModeTest } from '../../state/modeTest'
 import { clampStarRating } from '../../engine/scoring'
 import { RiviereDesNiveaux } from './RiviereDesNiveaux'
 import { hauteurPour, positionNiveau, LARGEUR } from './riviereGeometrie'
@@ -50,6 +51,7 @@ function Cadenas() {
 export function LevelMapScreen() {
   const { gradeId } = useParams<{ gradeId: GradeId }>()
   const levelsProgress = useProgressStore((state) => state.levels)
+  const modeTest = useModeTest((etat) => etat.actif)
 
   const grade = GRADE_LEVELS.find((g) => g.id === gradeId)
   if (!grade || !grade.enabled) {
@@ -71,6 +73,7 @@ export function LevelMapScreen() {
     <div className={styles.map}>
       <h1 className={styles.titre}>{grade.label}</h1>
       <p className={styles.sous}>Remonte la rivière. Chaque halte est un niveau.</p>
+      {modeTest ? <p className={styles.bacASable}>Bac à sable : tous les niveaux sont ouverts.</p> : null}
 
       {/*
         Le cours d'eau et les plaques partagent le même repère : la rivière est
@@ -82,7 +85,9 @@ export function LevelMapScreen() {
 
         {levels.map((level, i) => {
           const progress = levelsProgress[level.id]
-          const unlocked = i === 0 || Boolean(levelsProgress[levels[i - 1].id]?.completed)
+          // En bac à sable, tout est ouvert : on vient regarder une mécanique
+          // précise, pas gagner trente-huit manches pour l'atteindre.
+          const unlocked = modeTest || i === 0 || Boolean(levelsProgress[levels[i - 1].id]?.completed)
           const stars = clampStarRating(progress?.starRating)
           const { x, y } = positionNiveau(i)
           const pose: CSSProperties = {

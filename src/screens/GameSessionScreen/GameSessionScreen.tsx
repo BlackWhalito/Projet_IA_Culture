@@ -42,6 +42,19 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
     return () => arreterMusique()
   }, [levelId])
 
+  /**
+   * Passer un jeu, en bac à sable.
+   *
+   * Le résultat n'est PAS ajouté à `results` : une manche sautée ne doit
+   * laisser aucune trace. Ni le score, ni les étoiles, ni la maîtrise de la
+   * notion ne bougent — et si c'est le dernier jeu qu'on passe,
+   * `completeLevel` n'est jamais appelé, donc le niveau ne se marque pas
+   * terminé sur un test.
+   */
+  function handlePasser() {
+    setIndex(index + 1)
+  }
+
   function handleContinue(result: NotionResult) {
     const nextResults = [...results, result]
     setResults(nextResults)
@@ -52,6 +65,25 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
   }
 
   if (isDone) {
+    // Bac à sable : tout a été passé. Afficher « 0 / 0 » et zéro étoile
+    // laisserait croire à une manche ratée alors que rien n'a été joué.
+    if (results.length === 0) {
+      return (
+        <div className={styles.session}>
+          <h1>{title}</h1>
+          <div className={styles.results}>
+            <p className={styles.score}>Tous les jeux ont été passés.</p>
+            <p className={styles.previousBest}>Rien n’a été enregistré.</p>
+            {backTo && (
+              <Link to={backTo} className={styles.backLink}>
+                Retour à la carte
+              </Link>
+            )}
+          </div>
+        </div>
+      )
+    }
+
     const correctCount = results.filter((r) => r.correct).length
     const starRating = computeStarRating(correctCount, results.length)
     const sessionScore = computeSessionScore(results)
@@ -102,6 +134,7 @@ export function GameSessionScreen({ gradeId, levelId, title, queue, backTo }: Ga
         pinnedGameType={current.gameType}
         levelId={levelId}
         onContinue={handleContinue}
+        onPasser={handlePasser}
       />
     </div>
   )

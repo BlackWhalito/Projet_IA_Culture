@@ -141,3 +141,23 @@
     font-size: 0.98rem;
   }
 }
+
+/*
+ * Le bouton du bac à sable. Volontairement discret et d'une autre couleur que
+ * les commandes du jeu : ce n'est pas un coup jouable, c'est un outil.
+ */
+.passer {
+  align-self: flex-end;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px dashed var(--color-domain-histoire);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-domain-histoire);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.passer:active {
+  transform: scale(0.97);
+}

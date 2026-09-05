@@ -138,3 +138,49 @@
   object-fit: cover;
   object-position: center bottom;
 }
+
+/*
+ * Le bac à sable. Discret mais lisible : ce n'est pas une fonctionnalité de
+ * jeu, et il ne doit ni attirer l'œil d'un joueur, ni pouvoir rester allumé
+ * sans qu'on le voie.
+ */
+.bacASable {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+.bacEteint,
+.bacActif {
+  min-height: var(--touch-target-min);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.bacEteint {
+  border: 1px dashed var(--violet-brume);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.bacActif {
+  border: 1px solid var(--color-domain-histoire);
+  background: color-mix(in srgb, var(--color-domain-histoire) 14%, var(--color-surface));
+  color: var(--color-domain-histoire);
+  font-weight: 700;
+}
+
+.bacNote {
+  max-width: 34ch;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}

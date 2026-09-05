@@ -148,3 +148,15 @@
     transition: none;
   }
 }
+
+/* Le bandeau du bac à sable. Visible, parce qu'un mode de test qu'on oublie
+   d'éteindre fausse tout ce qu'on croit observer ensuite. */
+.bacASable {
+  margin: var(--space-2) auto 0;
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-domain-histoire) 14%, var(--color-surface));
+  color: var(--color-domain-histoire);
+  font-size: 0.8rem;
+  width: fit-content;
+}

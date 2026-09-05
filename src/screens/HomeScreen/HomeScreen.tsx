@@ -6,6 +6,7 @@ import { WatercolorScene } from '../../components/watercolor/WatercolorScene'
 import { GradeVignette } from './GradeVignette'
 import { oceanScene } from './scenes'
 import styles from './HomeScreen.module.css'
+import { useModeTest } from '../../state/modeTest'
 
 /**
  * L'accueil : les neuf classes, et un seul tableau.
@@ -65,9 +66,41 @@ export function HomeScreen() {
         papier — c'est ce fondu, et non un cadre, qui le fait appartenir à la
         page plutôt qu'être posé dessus.
       */}
+      {/*
+        Le bac à sable. Il vit sur l'accueil, écrit en toutes lettres et éteint
+        par défaut : un mode de test caché derrière un geste secret finit
+        toujours par rester allumé sans qu'on s'en aperçoive, et fausse tout ce
+        qu'on croit observer ensuite.
+      */}
+      <ModeTestBouton />
+
       <div className={styles.rivage} aria-hidden="true">
         <WatercolorScene paint={oceanScene} width={1500} height={1150} seed={1847} />
       </div>
+    </div>
+  )
+}
+
+function ModeTestBouton() {
+  const actif = useModeTest((etat) => etat.actif)
+  const basculer = useModeTest((etat) => etat.basculer)
+
+  return (
+    <div className={styles.bacASable}>
+      <button
+        type="button"
+        className={actif ? styles.bacActif : styles.bacEteint}
+        onClick={basculer}
+        aria-pressed={actif}
+      >
+        Bac à sable {actif ? 'allumé' : 'éteint'}
+      </button>
+      {actif ? (
+        <p className={styles.bacNote}>
+          Tous les niveaux sont ouverts, et chaque jeu peut être passé. Rien de ce qui est
+          passé n’est enregistré.
+        </p>
+      ) : null}
     </div>
   )
 }
