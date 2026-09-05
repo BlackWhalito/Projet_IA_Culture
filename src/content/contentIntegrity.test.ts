@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { compterPieds, versRecevable, type Tuile } from '../engine/metrique'
 import { compterMots, evaluerMessage } from '../engine/telegramme'
 import { dire, issue, type EtatFlatterie } from '../engine/flatterie'
+import { chanceAuHasard, memeOrdre } from '../engine/arebours'
 import { ALL_NOTIONS, getNotionById } from './notions'
 import { ALL_LEVELS } from './levels'
 import { FRANCE_ZONES_BY_ID } from './maps/france'
@@ -366,6 +367,53 @@ describe('intégrité du contenu', () => {
         .toBeLessThan(0.1)
       expect(apocryphes, `${notion.id} : on peut gagner en disant une phrase qui n'est pas de La Fontaine`)
         .toEqual([])
+    }
+  })
+
+  /**
+   * « À rebours » : le piège doit rester loyal, et la manche ingagnable au
+   * hasard.
+   *
+   * Trois vérifications, et chacune répare une façon précise de rendre le jeu
+   * malhonnête sans que rien ne casse à l'exécution :
+   *
+   * - l'`accent` souligné doit être une sous-chaîne EXACTE de la consigne,
+   *   sinon le fragment qui porte le piège n'est pas mis en évidence et le
+   *   joueur n'a aucun moyen de le voir ;
+   * - une « méprise » identique à l'ordre attendu ne se déclencherait jamais,
+   *   et signale une erreur de saisie qui prive le joueur de sa conséquence ;
+   * - une demande gagnable plus d'une fois sur cinq au hasard ne teste rien.
+   */
+  it('garde les demandes d’« À rebours » loyales et ingagnables au hasard', () => {
+    for (const notion of ALL_NOTIONS) {
+      const contenu = notion.games.arebours
+      if (!contenu) continue
+      const connus = contenu.suite.map((t) => t.id)
+
+      contenu.demandes.forEach((demande, rang) => {
+        const ou = `${notion.id}, demande ${rang + 1}`
+
+        expect(demande.consigne, `${ou} : « ${demande.accent} » n'est pas dans la consigne`)
+          .toContain(demande.accent)
+
+        for (const id of demande.attendu) {
+          expect(connus, `${ou} : « ${id} » attendu mais absent de la suite`).toContain(id)
+        }
+
+        for (const meprise of demande.meprises ?? []) {
+          expect(meprise.ordre.length, `${ou} : méprise de longueur différente de l'attendu`)
+            .toBe(demande.attendu.length)
+          for (const id of meprise.ordre) {
+            expect(connus, `${ou} : « ${id} » dans une méprise mais absent de la suite`).toContain(id)
+          }
+          expect(
+            memeOrdre(meprise.ordre, demande.attendu),
+            `${ou} : une méprise est identique à l'ordre juste, elle ne se déclenchera jamais`,
+          ).toBe(false)
+        }
+
+        expect(chanceAuHasard(contenu, demande), `${ou} : gagnable au hasard`).toBeLessThan(0.2)
+      })
     }
   })
 })

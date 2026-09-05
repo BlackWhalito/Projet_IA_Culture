@@ -4,6 +4,7 @@ import type {
   VersContent,
   TelegrammeContent,
   FlatterieContent,
+  ARebourseContent,
   FilDesJoursContent,
   CapSurContent,
   QcmContent,
@@ -23,8 +24,9 @@ export type SelectedGame =
   | { gameType: 'vers'; content: VersContent }
   | { gameType: 'telegramme'; content: TelegrammeContent }
   | { gameType: 'flatterie'; content: FlatterieContent }
+  | { gameType: 'arebours'; content: ARebourseContent }
 
-const GAME_PRIORITY: GameTypeId[] = ['fildesjours', 'vers', 'flatterie', 'telegramme', 'ponctuation', 'chaine', 'timeline', 'riviere', 'capsur', 'qcm']
+const GAME_PRIORITY: GameTypeId[] = ['fildesjours', 'vers', 'flatterie', 'arebours', 'telegramme', 'ponctuation', 'chaine', 'timeline', 'riviere', 'capsur', 'qcm']
 
 export function selectGameForNotion(notion: Notion, pinnedGameType?: GameTypeId): SelectedGame {
   const gameType =

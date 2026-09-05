@@ -128,6 +128,46 @@ export interface FlatterieContent extends AvecConsigne {
   secondes: number
 }
 
+/**
+ * « À rebours » — l'atelier du compositeur.
+ *
+ * On te demande une liste que tu récites depuis l'école, mais jamais dans le
+ * sens où tu l'as apprise. Ce que ça enseigne, et qu'aucun QCM ne peut
+ * enseigner : une liste sue par cœur est une **chaîne**, pas un ensemble. On
+ * ne sait la parcourir que dans un sens, et l'automatisme répond avant la
+ * lecture. Un questionnaire montre les propositions et laisse comparer ; ici
+ * il faut **produire** l'ordre.
+ *
+ * La loyauté du piège tient à deux règles de code, pas de contenu — et c'est
+ * la condition posée par le propriétaire : la consigne reste affichée en
+ * entier pendant toute la demande, et **le chrono ne démarre qu'au premier
+ * tap**. On a toujours le temps de lire, jamais l'excuse de ne pas l'avoir fait.
+ */
+export interface ARebourseContent extends AvecConsigne {
+  atelier: { qui: string; lieu: string; annee: string }
+  /**
+   * La liste dans son ordre canonique — celui que tout le monde récite.
+   * Règle de contenu non négociable : si le joueur ne la connaît pas par cœur,
+   * ce n'est plus un piège, c'est une colle.
+   */
+  suite: { id: string; label: string; couleur?: string }[]
+  demandes: {
+    /** Affichée en entier, en permanence. Le piège est dans le réflexe. */
+    consigne: string
+    /** Le fragment de `consigne` à souligner. Doit en être une sous-chaîne exacte. */
+    accent: string
+    /** Les ids attendus, dans l'ordre. Sous-ensemble possible de `suite`. */
+    attendu: string[]
+    secondes: number
+    /** Comment se dessine le résultat : bandes verticales, horizontales, ou liste. */
+    rendu?: 'bandes' | 'bandesH' | 'liste'
+    /** Conséquences nommées pour des ordres faux connus. Servies avant le verdict. */
+    meprises?: { ordre: string[]; texte: string }[]
+    /** Servi quand c'est juste. C'est la récompense. */
+    verdict: string
+  }[]
+}
+
 export interface TimelineContent extends AvecConsigne {
   events: {
     label: string

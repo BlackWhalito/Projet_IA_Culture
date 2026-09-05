@@ -36,7 +36,7 @@ export const CP_LEVELS: LevelDef[] = [
       { notionId: 'cp-sciences-quatre-saisons', gameType: 'riviere' },
       { notionId: 'cp-francais-singulier-pluriel', gameType: 'telegramme' },
       { notionId: 'cp-histoire-lascaux', gameType: 'qcm' },
-      { notionId: 'cp-geographie-drapeau-france', gameType: 'qcm' },
+      { notionId: 'cp-geographie-drapeau-france', gameType: 'arebours' },
       { notionId: 'cp-sciences-vivant-non-vivant', gameType: 'riviere' },
     ],
   },

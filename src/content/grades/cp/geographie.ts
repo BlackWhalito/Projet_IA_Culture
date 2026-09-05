@@ -412,9 +412,147 @@ export const CP_GEOGRAPHIE: Notion[] = [
     domainId: 'geographie',
     difficulty: 1,
     title: 'Le drapeau français',
-    summary: 'Le drapeau français porte trois couleurs : bleu, blanc, rouge.',
-    funFact: 'Le bleu et le rouge étaient les couleurs de Paris, et le blanc était la couleur du roi : ensemble, elles ont formé le drapeau tricolore.',
+    /*
+     * Le QCM demandait l'ordre des couleurs de gauche à droite, avec la
+     * réponse dans les propositions. Personne n'y répond faux. La vraie
+     * question est celle du propriétaire : le même drapeau, DANS L'AUTRE
+     * SENS — et là, l'automatisme répond avant la lecture.
+     */
+    summary:
+      'Trois couleurs, six ordres possibles, et un seul est le nôtre — il a fallu un décret pour trancher.',
+    funFact:
+      'Entre 1789 et 1794, les tricolores portaient le ROUGE à la hampe. C’est précisément ' +
+      'parce que les deux ordres coexistaient qu’il a fallu le décret du 15 février 1794, qui ' +
+      'dit mot pour mot : le bleu attaché à la hampe, le blanc au milieu, le rouge flottant à ' +
+      'l’extrémité. Le drapeau a eu un ordre avant d’avoir le bon.',
     games: {
+      /*
+       * « À rebours ». Six demandes sur la même poignée de couleurs, dans des
+       * sens alternés — l'alternance est délibérée : elle laisse l'automatisme
+       * se réinstaller entre deux inversions.
+       *
+       * La dernière demande est le vrai fond de la mécanique : après cinq
+       * retournements, elle ne retourne rien. Le joueur qui a pris le réflexe
+       * d'inverser se trompe exactement comme celui qui récitait au début.
+       *
+       * Faits vérifiés : décret du 15 février 1794 (27 pluviôse an II) et
+       * rouge à la hampe avant lui ; Irlande vert-blanc-orange contre Côte
+       * d'Ivoire orange-blanc-vert ; Pologne blanc sur rouge contre Monaco et
+       * Indonésie rouge sur blanc ; Italie et Mexique vert-blanc-rouge dans le
+       * MÊME ordre, l'aigle et les proportions les distinguant seuls.
+       */
+      arebours: {
+        consigne: 'Compose ce qu’on te demande, dans le sens qu’on te demande.',
+        atelier: { qui: 'Compositeur', lieu: 'Atelier de la rue Saint-Jacques', annee: '1794' },
+        suite: [
+          { id: 'bleu', label: 'Bleu', couleur: '#2b4a8b' },
+          { id: 'blanc', label: 'Blanc', couleur: '#f4f1e8' },
+          { id: 'rouge', label: 'Rouge', couleur: '#b8332f' },
+          { id: 'vert', label: 'Vert', couleur: '#2f7a4a' },
+          { id: 'orange', label: 'Orange', couleur: '#d97a2b' },
+        ],
+        demandes: [
+          {
+            consigne: 'Le drapeau français, de la hampe au vent.',
+            accent: 'de la hampe au vent',
+            attendu: ['bleu', 'blanc', 'rouge'],
+            secondes: 8,
+            rendu: 'bandes',
+            verdict:
+              'Décret du 15 février 1794, mot pour mot : le bleu attaché à la hampe, le blanc au ' +
+              'milieu, le rouge flottant à l’extrémité.',
+          },
+          {
+            consigne: 'Le même drapeau, mais nomme les couleurs de droite à gauche.',
+            accent: 'de droite à gauche',
+            attendu: ['rouge', 'blanc', 'bleu'],
+            secondes: 6,
+            rendu: 'bandes',
+            meprises: [
+              {
+                ordre: ['bleu', 'blanc', 'rouge'],
+                texte: 'Tu as récité. On te demandait de lire en revenant.',
+              },
+            ],
+            verdict:
+              'Rouge, blanc, bleu. Ce n’est pas une curiosité : c’est exactement le drapeau qu’on ' +
+              'hissait entre 1789 et 1794, quand le rouge était à la hampe. Il a fallu un décret ' +
+              'pour que ce soit l’inverse.',
+          },
+          {
+            consigne: 'Le drapeau irlandais se lit vert, blanc, orange. Compose celui de la Côte d’Ivoire.',
+            accent: 'la Côte d’Ivoire',
+            attendu: ['orange', 'blanc', 'vert'],
+            secondes: 6,
+            rendu: 'bandes',
+            meprises: [
+              {
+                ordre: ['vert', 'blanc', 'orange'],
+                texte: 'Tu viens de hisser l’Irlande devant la délégation ivoirienne.',
+              },
+            ],
+            verdict:
+              'Le même drapeau lu à l’envers. Les deux pays vivent avec cette gêne depuis 1960, ' +
+              'et les services du protocole la redoutent à chaque sommet.',
+          },
+          {
+            consigne: 'La Pologne, c’est blanc en haut et rouge en bas. Compose Monaco, de haut en bas.',
+            accent: 'Monaco, de haut en bas',
+            attendu: ['rouge', 'blanc'],
+            secondes: 5,
+            rendu: 'bandesH',
+            meprises: [
+              {
+                ordre: ['blanc', 'rouge'],
+                texte: 'Ça, c’est la Pologne. Monaco en est le retournement exact.',
+              },
+            ],
+            verdict:
+              'Rouge sur blanc. Et l’Indonésie porte rigoureusement le même : trois États pour ' +
+              'deux bandes et un ordre. Seules les proportions les séparent — Monaco est presque ' +
+              'carré, l’Indonésie non.',
+          },
+          {
+            consigne:
+              'Reviens au français. Nomme la couleur du milieu, puis celle de la hampe, puis celle qui flotte.',
+            accent: 'du milieu, puis celle de la hampe',
+            attendu: ['blanc', 'bleu', 'rouge'],
+            secondes: 5,
+            rendu: 'liste',
+            meprises: [
+              {
+                ordre: ['bleu', 'blanc', 'rouge'],
+                texte: 'Le réflexe, encore. On ne te demandait pas le drapeau, mais trois places.',
+              },
+            ],
+            verdict:
+              'Le blanc était la couleur du roi, le bleu et le rouge celles de Paris. Le tricolore ' +
+              'est une poignée de main dont il ne reste qu’un dessin.',
+          },
+          {
+            consigne:
+              'Le drapeau italien se lit vert, blanc, rouge, de la hampe au vent. Compose celui du Mexique.',
+            accent: 'celui du Mexique',
+            attendu: ['vert', 'blanc', 'rouge'],
+            secondes: 5,
+            rendu: 'bandes',
+            meprises: [
+              {
+                ordre: ['rouge', 'blanc', 'vert'],
+                texte:
+                  'Tu as inversé. Après cinq demandes qui retournaient tout, celle-ci ne ' +
+                  'retournait rien — et le réflexe d’inverser en est un aussi.',
+              },
+            ],
+            verdict:
+              'Exactement le même ordre que l’Italie. Ce qui distingue les deux drapeaux n’est pas ' +
+              'une couleur : c’est l’aigle mexicain au centre, et des proportions différentes. ' +
+              'Toute la manche t’a appris à te méfier de ta mémoire ; celle-ci t’apprend à te ' +
+              'méfier aussi de ta méfiance.',
+          },
+        ],
+      },
+
       qcm: {
         question: 'Dans quel ordre sont les couleurs du drapeau français, de gauche à droite ?',
         choices: ['Bleu, blanc, rouge', 'Rouge, blanc, bleu', 'Blanc, bleu, rouge'],

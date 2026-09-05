@@ -155,6 +155,34 @@ function Scene({ gameType }: { gameType: GameTypeId }) {
         </>
       )
 
+    /* L'atelier du compositeur : la casse, et la presse au fond. */
+    case 'arebours':
+      return (
+        <>
+          <g style={{ mixBlendMode: 'multiply' }}>
+            {/* Le mur du fond, et la lueur de la lampe d'atelier. */}
+            <ellipse cx="300" cy="34" rx="96" ry="42" fill="var(--color-domain-histoire)" opacity="0.12" filter="url(#aq-bord-4)" />
+            {/* La presse : deux montants et une vis. */}
+            <path d="M262,120 L262,26 M340,120 L340,26" stroke="var(--violet-profond)" strokeWidth="9" strokeLinecap="round" opacity="0.3" filter="url(#aq-bord-1)" />
+            <path d="M254,34 L348,34 M254,72 L348,72" stroke="var(--violet-profond)" strokeWidth="7" strokeLinecap="round" opacity="0.28" filter="url(#aq-bord-2)" />
+            <path d="M301,34 L301,10" stroke="var(--encre)" strokeWidth="4" strokeLinecap="round" opacity="0.3" />
+            <ellipse cx="301" cy="10" rx="22" ry="5" fill="var(--encre)" opacity="0.26" filter="url(#aq-bord-3)" />
+            {/* La casse : les cassetins où dorment les caractères. */}
+            <rect x="-8" y="76" width="232" height="46" rx="4" fill="var(--color-domain-histoire)" opacity="0.16" filter="url(#aq-bord-1)" />
+            {Array.from({ length: 7 }, (_, i) => (
+              <path key={i} d={`M${-8 + i * 33},76 L${-8 + i * 33},122`} stroke="var(--violet-profond)" strokeWidth="1.6" opacity="0.22" />
+            ))}
+            <path d="M-8,99 L224,99" stroke="var(--violet-profond)" strokeWidth="1.6" opacity="0.22" />
+          </g>
+          <Colline
+            d={`M-10,${H} L-10,120 C90,114 180,126 260,120 C320,116 350,122 ${L + 10},118 L${L + 10},${H} Z`}
+            couleur="var(--violet)"
+            opacite={0.14}
+            seed={3}
+          />
+        </>
+      )
+
     /* La forêt du corbeau : des troncs vus d'en bas, et du feuillage. */
     case 'flatterie':
       return (

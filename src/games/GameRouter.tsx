@@ -10,6 +10,7 @@ import { PonctuationGame } from './PonctuationGame/PonctuationGame'
 import { VersGame } from './VersGame/VersGame'
 import { TelegrammeGame } from './TelegrammeGame/TelegrammeGame'
 import { FlatterieGame } from './FlatterieGame/FlatterieGame'
+import { ARebourseGame } from './ARebourseGame/ARebourseGame'
 
 interface GameRouterProps {
   selected: SelectedGame
@@ -18,6 +19,8 @@ interface GameRouterProps {
 
 export function GameRouter({ selected, onComplete }: GameRouterProps) {
   switch (selected.gameType) {
+    case 'arebours':
+      return <ARebourseGame content={selected.content} onComplete={onComplete} />
     case 'flatterie':
       return <FlatterieGame content={selected.content} onComplete={onComplete} />
     case 'telegramme':

@@ -4,6 +4,7 @@ import type {
   VersContent,
   TelegrammeContent,
   FlatterieContent,
+  ARebourseContent,
   FilDesJoursContent,
   CapSurContent,
   QcmContent,
@@ -31,7 +32,7 @@ export interface GradeLevel {
 
 export type Difficulty = 1 | 2 | 3
 
-export type GameTypeId = 'qcm' | 'timeline' | 'capsur' | 'riviere' | 'fildesjours' | 'chaine' | 'ponctuation' | 'vers' | 'telegramme' | 'flatterie'
+export type GameTypeId = 'qcm' | 'timeline' | 'capsur' | 'riviere' | 'fildesjours' | 'chaine' | 'ponctuation' | 'vers' | 'telegramme' | 'flatterie' | 'arebours'
 
 export interface NotionGames {
   qcm?: QcmContent
@@ -40,6 +41,7 @@ export interface NotionGames {
   vers?: VersContent
   telegramme?: TelegrammeContent
   flatterie?: FlatterieContent
+  arebours?: ARebourseContent
   timeline?: TimelineContent
   capsur?: CapSurContent
   riviere?: RiviereContent

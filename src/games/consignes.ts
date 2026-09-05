@@ -25,6 +25,8 @@ export const FICTIONS: Record<GameTypeId, string> = {
   qcm: 'Une question, trois pistes. Une seule tient debout.',
   chaine: 'Chaque phrase te rapporte le double — ou te ruine. Tu peux partir quand tu veux.',
   ponctuation: 'Les mêmes mots, deux sens opposés. Ce que tu poses entre eux décide lequel.',
+  arebours:
+    'Tout se monte à l’envers sur le composteur, et le client ne demande jamais dans le sens où tu récites.',
   flatterie:
     'Il y a un fromage à cinq mètres de haut, dans un bec fermé. Tu n’as que des mots.',
   telegramme:
