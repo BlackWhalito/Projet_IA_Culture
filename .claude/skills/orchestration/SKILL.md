@@ -50,6 +50,28 @@ Un agent démarre **à froid** : il ne sait rien du projet, de la conversation, 
 6. **Ce qu'il ne doit surtout pas toucher.** Décisif quand plusieurs travaux avancent en parallèle.
 7. **Le format du rapport attendu** — sinon tu reçois une dissertation au lieu d'une liste de faits.
 
+## Un rapport long arrive tronqué
+
+**Constaté le 5 septembre 2026, et ça a coûté deux allers-retours.** Le
+`game-designer` avait rendu six fiches détaillées ; la session principale n'a
+reçu que **la fin du rapport** — les dernières sections — et tout le corps a
+disparu sans le moindre avertissement. Il a fallu relancer l'agent deux fois,
+en lui demandant son propre rapport par moitiés.
+
+Le piège est vicieux parce que le rapport tronqué **a l'air complet** : il se
+termine proprement, sur une section cohérente. Rien ne signale la coupe.
+
+**Le contournement, à appliquer dès que le rendu attendu dépasse une page :**
+demande à l'agent d'**écrire son livrable dans un fichier** et de ne rendre
+qu'une synthèse courte avec le chemin. Il faut alors lui donner l'outil `Write`
+et lui dire **exactement où écrire** et ce qu'il ne doit jamais toucher — sinon
+un agent de conception se met à modifier `src/`. C'est ce que fait le brief du
+`game-designer` : il écrit dans `docs/jeux/`, et son rapport tient en trente
+lignes.
+
+Deuxième garde, gratuite : quand un rapport te paraît commencer au milieu d'une
+phrase ou d'une section, **ne fais pas comme si**. Redemande-le.
+
 ## Ne jamais croire un agent sur parole
 
 Un agent qui écrit « tout passe » a pu se tromper, ou tester autre chose que ce que tu crois. **Rejoue les vérifications toi-même** : `npm run build`, `npm run lint`, `npm run test`, et le parcours dans le navigateur.
